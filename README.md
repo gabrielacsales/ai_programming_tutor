@@ -1,5 +1,5 @@
 
-# LLM Scaffold Tutor (Anti-Overreliance Demo) — v3 (test-based gating)
+# AI Programming Tutor for Coding Challenges (Anti-Overreliance)
 
 Protótipo de **engenharia** que desencoraja superdependência em LLMs por meio de:
 - **Scaffolding** (hints graduais) e **tutoria socrática**;
