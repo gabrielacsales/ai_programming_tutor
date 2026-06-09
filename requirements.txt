@@ -1,0 +1,5 @@
+
+streamlit>=1.36
+pyyaml>=6.0.1
+pydantic>=2.8.2
+openai>=1.40.0
