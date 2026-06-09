@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IA Tutor — Anti-Overreliance (Refatorado)</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['var(--font-sans)', 'sans-serif'],
+            mono: ['var(--font-mono)', 'monospace'],
+            heading: ['var(--font-heading)', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Iconify Icon CDN -->
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+
+  <style>
+    /* =========================================
+       1. TOKENS & VARIABLES (design_system5.html)
+       ========================================= */
+    :root {
+      /* Colors - White Aesthetic */
+      --bg-body: #ffffff;
+      --bg-surface: #fafafa;
+      --bg-surface-2: #f4f4f5;
+
+      --text-primary: #09090b;
+      --text-secondary: #71717a;
+      --text-tertiary: #a1a1aa;
+
+      --border-light: #e4e4e7;
+      --border-hover: #d4d4d8;
+
+      --brand-primary: #000000;
+      --brand-inverse: #ffffff;
+
+      --status-success: #10b981;
+      --status-warning: #f59e0b;
+      --status-error: #ef4444;
+
+      /* Original Blue Accent (Reaproveitado) */
+      --color-primary: #1CB0F6;
+      --color-primary-hover: #169ad6;
+
+      /* Typography */
+      --font-sans: 'Inter', sans-serif;
+      --font-heading: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      /* Motion */
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+      --radius-md: 12px;
+      --radius-lg: 16px;
+
+      --shadow-soft: 0 4px 6px -1px rgba(0,0,0,0.03), 0 2px 4px -2px rgba(0,0,0,0.03);
+      --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.04), 0 4px 6px -4px rgba(0,0,0,0.04);
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-body);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+    }
+
+    .font-heading {
+      font-family: var(--font-heading);
+    }
+
+    .font-mono {
+      font-family: var(--font-mono);
+    }
+
+    /* Roteamento e Telas */
+    .screen {
+      display: none;
+    }
+    .screen.active {
+      display: block;
+    }
+
+    /* =========================================
+       2. ANIMATIONS & KEYFRAMES
+       ========================================= */
+    @keyframes fadeUp {
+      0% {
+        opacity: 0;
+        transform: translateY(24px) scale(0.99);
+        filter: blur(4px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+      }
+    }
+
+    .animate-in {
+      opacity: 0;
+    }
+
+    .animate-in.active {
+      animation: fadeUp 0.8s var(--ease-out-expo) forwards;
+    }
+
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-300 { animation-delay: 0.3s; }
+    .delay-400 { animation-delay: 0.4s; }
+    .delay-500 { animation-delay: 0.5s; }
+
+    @keyframes beam-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0); }
+      33% { transform: translate(24px, -30px); }
+      66% { transform: translate(-16px, 16px); }
+    }
+
+    /* Glass Effect */
+    .glass {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    /* Grid Guide Background */
+    .grid-guide {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.15;
+      display: flex;
+      justify-content: space-between;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .grid-line {
+      width: 1px;
+      height: 100%;
+      background: var(--border-light);
+    }
+
+    /* Text stylings */
+    .text-gradient {
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      background-image: linear-gradient(to right, #000000, #52525b);
+    }
+
+    .text-stroke-transparent {
+      color: transparent;
+      -webkit-text-stroke: 1.5px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+    }
+
+    /* =========================================
+       3. COMPONENT CLASSES
+       ========================================= */
+
+    /* Conic Gradient Beam Button (Azul anterior no gradiente) */
+    .btn-beam-wrapper {
+      position: relative;
+      display: inline-flex;
+      padding: 2px;
+      border-radius: 9999px;
+      overflow: hidden;
+      cursor: pointer;
+      transform: translateZ(0);
+      transition: transform 0.2s;
+    }
+
+    .btn-beam-wrapper:hover {
+      transform: scale(1.02);
+    }
+
+    .btn-beam-border {
+      position: absolute;
+      inset: -200%;
+      background: conic-gradient(from 0deg, transparent 0 300deg, var(--color-primary) 360deg);
+      animation: beam-spin 2.5s linear infinite;
+    }
+
+    .btn-beam-inner {
+      position: relative;
+      background: var(--bg-body);
+      color: var(--text-primary);
+      border-radius: 9999px;
+      padding: 0.75rem 2rem;
+      font-size: 0.875rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Flashlight Card */
+    .flashlight-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .flashlight-card::before {
+      content: "";
+      position: absolute;
+      inset: 0px;
+      background: radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(28, 176, 246, 0.05), transparent 45%);
+      opacity: 0;
+      transition: opacity 0.4s;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .flashlight-card:hover::before {
+      opacity: 1;
+    }
+
+    .flashlight-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Form Elements overrides */
+    select, input[type="text"], input[type="password"], textarea {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      transition: all 0.2s ease;
+      color: var(--text-primary);
+    }
+
+    select:focus, input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
+      border-color: var(--color-primary);
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(28, 176, 246, 0.15);
+    }
+
+    /* Logo - Mantido Idêntico */
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background-color: var(--color-primary);
+      box-shadow: 0 0 10px rgba(28, 176, 246, 0.4);
+    }
+
+    .logo-text {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
+
+    /* Accordions open state */
+    .accordion-item.open .accordion-content {
+      display: block;
+    }
+    .accordion-item.open .accordion-icon {
+      transform: rotate(180deg);
+    }
+    .accordion-icon {
+      transition: transform 0.2s ease;
+    }
+
+    /* Active Tab */
+    .mode-tab.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(0,0,0,0.1);
+      border-radius: 50%;
+      border-top-color: var(--text-primary);
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Dark Code block override */
+    .code-editor-wrapper {
+      background-color: #09090b;
+      border: 1px solid #27272a;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    textarea.code-textarea {
+      background-color: #09090b;
+      color: #f4f4f5;
+      font-family: var(--font-mono);
+      line-height: 1.6;
+      resize: vertical;
+      caret-color: #38bdf8;
+    }
+
+    /* Console style */
+    .console-output {
+      background-color: #09090b;
+      color: #fafafa;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      border: 1px solid #27272a;
+    }
+
+    /* Tab routing display toggler */
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: flex;
+    }
+
+    /* Status Banner styling */
+    .status-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      border-radius: var(--radius-md);
+      background-color: var(--bg-surface-2);
+      border: 1px solid var(--border-light);
+      font-weight: 800;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+    .status-banner.completed {
+      background-color: #f0fdf4;
+      border-color: #bbf7d0;
+      color: #166534;
+    }
+
+    /* Dynamic test items styles */
+    .test-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+      font-size: 14px;
+      background-color: #ffffff;
+    }
+    .test-item.passed {
+      border-color: #bbf7d0;
+      background-color: #f0fdf4;
+      color: #166534;
+    }
+    .test-item.failed {
+      border-color: #fca5a5;
+      background-color: #fef2f2;
+      color: #991b1b;
+    }
+
+    /* Accordions & expanders */
+    .constraints-expander.open .expander-content {
+      display: block;
+    }
+    
+    /* General action buttons styling to match design system guidelines */
+    .btn-outline {
+      border: 1px solid var(--border-light);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text-primary);
+      transition: all 0.2s var(--ease-out-expo);
+      cursor: pointer;
+    }
+    .btn-outline:hover {
+      border-color: var(--text-primary);
+      background: var(--bg-surface);
+    }
+  </style>
+</head>
+<body class="relative min-h-screen">
+
+  <!-- Grid Guide Background -->
+  <div class="grid-guide">
+    <div class="grid-line"></div>
+    <div class="grid-line"></div>
+    <div class="grid-line"></div>
+    <div class="grid-line"></div>
+    <div class="grid-line"></div>
+  </div>
+
+  <!-- ==================== 1. LANDING PAGE SCREEN ==================== -->
+  <div id="screen-landing" class="screen active relative z-10 w-full">
+    <!-- Abstract Background Decorations -->
+    <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-50 rounded-full blur-[120px] opacity-60 animate-[float_10s_infinite_ease-in-out]"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-50 rounded-full blur-[120px] opacity-60 animate-[float_12s_infinite_ease-in-out_reverse]"></div>
+
+    <div class="landing-container max-w-7xl mx-auto px-6">
+      
+      <!-- Top navbar -->
+      <header class="h-20 flex items-center justify-between border-b border-neutral-100 animate-in active delay-100">
+        <div class="logo-container">
+          <div class="logo-dot"></div>
+          <div class="logo-text">IA Tutor</div>
+        </div>
+      </header>
+
+      <!-- Hero Section -->
+      <main class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center py-20 md:py-32">
+        <div class="space-y-8">
+          <div class="flex items-center gap-4 animate-in active delay-100">
+            <span class="h-px w-12 bg-black"></span>
+            <span class="font-mono text-xs uppercase tracking-[0.2em] text-neutral-500">TCC Protótipo</span>
+          </div>
+
+          <h1 class="text-5xl md:text-7xl font-bold tracking-tighter leading-[0.95] text-black font-heading animate-in active delay-200">
+            Aprenda lógica <br>
+            <span class="text-stroke-transparent">sem atalhos.</span>
+          </h1>
+
+          <p class="text-lg text-neutral-500 font-light max-w-md animate-in active delay-300">
+            Um tutor socrático inteligente baseado em IA que ajuda você a resolver desafios de programação em Python guiando seu raciocínio, sem dar respostas prontas.
+          </p>
+
+          <div class="flex flex-wrap gap-4 pt-2 animate-in active delay-400">
+            <button class="btn-beam-wrapper" id="btn-start-now">
+              <span class="btn-beam-border"></span>
+              <span class="btn-beam-inner">
+                Começar agora
+                <iconify-icon icon="solar:arrow-right-linear" class="text-lg"></iconify-icon>
+              </span>
+            </button>
+            <button class="btn-outline px-8 py-3 text-sm font-semibold transition-all duration-200" id="btn-show-features">
+              Ver como funciona
+            </button>
+          </div>
+          <p class="text-xs text-neutral-400">⚠️ Protótipo de Trabalho de Conclusão de Curso (TCC).</p>
+        </div>
+
+        <!-- Right Side: Benefit Cards -->
+        <div class="flashlight-card p-8 shadow-xl border border-neutral-200/60 animate-in active delay-500">
+          <h3 class="font-heading text-xl font-bold mb-6">Benefícios do Scaffolding</h3>
+          <div class="space-y-6">
+            <div class="flex gap-4 items-start">
+              <div class="w-8 h-8 rounded-full bg-neutral-900 text-white flex items-center justify-center font-mono text-sm font-bold flex-shrink-0">1</div>
+              <div>
+                <h4 class="font-bold text-sm">Dicas Graduais</h4>
+                <p class="text-xs text-neutral-500 mt-1">Obtenha pequenas pistas passo a passo para destravar o raciocínio matemático e lógico.</p>
+              </div>
+            </div>
+            <div class="flex gap-4 items-start">
+              <div class="w-8 h-8 rounded-full bg-neutral-900 text-white flex items-center justify-center font-mono text-sm font-bold flex-shrink-0">2</div>
+              <div>
+                <h4 class="font-bold text-sm">Feedback Socrático</h4>
+                <p class="text-xs text-neutral-500 mt-1">O tutor analisa suas ideias e responde com questionamentos que fazem você encontrar a solução.</p>
+              </div>
+            </div>
+            <div class="flex gap-4 items-start">
+              <div class="w-8 h-8 rounded-full bg-neutral-900 text-white flex items-center justify-center font-mono text-sm font-bold flex-shrink-0">3</div>
+              <div>
+                <h4 class="font-bold text-sm">Validação em WebAssembly</h4>
+                <p class="text-xs text-neutral-500 mt-1">Seu código roda localmente direto no navegador e a conclusão só é permitida se passar em todos os testes.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Features grid Section -->
+      <section class="border-t border-neutral-100 py-16 animate-in active delay-500" id="features-anch">
+        <h2 class="text-3xl font-bold font-heading mb-10 tracking-tight">O Fluxo de Aprendizado</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="flashlight-card p-6">
+            <span class="text-xs font-mono text-neutral-400 block mb-2">ETAPA 01</span>
+            <h3 class="font-bold text-base">Selecione o desafio</h3>
+            <p class="text-xs text-neutral-500 mt-2">Escolha na lista um dos exercícios com restrições e exemplos fornecidos pelo professor.</p>
+          </div>
+          <div class="flashlight-card p-6">
+            <span class="text-xs font-mono text-neutral-400 block mb-2">ETAPA 02</span>
+            <h3 class="font-bold text-base">Construa o raciocínio</h3>
+            <p class="text-xs text-neutral-500 mt-2">Explique o algoritmo ou escreva o código Python. Receba orientações do professor sem gabarito.</p>
+          </div>
+          <div class="flashlight-card p-6">
+            <span class="text-xs font-mono text-neutral-400 block mb-2">ETAPA 03</span>
+            <h3 class="font-bold text-base">Teste e Finalize</h3>
+            <p class="text-xs text-neutral-500 mt-2">O interpretador roda os testes ocultos e conclui o desafio assim que o algoritmo estiver correto.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ==================== 2. WORKSPACE SCREEN ==================== -->
+  <div id="screen-app" class="screen relative z-10 w-full">
+    <div class="app-layout flex flex-col lg:flex-row min-h-screen">
+      
+      <!-- Sidebar -->
+      <aside class="sidebar w-full lg:w-[320px] bg-neutral-50 border-b lg:border-b-0 lg:border-r border-neutral-200 flex flex-col h-auto lg:h-screen lg:sticky lg:top-0">
+        <div class="p-6 border-b border-neutral-200">
+          <div class="logo-container style-scope" style="margin-bottom: 16px;">
+            <div class="logo-dot"></div>
+            <div class="logo-text">IA Tutor</div>
+          </div>
+          <button class="w-full text-xs font-semibold py-2 px-4 border border-neutral-200 hover:border-black bg-white hover:bg-neutral-50 rounded-full transition-all duration-200" id="btn-back-landing">
+            ⬅ Voltar à Página Inicial
+          </button>
+        </div>
+
+        <div class="p-6 overflow-y-auto flex-grow flex flex-col gap-6">
+          <!-- API Key Form -->
+          <div class="flex flex-col gap-2">
+            <label class="text-[11px] font-bold text-neutral-400 uppercase tracking-wider font-mono">🔑 OpenAI API Key (Opcional)</label>
+            <input type="password" id="input-api-key" placeholder="sk-proj-..." class="w-full px-4 py-2 text-xs font-mono rounded-md border border-neutral-200">
+            <button class="w-full text-xs font-semibold py-2 px-4 bg-black text-white rounded-md hover:bg-neutral-800 transition-colors mt-1" id="btn-save-key">Salvar Chave</button>
+          </div>
+
+          <!-- Dropdown Exercise -->
+          <div class="flex flex-col gap-2">
+            <label class="text-[11px] font-bold text-neutral-400 uppercase tracking-wider font-mono">🧩 Selecione o Exercício</label>
+            <select id="select-exercise" class="w-full px-4 py-2 text-sm font-semibold rounded-md border border-neutral-200 bg-white">
+              <!-- JS -->
+            </select>
+          </div>
+
+          <!-- Documentation sidebar elements -->
+          <div class="flex flex-col gap-3 mt-4">
+            <div class="accordion-item border border-neutral-200 rounded-lg overflow-hidden bg-white" id="accordion-summary">
+              <div class="accordion-header bg-neutral-100/50 hover:bg-neutral-100 px-4 py-2.5 text-xs font-bold font-mono uppercase tracking-wider flex justify-between items-center cursor-pointer">
+                <span>📄 Resumo do tema</span>
+                <span class="accordion-icon text-sm">▼</span>
+              </div>
+              <div class="accordion-content hidden p-4 text-xs text-neutral-500 leading-relaxed border-t border-neutral-200" id="accordion-summary-content"></div>
+            </div>
+
+            <div class="accordion-item border border-neutral-200 rounded-lg overflow-hidden bg-white" id="accordion-examples">
+              <div class="accordion-header bg-neutral-100/50 hover:bg-neutral-100 px-4 py-2.5 text-xs font-bold font-mono uppercase tracking-wider flex justify-between items-center cursor-pointer">
+                <span>🧩 Exemplos do professor</span>
+                <span class="accordion-icon text-sm">▼</span>
+              </div>
+              <div class="accordion-content hidden p-4 text-xs text-neutral-500 leading-relaxed border-t border-neutral-200" id="accordion-examples-content"></div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Workspace -->
+      <main class="flex-grow max-w-5xl mx-auto px-6 py-12 flex flex-col gap-8 w-full">
+        
+        <div class="flex justify-between items-center pb-4 border-b border-neutral-100">
+          <div class="logo-container">
+            <div class="logo-dot"></div>
+            <div class="logo-text" style="font-size: 18px;">Área do Estudante</div>
+          </div>
+          <div class="flex gap-2">
+            <span class="px-2 py-0.5 rounded border border-neutral-200 bg-neutral-50 text-[10px] uppercase font-mono tracking-wider">Socrático</span>
+            <span class="px-2 py-0.5 rounded border border-black bg-black text-white text-[10px] uppercase font-mono tracking-wider">Anti-Overreliance</span>
+          </div>
+        </div>
+
+        <!-- Problem Card (Flashlight styled) -->
+        <div class="flashlight-card p-8 border border-neutral-200/80 shadow-md">
+          <h2 class="font-heading text-2xl font-bold mb-4 tracking-tight" id="problem-title">Challenge Title</h2>
+          <p class="text-sm text-neutral-600 leading-relaxed whitespace-pre-wrap" id="problem-statement">
+            Carregando enunciado...
+          </p>
+
+          <!-- Constraints expander inside problem card -->
+          <div class="constraints-expander border border-neutral-200 rounded-lg overflow-hidden mt-6 bg-neutral-50" id="constraints-expander">
+            <div class="expander-trigger px-4 py-2 text-xs font-bold font-mono uppercase text-neutral-500 flex justify-between items-center cursor-pointer hover:bg-neutral-100">
+              <span>Restrições e Diretrizes</span>
+              <span>▼</span>
+            </div>
+            <div class="expander-content hidden p-4 bg-white border-t border-neutral-200 text-xs">
+              <ul class="list-disc pl-4 space-y-2 text-neutral-500" id="constraints-list"></ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode selector tabs -->
+        <div class="flex gap-8 border-b border-neutral-200/80">
+          <div class="text-sm font-bold uppercase tracking-wider pb-3 cursor-pointer text-neutral-400 border-b-4 border-transparent active mode-tab" id="tab-desc" data-mode="desc">Descrever ideia</div>
+          <div class="text-sm font-bold uppercase tracking-wider pb-3 cursor-pointer text-neutral-400 border-b-4 border-transparent mode-tab" id="tab-code" data-mode="code">Escrever código (Python)</div>
+        </div>
+
+        <!-- TAB 1: Descrever Ideia -->
+        <div class="tab-content active flex-col gap-6" id="panel-desc">
+          <div class="flex flex-col gap-2">
+            <label class="text-[11px] font-bold text-neutral-400 uppercase tracking-wider font-mono">Etapas do algoritmo</label>
+            <textarea id="textarea-desc" rows="6" class="w-full p-4 text-sm rounded-lg border border-neutral-200" placeholder="Descreva passo a passo em português a lógica de como planeja resolver o exercício... (mín. 10 caracteres)"></textarea>
+          </div>
+          
+          <div class="flex flex-wrap gap-4 items-center">
+            <button class="text-xs font-semibold py-3 px-6 bg-black text-white hover:bg-neutral-800 rounded-full transition-colors" id="btn-submit-desc">Registrar tentativa</button>
+            <button class="btn-outline text-xs font-semibold py-3 px-6 rounded-full transition-all" id="btn-hint-desc">💡 Hint</button>
+            <button class="btn-outline text-xs font-semibold py-3 px-6 rounded-full transition-all" id="btn-ask-tutor-desc">👨‍🏫 Pergunte ao professor</button>
+          </div>
+
+          <!-- Tutor feedback cards -->
+          <div class="feedback-box border-l-4 border-neutral-900 bg-neutral-50 p-6 rounded-r-lg text-sm text-neutral-800 leading-relaxed shadow-sm" id="feedback-desc" style="display: none;"></div>
+
+          <!-- Interactive Ask Tutor -->
+          <div class="accordion-item border border-neutral-200 rounded-lg overflow-hidden bg-white shadow-sm" id="accordion-socratic-desc" style="display: none;">
+            <div class="bg-neutral-50 px-6 py-3 border-b border-neutral-200">
+              <span class="text-xs font-bold font-heading text-black uppercase tracking-wider">👨‍🏫 Conversar com o Professor Socrático</span>
+            </div>
+            <div class="p-6 flex flex-col gap-4">
+              <div class="flex flex-col gap-2">
+                <input type="text" id="input-socratic-desc" class="w-full px-4 py-3 text-sm rounded-md border border-neutral-200" placeholder="Digite sua dúvida aqui...">
+              </div>
+              <div>
+                <button class="text-xs font-semibold py-2 px-6 bg-black text-white rounded-md hover:bg-neutral-800 transition-colors" id="btn-send-socratic-desc">Enviar Pergunta</button>
+              </div>
+              <div class="text-sm text-neutral-600 leading-relaxed pt-2 border-t border-neutral-100" id="reply-socratic-desc"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: Escrever Código -->
+        <div class="tab-content flex-col gap-6" id="panel-code">
+          <div class="flex flex-col gap-2">
+            <label class="text-[11px] font-bold text-neutral-400 uppercase tracking-wider font-mono">Editor de Código Python</label>
+            <div class="code-editor-wrapper">
+              <textarea id="textarea-code" class="code-textarea w-full p-6 text-sm rounded-lg" rows="10" placeholder="def minha_funcao(n):&#10;    # Digite seu código Python aqui..."></textarea>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-4 items-center">
+            <button class="btn-beam-wrapper" id="btn-submit-code">
+              <span class="btn-beam-border"></span>
+              <span class="btn-beam-inner" style="padding: 0.6rem 2rem;">
+                <span class="spinner" id="pyodide-spinner" style="display: none;"></span>
+                Registrar código
+              </span>
+            </button>
+            <button class="btn-outline text-xs font-semibold py-3 px-6 rounded-full transition-all" id="btn-hint-code">💡 Hint</button>
+            <button class="btn-outline text-xs font-semibold py-3 px-6 rounded-full transition-all" id="btn-ask-tutor-code">👨‍🏫 Pergunte ao professor</button>
+            <span class="text-xs text-neutral-400">Dica: use <code>print()</code> para ver saídas no console.</span>
+          </div>
+
+          <!-- Feedback / Compile error -->
+          <div class="feedback-box border-l-4 border-red-500 bg-red-50/50 p-6 rounded-r-lg text-sm text-red-900 leading-relaxed" id="feedback-code" style="display: none;"></div>
+
+          <!-- Ask box for code -->
+          <div class="accordion-item border border-neutral-200 rounded-lg overflow-hidden bg-white shadow-sm" id="accordion-socratic-code" style="display: none;">
+            <div class="bg-neutral-50 px-6 py-3 border-b border-neutral-200">
+              <span class="text-xs font-bold font-heading text-black uppercase tracking-wider">👨‍🏫 Conversar com o Professor Socrático</span>
+            </div>
+            <div class="p-6 flex flex-col gap-4">
+              <div class="flex flex-col gap-2">
+                <input type="text" id="input-socratic-code" class="w-full px-4 py-3 text-sm rounded-md border border-neutral-200" placeholder="Digite sua dúvida sobre o código...">
+              </div>
+              <div>
+                <button class="text-xs font-semibold py-2 px-6 bg-black text-white rounded-md hover:bg-neutral-800 transition-colors" id="btn-send-socratic-code">Enviar Pergunta</button>
+              </div>
+              <div class="text-sm text-neutral-600 leading-relaxed pt-2 border-t border-neutral-100" id="reply-socratic-code"></div>
+            </div>
+          </div>
+
+          <!-- Execution results -->
+          <div class="result-container" id="execution-results" style="display: none;">
+            <h3 class="font-heading text-lg font-bold">Resultado do código</h3>
+            
+            <div class="flex flex-col gap-2" id="console-wrapper">
+              <span class="text-xs font-bold text-neutral-400 uppercase tracking-wider font-mono">Saída (stdout)</span>
+              <pre class="console-output p-4 rounded-lg text-xs" id="stdout-output"></pre>
+            </div>
+
+            <div class="flex flex-col gap-2" id="error-wrapper" style="display: none;">
+              <span class="text-xs font-bold text-red-500 uppercase tracking-wider font-mono">Erro de compilação / execução</span>
+              <pre class="console-output p-4 rounded-lg text-xs border border-red-900/40 text-red-400" id="error-output"></pre>
+              <div class="feedback-box border-l-4 border-red-500 bg-red-50/50 p-6 rounded-r-lg text-sm text-red-900 mt-2" id="error-ai-help"></div>
+            </div>
+
+            <div class="flex flex-col gap-2" id="tests-wrapper">
+              <span class="text-xs font-bold text-neutral-400 uppercase tracking-wider font-mono">Status dos Casos de Teste</span>
+              <div class="test-list flex flex-col gap-2" id="test-list-container"></div>
+              <div class="feedback-box border-l-4 border-amber-500 bg-amber-50/50 p-6 rounded-r-lg text-sm text-amber-900 mt-4" id="test-ai-help" style="display: none;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status banner -->
+        <div class="status-banner border border-neutral-200 bg-neutral-50 px-6 py-4 rounded-lg text-sm font-bold flex items-center gap-3" id="status-banner">
+          <span>Status do exercício: Em andamento</span>
+        </div>
+
+        <!-- Metrics Dashboard -->
+        <h3 class="font-heading text-lg font-bold border-t border-neutral-100 pt-8 mt-6">📊 Painel de Métricas Behaviorais</h3>
+        <div class="metrics-grid grid grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <div class="flashlight-card p-6">
+            <div class="flex justify-between mb-4">
+              <iconify-icon icon="solar:lightbulb-bolt-bold-duotone" class="text-2xl text-amber-500"></iconify-icon>
+              <span class="text-xs font-mono text-neutral-400">IPT</span>
+            </div>
+            <h3 class="text-3xl font-bold tracking-tight" id="metric-ipt">0</h3>
+            <p class="text-xs text-neutral-400 mt-1">Dicas Solicitadas</p>
+          </div>
+
+          <div class="flashlight-card p-6">
+            <div class="flex justify-between mb-4">
+              <iconify-icon icon="solar:shield-up-bold-duotone" class="text-2xl text-emerald-500"></iconify-icon>
+              <span class="text-xs font-mono text-neutral-400">TRIB</span>
+            </div>
+            <h3 class="text-3xl font-bold tracking-tight" id="metric-trib">0.00</h3>
+            <p class="text-xs text-neutral-400 mt-1">Resiliência à Resposta</p>
+          </div>
+
+          <div class="flashlight-card p-6">
+            <div class="flex justify-between mb-4">
+              <iconify-icon icon="solar:loop-bold-duotone" class="text-2xl text-indigo-500"></iconify-icon>
+              <span class="text-xs font-mono text-neutral-400">RER</span>
+            </div>
+            <h3 class="text-3xl font-bold tracking-tight" id="metric-rer">0.00</h3>
+            <p class="text-xs text-neutral-400 mt-1">Reengajamento</p>
+          </div>
+
+          <div class="flashlight-card p-6">
+            <div class="flex justify-between mb-4">
+              <iconify-icon icon="solar:stopwatch-bold-duotone" class="text-2xl text-rose-500"></iconify-icon>
+              <span class="text-xs font-mono text-neutral-400">IT</span>
+            </div>
+            <h3 class="text-3xl font-bold tracking-tight" id="metric-it">0s</h3>
+            <p class="text-xs text-neutral-400 mt-1">Inatividade Total</p>
+          </div>
+
+        </div>
+
+      </main>
+
+    </div>
+  </div>
+
+  <!-- Toast de alertas -->
+  <div class="alert-toast" id="alert-toast">Alerta!</div>
+
+  <!-- SCRIPT DE INTERAÇÕES VISUAIS -->
+  <script>
+    // 1. Efeito de Seguir com Mouse (Flashlight)
+    function initFlashlightEffect() {
+      const cards = document.querySelectorAll('.flashlight-card');
+      cards.forEach(card => {
+        if (card.dataset.flashlightBound) return;
+        card.dataset.flashlightBound = "true";
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          card.style.setProperty('--mouse-x', `${x}px`);
+          card.style.setProperty('--mouse-y', `${y}px`);
+        });
+      });
+    }
+
+    // 2. Observer de entrada (fade-in)
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+        }
+      });
+    }, { threshold: 0.05 });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initFlashlightEffect();
+      document.querySelectorAll('.animate-in').forEach(el => observer.observe(el));
+    });
+
+    // Roda novamente ao mudar de abas ou exercícios
+    document.addEventListener('click', () => {
+      setTimeout(initFlashlightEffect, 200);
+    });
+  </script>
+
+  <!-- Lógica Javascript integrada -->
+  <script src="problems.js"></script>
+  <script src="runner.js"></script>
+  <script src="tutor.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
