@@ -1,29 +1,32 @@
-
 # AI Programming Tutor for Coding Challenges (Anti-Overreliance)
 
 Protótipo de **engenharia** que desencoraja superdependência em LLMs por meio de:
 - **Scaffolding** (hints graduais) e **tutoria socrática**;
-- **GATING POR TESTES**: a conclusão do exercício é automática e **só ocorre se seu código passar em todos os testes** (públicos e ocultos).
+- **GATING POR TESTES**: a conclusão do exercício é automática e **só ocorre se seu código passar em todos os testes** (públicos e ocultos) rodados em WebAssembly (Pyodide).
 
 Métricas instrumentadas: **IPT, TRIB, RER, IT**.
 
-## Rodar
-```bash
-pip install -r requirements.txt
-streamlit run app.py
-```
+## Rodar Localmente
 
-Opcional (LLM real): `OPENAI_API_KEY`.
+Como a aplicação roda inteiramente no lado do cliente (navegador), você pode executá-la:
 
-## Estrutura
+1. Iniciando um servidor local de desenvolvimento (recomendado para evitar problemas de CORS no carregamento de assets):
+   ```bash
+   python -m http.server 8000
+   ```
+   E acesse `http://localhost:8000`.
+
+2. Ou abrindo diretamente o arquivo `index.html` no navegador.
+
+## Estrutura do Projeto
 ```
-llm_scaffold_tutor/
-├─ app.py
-├─ core.py
-├─ landing_page.py
-├─ problems/logic_basics.yaml
-├─ requirements.txt
-└─ logs/
+ai_programming_tutor/
+├─ index.html       # Estrutura geral da SPA (Landing Page e Workspace)
+├─ index.css        # Design System (Estilos, cores, layouts e botões 3D)
+├─ app.js           # Orquestração do app, abas de modo e rastreio de métricas
+├─ problems.js      # Banco de dados de desafios de lógica em Python
+├─ runner.js        # Executador e validador de Python usando Pyodide (Wasm)
+└─ tutor.js         # Integração socrática com a API da OpenAI com guardrails
 ```
 
 ## Referência teórica
