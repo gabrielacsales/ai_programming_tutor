@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IA Tutor — Módulos de Aprendizado</title>
+
+  <!-- Tailwind CSS Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Iconify Icon CDN -->
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+
+  <!-- Google Fonts: Inter, Outfit, JetBrains Mono -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              DEFAULT: '#1CB0F6',
+              hover: '#169ad6',
+              light: 'rgba(28, 176, 246, 0.1)',
+              border: 'rgba(28, 176, 246, 0.2)'
+            },
+            neutral: {
+              body: '#FFFFFF',
+              surface: '#F9FAFB',
+              surface2: '#F3F4F6'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            heading: ['Outfit', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --primary-accent: #1CB0F6;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #FFFFFF;
+      color: #0A0A0A;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Fixed Background Grid */
+    .bg-grid {
+      background-size: 40px 40px;
+      background-image: linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+    }
+
+    /* Floating Aurora Orbs */
+    .aurora {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.45;
+    }
+
+    .aurora-1 {
+      background: radial-gradient(circle, rgba(28, 176, 246, 0.15) 0%, transparent 70%);
+    }
+
+    .aurora-2 {
+      background: radial-gradient(circle, rgba(28, 176, 246, 0.1) 0%, transparent 70%);
+    }
+
+    /* Flashlight Card Glow */
+    .flashlight-card {
+      background: rgba(255, 255, 255, 0.75);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #E5E5E5;
+      transition: border-color 0.3s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .flashlight-card:hover {
+      border-color: #A3A3A3;
+      transform: translateY(-2px);
+    }
+
+    .flashlight-card::before {
+      content: "";
+      position: absolute;
+      inset: 0px;
+      background: radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+          rgba(28, 176, 246, 0.08),
+          transparent 45%);
+      opacity: 0;
+      transition: opacity 0.4s;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .flashlight-card:hover::before {
+      opacity: 1;
+    }
+
+    @keyframes animationIn {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+        filter: blur(8px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0px);
+      }
+    }
+
+    .animate-on-scroll {
+      opacity: 0;
+      animation-fill-mode: forwards;
+    }
+
+    .animate-on-scroll.active {
+      animation: animationIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      /* IE and Edge */
+      scrollbar-width: none;
+      /* Firefox */
+    }
+  </style>
+</head>
+
+<body class="selection:bg-black selection:text-white relative min-h-screen">
+
+  <!-- ==================== BACKGROUND GRID & BLURS ==================== -->
+  <div class="fixed inset-0 pointer-events-none z-0 bg-grid opacity-[0.35]" style="mask-image: radial-gradient(circle at center, black, transparent 80%); -webkit-mask-image: radial-gradient(circle at center, black, transparent 80%);"></div>
+  <div class="fixed top-12 left-1/4 w-[500px] h-[500px] aurora aurora-1 pointer-events-none"></div>
+  <div class="fixed bottom-24 right-1/4 w-[450px] h-[450px] aurora aurora-2 pointer-events-none"></div>
+
+  <!-- Main Wrapper -->
+  <div class="relative z-10 max-w-[1600px] mx-auto min-h-screen flex flex-col bg-white/70 backdrop-blur-sm border-x border-slate-100/50 shadow-2xl">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-50 bg-white/85 backdrop-blur-xl border-b border-slate-100 px-6 py-3.5 transition-all">
+      <div class="flex justify-between items-center max-w-7xl mx-auto">
+        <!-- Logo -->
+        <a href="index.html" class="flex items-center gap-2.5 group cursor-pointer">
+          <div class="w-8 h-8 bg-black text-white flex items-center justify-center rounded-lg shadow-lg group-hover:rotate-90 transition-transform duration-500">
+            <iconify-icon icon="solar:infinity-bold" class="text-xl"></iconify-icon>
+          </div>
+          <span class="font-bold tracking-tighter text-base uppercase">IA Tutor</span>
+        </a>
+
+        <div>
+          <a href="index.html" class="flex items-center gap-2 text-xs font-mono uppercase tracking-widest border border-slate-200 px-4 py-2 rounded-full hover:bg-black hover:text-white transition-all">
+            <iconify-icon icon="solar:arrow-left-linear" class="text-sm"></iconify-icon>
+            <span>Voltar</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-6 py-12 md:py-16 flex-1 flex flex-col gap-10 w-full">
+      <!-- Title Section -->
+      <div class="text-center space-y-3 animate-on-scroll">
+        <div class="flex items-center justify-center gap-2 mb-1">
+          <span class="h-px w-8 bg-[#1CB0F6]"></span>
+          <span class="text-xs font-mono text-[#1CB0F6] uppercase tracking-[0.2em] font-semibold">Trilha de Aprendizado</span>
+          <span class="h-px w-8 bg-[#1CB0F6]"></span>
+        </div>
+        <h1 class="text-4xl md:text-5xl font-bold font-heading text-black tracking-tight">Módulos de Python</h1>
+        <p class="text-slate-500 text-sm md:text-base font-light leading-relaxed max-w-xl mx-auto">
+          Explore os conceitos fundamentais de lógica de programação e resolva desafios práticos guiados socraticamente.
+        </p>
+      </div>
+
+      <!-- Slider Container Wrapper -->
+      <div class="relative w-full overflow-hidden select-none animate-on-scroll">
+        
+        <!-- Previous/Next Buttons overlaid on the sides -->
+        <button id="prev-btn" class="absolute left-2 top-[40%] -translate-y-1/2 z-30 w-11 h-11 rounded-full border border-slate-200 bg-white/90 backdrop-blur-md shadow-md hover:border-black hover:bg-black hover:text-white hover:shadow-lg active:scale-95 transition-all duration-300 opacity-0 pointer-events-none hidden md:flex items-center justify-center text-slate-700">
+          <iconify-icon icon="solar:alt-arrow-left-linear" class="text-xl"></iconify-icon>
+        </button>
+        
+        <button id="next-btn" class="absolute right-2 top-[40%] -translate-y-1/2 z-30 w-11 h-11 rounded-full border border-slate-200 bg-white/90 backdrop-blur-md shadow-md hover:border-black hover:bg-black hover:text-white hover:shadow-lg active:scale-95 transition-all duration-300 hidden md:flex items-center justify-center text-slate-700">
+          <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xl"></iconify-icon>
+        </button>
+
+        <!-- Modules curriculum slider -->
+        <div class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth pb-6 gap-6 hide-scrollbar px-1" id="modules-slider" style="scroll-padding: 4px;">
+
+          <!-- Módulo 1 -->
+          <div class="flashlight-card p-6 md:p-8 rounded-2xl border border-slate-200 bg-white/80 group flex-shrink-0 w-full md:w-[760px] snap-center flex flex-col justify-between min-h-[380px]">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5 mb-5">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-sky-50 text-[#1CB0F6] border border-sky-100 flex items-center justify-center">
+                  <iconify-icon icon="solar:code-circle-linear" class="text-xl"></iconify-icon>
+                </div>
+                <div>
+                  <span class="text-[10px] font-mono text-[#1CB0F6] uppercase tracking-widest font-bold">Módulo 1</span>
+                  <h2 class="text-lg md:text-xl font-bold font-heading text-black mt-0.5">Variáveis, Tipos e Operações</h2>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 text-[9px] font-mono uppercase tracking-wider font-bold rounded-full bg-sky-50 text-[#1CB0F6] border border-sky-100">Básico</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1">
+              <!-- Left Column: Description & Key Concepts -->
+              <div class="flex flex-col justify-between space-y-4">
+                <div class="space-y-2">
+                  <h4 class="text-[10px] font-mono uppercase text-slate-400 tracking-wider font-bold">Visão Geral</h4>
+                  <p class="text-xs text-slate-500 leading-relaxed font-light">
+                    A base da programação. Aprenda a declarar variáveis na memória do computador, capturar inputs do usuário e exibir resultados formatados em tela.
+                  </p>
+                </div>
+
+                <div class="space-y-2">
+                  <h4 class="text-[10px] font-mono uppercase text-slate-400 tracking-wider font-bold">Conceitos-Chave</h4>
+                  <div class="flex flex-wrap gap-1.5">
+                    <span class="text-[9px] bg-slate-50 text-slate-500 py-1 px-2.5 rounded-md border border-slate-200/40 font-mono">Atribuição</span>
+                    <span class="text-[9px] bg-slate-50 text-slate-500 py-1 px-2.5 rounded-md border border-slate-200/40 font-mono">Entrada/Saída</span>
+                    <span class="text-[9px] bg-slate-50 text-slate-500 py-1 px-2.5 rounded-md border border-slate-200/40 font-mono">Aritmética</span>
+                    <span class="text-[9px] bg-slate-50 text-slate-500 py-1 px-2.5 rounded-md border border-slate-200/40 font-mono">f-strings</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Exercises -->
+              <div class="flex flex-col justify-between space-y-4">
+                <div class="space-y-2.5">
+                  <h4 class="text-[10px] font-mono uppercase text-slate-400 tracking-wider font-bold">Desafios Práticos</h4>
+                  <div class="space-y-2">
+                    <!-- Exercício 1 Ativo -->
+                    <a href="tutor.html?exercise=calcular_media" class="group/item flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
+                      <div class="space-y-0.5">
+                        <div class="flex items-center gap-1.5">
+                          <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                          <h5 class="text-xs font-bold text-black group-hover/item:text-[#1CB0F6] transition-colors">Média de Notas</h5>
+                        </div>
+                        <p class="text-[10px] text-slate-400 font-light leading-snug">Calcule a média aritmética simples a partir de notas.</p>
+                      </div>
+                      <div class="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:border-[#1CB0F6] group-hover/item:bg-[#1CB0F6] group-hover/item:text-white transition-all">
+                        <iconify-icon icon="solar:arrow-right-linear" class="text-sm"></iconify-icon>
+                      </div>
+                    </a>
+
+                    <!-- Exercício 2 Sugerido (Bloqueado) -->
+                    <div class="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 opacity-50">
+                      <div class="space-y-0.5">
+                        <h5 class="text-xs font-bold text-slate-400">Saudação Personalizada</h5>
+                        <p class="text-[10px] text-slate-400 font-light leading-snug">Crie mensagens dinâmicas personalizadas.</p>
+                      </div>
+                      <iconify-icon icon="solar:lock-bold" class="text-sm text-slate-400"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Módulo 2 -->
+          <div class="flashlight-card p-6 md:p-8 rounded-2xl border border-slate-200 bg-white/80 group flex-shrink-0 w-full md:w-[760px] snap-center flex flex-col justify-between min-h-[380px]">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5 mb-5">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-sky-50 text-[#1CB0F6] border border-sky-100 flex items-center justify-center">
+                  <iconify-icon icon="solar:git-branch-linear" class="text-xl"></iconify-icon>
+                </div>
+                <div>
+                  <span class="text-[10px] font-mono text-[#1CB0F6] uppercase tracking-widest font-bold">Módulo 2</span>
+                  <h2 class="text-lg md:text-xl font-bold font-heading text-black mt-0.5">Estruturas Condicionais</h2>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 text-[9px] font-mono uppercase tracking-wider font-bold rounded-full bg-sky-50 text-[#1CB0F6] border border-sky-100">Básico</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1">
+              <!-- Left Column: Description & Key Concepts -->
+              <div class="flex flex-col justify-between space-y-4">
+                <div class="space-y-2">
+                  <h4 class="text-[10px] font-mono uppercase text-slate-400 tracking-wider font-bold">Visão Geral</h4>
+                  <p class="text-xs text-slate-500 leading-relaxed font-light">
+                    Decisões lógicas. Controle o fluxo de execução com base em booleanos, operadores lógicos e estruturas condicionais compostas (`if`, `elif`, `else`).
+                  </p>
+                </div>
+
+                <div class="space-y-2">
+                  <h4 class="text-[10px] font-mono uppercase text-slate-400 tracking-wider font-bold">Conceitos-Chave</h4>
+                  <div class="flex flex-wrap gap-1.5">
+                    <span class="text-[9px] bg-slate-50 text-slate-500 py-1 px-2.5 rounded-md border border-slate-200/40 font-mono">If/Else</span>
+                    <span class="text-[9px] bg-slate-50 text-slate-500 py-1 px-2.5 rounded-md border border-slate-200/40 font-mono">Booleanos</span>
+                    <span class="text-[9px] bg-slate-50 text-slate-500 py-1 px-2.5 rounded-md border border-slate-200/40 font-mono">Comparações</span>
+                    <span class="text-[9px] bg-slate-50 text-slate-500 py-1 px-2.5 rounded-md border border-slate-200/40 font-mono">Lógica</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Exercises -->
+              <div class="flex flex-col justify-between space-y-4">
+                <div class="space-y-2.5">
+                  <h4 class="text-[10px] font-mono uppercase text-slate-400 tracking-wider font-bold">Desafios Práticos</h4>
+                  <div class="space-y-2 max-h-[200px] overflow-y-auto pr-1 hide-scrollbar">
+                    <!-- Exercício 1 Ativo -->
+                    <a href="tutor.html?exercise=maior_idade" class="group/item flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
+                      <div class="space-y-0.5">
+                        <div class="flex items-center gap-1.5">
+                          <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                          <h5 class="text-xs font-bold text-black group-hover/item:text-[#1CB0F6] transition-colors">Maioridade</h5>
+                        </div>
+                        <p class="text-[10px] text-slate-400 font-light leading-snug">Determine se um usuário tem 18 anos ou mais.</p>
+                      </div>
+                      <div class="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:border-[#1CB0F6] group-hover/item:bg-[#1CB0F6] group-hover/item:text-white transition-all flex-shrink-0">
+                        <iconify-icon icon="solar:arrow-right-linear" class="text-sm"></iconify-icon>
+                      </div>
+                    </a>
+
+                    <!-- Exercício 2 Ativo -->
+                    <a href="tutor.html?exercise=parity_01" class="group/item flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
+                      <div class="space-y-0.5">
+                        <div class="flex items-center gap-1.5">
+                          <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                          <h5 class="text-xs font-bold text-black group-hover/item:text-[#1CB0F6] transition-colors">Par ou Ímpar</h5>
+                        </div>
+                        <p class="text-[10px] text-slate-400 font-light leading-snug">Verifique se um número inteiro é par ou ímpar.</p>
+                      </div>
+                      <div class="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:border-[#1CB0F6] group-hover/item:bg-[#1CB0F6] group-hover/item:text-white transition-all flex-shrink-0">
+                        <iconify-icon icon="solar:arrow-right-linear" class="text-sm"></iconify-icon>
+                      </div>
+                    </a>
+
+                    <!-- Exercício 3 Ativo -->
+                    <a href="tutor.html?exercise=fizzbuzz_01" class="group/item flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
+                      <div class="space-y-0.5">
+                        <div class="flex items-center gap-1.5">
+                          <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                          <h5 class="text-xs font-bold text-black group-hover/item:text-[#1CB0F6] transition-colors">FizzBuzz</h5>
+                        </div>
+                        <p class="text-[10px] text-slate-400 font-light leading-snug">Algoritmo clássico avaliando múltiplos.</p>
+                      </div>
+                      <div class="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:border-[#1CB0F6] group-hover/item:bg-[#1CB0F6] group-hover/item:text-white transition-all flex-shrink-0">
+                        <iconify-icon icon="solar:arrow-right-linear" class="text-sm"></iconify-icon>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Módulo 3 -->
+          <div class="flashlight-card p-6 md:p-8 rounded-2xl border border-slate-200 bg-white/80 group flex-shrink-0 w-full md:w-[760px] snap-center flex flex-col justify-between min-h-[380px]">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5 mb-5">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center">
+                  <iconify-icon icon="solar:restart-linear" class="text-xl"></iconify-icon>
+                </div>
+                <div>
+                  <span class="text-[10px] font-mono text-amber-600 uppercase tracking-widest font-bold">Módulo 3</span>
+                  <h2 class="text-lg md:text-xl font-bold font-heading text-black mt-0.5">Estruturas de Repetição</h2>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 text-[9px] font-mono uppercase tracking-wider font-bold rounded-full bg-amber-50 text-amber-600 border border-amber-100">Intermediário</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1">
+              <!-- Left Column: Description & Key Concepts -->
+              <div class="flex flex-col justify-between space-y-4">
+                <div class="space-y-2">
+                  <h4 class="text-[10px] font-mono uppercase text-slate-400 tracking-wider font-bold">Visão Geral</h4>
+                  <p class="text-xs text-slate-500 leading-relaxed font-light">
+                    Automação e iterações. Repita blocos de código de forma inteligente usando laços contados (`for`) ou baseados em condições dinâmicas (`while`).
+                  </p>
+                </div>
+
+                <div class="space-y-2">
+                  <h4 class="text-[10px] font-mono uppercase text-slate-400 tracking-wider font-bold">Conceitos-Chave</h4>
+                  <div class="flex flex-wrap gap-1.5">
+                    <span class="text-[9px] bg-slate-50 text-slate-500 py-1 px-2.5 rounded-md border border-slate-200/40 font-mono">Loop For</span>
+                    <span class="text-[9px] bg-slate-50 text-slate-500 py-1 px-2.5 rounded-md border border-slate-200/40 font-mono">Loop While</span>
+                    <span class="text-[9px] bg-slate-50 text-slate-500 py-1 px-2.5 rounded-md border border-slate-200/40 font-mono">range()</span>
+                    <span class="text-[9px] bg-slate-50 text-slate-500 py-1 px-2.5 rounded-md border border-slate-200/40 font-mono">Break/Continue</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Exercises -->
+              <div class="flex flex-col justify-between space-y-4">
+                <div class="space-y-2.5">
+                  <h4 class="text-[10px] font-mono uppercase text-slate-400 tracking-wider font-bold">Desafios Práticos</h4>
+                  <div class="space-y-2">
+                    <!-- Exercício 1 Sugerido (Bloqueado) -->
+                    <div class="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 opacity-50">
+                      <div class="space-y-0.5">
+                        <h5 class="text-xs font-bold text-slate-400">Contar de 1 a 10</h5>
+                        <p class="text-[10px] text-slate-400 font-light leading-snug">Gere uma sequência numérica incremental.</p>
+                      </div>
+                      <iconify-icon icon="solar:lock-bold" class="text-sm text-slate-400"></iconify-icon>
+                    </div>
+
+                    <!-- Exercício 2 Sugerido (Bloqueado) -->
+                    <div class="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 opacity-50">
+                      <div class="space-y-0.5">
+                        <h5 class="text-xs font-bold text-slate-400">Tabuada Simplificada</h5>
+                        <p class="text-[10px] text-slate-400 font-light leading-snug">Crie a multiplicação dinâmica de um número.</p>
+                      </div>
+                      <iconify-icon icon="solar:lock-bold" class="text-sm text-slate-400"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Módulo 4 -->
+          <div class="flashlight-card p-6 md:p-8 rounded-2xl border border-slate-200 bg-white/80 group flex-shrink-0 w-full md:w-[760px] snap-center flex flex-col justify-between min-h-[380px]">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5 mb-5">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center">
+                  <iconify-icon icon="solar:box-linear" class="text-xl"></iconify-icon>
+                </div>
+                <div>
+                  <span class="text-[10px] font-mono text-amber-600 uppercase tracking-widest font-bold">Módulo 4</span>
+                  <h2 class="text-lg md:text-xl font-bold font-heading text-black mt-0.5">Funções e Modularização</h2>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 text-[9px] font-mono uppercase tracking-wider font-bold rounded-full bg-amber-50 text-amber-600 border border-amber-100">Intermediário</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1">
+              <!-- Left Column: Description & Key Concepts -->
+              <div class="flex flex-col justify-between space-y-4">
+                <div class="space-y-2">
+                  <h4 class="text-[10px] font-mono uppercase text-slate-400 tracking-wider font-bold">Visão Geral</h4>
+                  <p class="text-xs text-slate-500 leading-relaxed font-light">
+                    Organização. Encapsule regras de negócio em blocos reutilizáveis com parâmetros de entrada e retornos explícitos (`def`, `return`).
+                  </p>
+                </div>
+
+                <div class="space-y-2">
+                  <h4 class="text-[10px] font-mono uppercase text-slate-400 tracking-wider font-bold">Conceitos-Chave</h4>
+                  <div class="flex flex-wrap gap-1.5">
+                    <span class="text-[9px] bg-slate-50 text-slate-500 py-1 px-2.5 rounded-md border border-slate-200/40 font-mono">def</span>
+                    <span class="text-[9px] bg-slate-50 text-slate-500 py-1 px-2.5 rounded-md border border-slate-200/40 font-mono">Escopo</span>
+                    <span class="text-[9px] bg-slate-50 text-slate-500 py-1 px-2.5 rounded-md border border-slate-200/40 font-mono">Parâmetros</span>
+                    <span class="text-[9px] bg-slate-50 text-slate-500 py-1 px-2.5 rounded-md border border-slate-200/40 font-mono">return</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Exercises -->
+              <div class="flex flex-col justify-between space-y-4">
+                <div class="space-y-2.5">
+                  <h4 class="text-[10px] font-mono uppercase text-slate-400 tracking-wider font-bold">Desafios Práticos</h4>
+                  <div class="space-y-2">
+                    <!-- Exercício 1 Sugerido (Bloqueado) -->
+                    <div class="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 opacity-50">
+                      <div class="space-y-0.5">
+                        <h5 class="text-xs font-bold text-slate-400">Calculadora Modular</h5>
+                        <p class="text-[10px] text-slate-400 font-light leading-snug">Desenvolva lógicas separadas para operações.</p>
+                      </div>
+                      <iconify-icon icon="solar:lock-bold" class="text-sm text-slate-400"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Módulo 5 -->
+          <div class="flashlight-card p-6 md:p-8 rounded-2xl border border-slate-200 bg-white/80 group flex-shrink-0 w-full md:w-[760px] snap-center flex flex-col justify-between min-h-[380px]">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5 mb-5">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-red-50 text-red-600 border border-red-100 flex items-center justify-center">
+                  <iconify-icon icon="solar:list-linear" class="text-xl"></iconify-icon>
+                </div>
+                <div>
+                  <span class="text-[10px] font-mono text-red-600 uppercase tracking-widest font-bold">Módulo 5</span>
+                  <h2 class="text-lg md:text-xl font-bold font-heading text-black mt-0.5">Estruturas de Dados (Listas)</h2>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 text-[9px] font-mono uppercase tracking-wider font-bold rounded-full bg-red-50 text-red-600 border border-red-100">Avançado</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1">
+              <!-- Left Column: Description & Key Concepts -->
+              <div class="flex flex-col justify-between space-y-4">
+                <div class="space-y-2">
+                  <h4 class="text-[10px] font-mono uppercase text-slate-400 tracking-wider font-bold">Visão Geral</h4>
+                  <p class="text-xs text-slate-500 leading-relaxed font-light">
+                    Gerenciamento de coleções. Agrupe múltiplos elementos sob uma única variável e aprenda a iterar, filtrar e buscar valores em arrays.
+                  </p>
+                </div>
+
+                <div class="space-y-2">
+                  <h4 class="text-[10px] font-mono uppercase text-slate-400 tracking-wider font-bold">Conceitos-Chave</h4>
+                  <div class="flex flex-wrap gap-1.5">
+                    <span class="text-[9px] bg-slate-50 text-slate-500 py-1 px-2.5 rounded-md border border-slate-200/40 font-mono">Indexação</span>
+                    <span class="text-[9px] bg-slate-50 text-slate-500 py-1 px-2.5 rounded-md border border-slate-200/40 font-mono">Filtros</span>
+                    <span class="text-[9px] bg-slate-50 text-slate-500 py-1 px-2.5 rounded-md border border-slate-200/40 font-mono">len/max/min</span>
+                    <span class="text-[9px] bg-slate-50 text-slate-500 py-1 px-2.5 rounded-md border border-slate-200/40 font-mono">Iterações</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Exercises -->
+              <div class="flex flex-col justify-between space-y-4">
+                <div class="space-y-2.5">
+                  <h4 class="text-[10px] font-mono uppercase text-slate-400 tracking-wider font-bold">Desafios Práticos</h4>
+                  <div class="space-y-2">
+                    <!-- Exercício 1 Ativo -->
+                    <a href="tutor.html?exercise=contar_pares" class="group/item flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
+                      <div class="space-y-0.5">
+                        <div class="flex items-center gap-1.5">
+                          <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                          <h5 class="text-xs font-bold text-black group-hover/item:text-[#1CB0F6] transition-colors">Contar Pares</h5>
+                        </div>
+                        <p class="text-[10px] text-slate-400 font-light leading-snug">Conte elementos divisíveis por 2 em uma lista.</p>
+                      </div>
+                      <div class="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:border-[#1CB0F6] group-hover/item:bg-[#1CB0F6] group-hover/item:text-white transition-all">
+                        <iconify-icon icon="solar:arrow-right-linear" class="text-sm"></iconify-icon>
+                      </div>
+                    </a>
+
+                    <!-- Exercício 2 Sugerido (Bloqueado) -->
+                    <div class="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 opacity-50">
+                      <div class="space-y-0.5">
+                        <h5 class="text-xs font-bold text-slate-400">Maior e Menor Valor</h5>
+                        <p class="text-[10px] text-slate-400 font-light leading-snug">Localize os extremos de uma lista de números.</p>
+                      </div>
+                      <iconify-icon icon="solar:lock-bold" class="text-sm text-slate-400"></iconify-icon>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Desafio Final (Bloqueado/Desbloqueado Dinamicamente) -->
+          <div id="final-challenge-card" class="p-6 md:p-8 rounded-2xl border border-slate-800 bg-slate-950 flex-shrink-0 w-full md:w-[760px] snap-center flex flex-col justify-between min-h-[380px] transition-all duration-700 relative overflow-hidden group shadow-2xl">
+            <!-- Glowing background aura for mysterious card -->
+            <div id="final-glow-aura" class="absolute -inset-10 bg-gradient-to-tr from-[#1CB0F6]/20 to-purple-500/10 rounded-3xl filter blur-2xl opacity-70 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-0"></div>
+
+            <!-- Locked State (Mysterious theme) -->
+            <div id="final-locked-state" class="flex-1 flex flex-col justify-center items-center text-center p-6 space-y-6 relative z-10">
+              
+              <!-- Mysterious Glowing Cyber Lock Icon -->
+              <div class="relative w-16 h-16 flex items-center justify-center">
+                <div class="absolute inset-0 bg-gradient-to-r from-[#1CB0F6] to-purple-600 rounded-2xl filter blur-md opacity-40 animate-pulse"></div>
+                <div class="w-14 h-14 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-[#1CB0F6] shadow-2xl relative z-10">
+                  <iconify-icon icon="solar:crown-minimalistic-bold-duotone" class="text-2xl animate-bounce"></iconify-icon>
+                </div>
+                <div class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-400 z-20">
+                  <iconify-icon icon="solar:lock-bold" class="text-[10px] text-red-500"></iconify-icon>
+                </div>
+              </div>
+
+              <!-- Sleek Labels & Titles -->
+              <div class="space-y-3 max-w-md">
+                <div class="flex items-center justify-center gap-2">
+                  <span class="text-[9px] font-mono text-[#1CB0F6] bg-[#1CB0F6]/10 px-2.5 py-0.5 rounded-full uppercase tracking-widest font-semibold">Desafio Secreto</span>
+                  <span class="text-[9px] font-mono text-purple-400 bg-purple-500/10 px-2.5 py-0.5 rounded-full uppercase tracking-widest font-semibold">Nível Mestre</span>
+                </div>
+                <h2 class="text-2xl font-bold font-heading text-white tracking-tight">O Teste de Maestria</h2>
+                <p class="text-xs text-slate-400 font-light leading-relaxed">
+                  A fusão final. Um algoritmo ultra-secreto que unifica variáveis, condicionais, estruturas de loops, modularização e análise de listas. Você tem o que é preciso para desbloquear e dominar o desafio final?
+                </p>
+              </div>
+
+              <!-- Unlock Status -->
+              <div class="pt-2 flex flex-col items-center gap-2">
+                <div class="w-48 h-1.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800/80">
+                  <div id="final-progress-bar" class="h-full bg-gradient-to-r from-[#1CB0F6] to-purple-500 transition-all duration-500" style="width: 0%;"></div>
+                </div>
+                <span class="text-[10px] font-mono text-slate-400">
+                  Sincronização: <span id="final-progress-text" class="font-bold text-white">0/5</span> módulos concluídos
+                </span>
+                
+                <!-- Console Hack Bypass Link -->
+                <button id="bypass-unlock-btn" class="text-[8px] font-mono text-slate-600 hover:text-[#1CB0F6] transition-colors mt-2 cursor-pointer uppercase tracking-widest">
+                  [ HACK: Ignorar Trava de Segurança ]
+                </button>
+              </div>
+            </div>
+
+            <!-- Unlocked State (Glowing dashboard style) -->
+            <div id="final-unlocked-state" class="hidden flex-1 flex flex-col justify-between h-full relative z-10 text-white">
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-5 mb-5">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center shadow-lg shadow-amber-500/10">
+                    <iconify-icon icon="solar:stars-minimalistic-bold-duotone" class="text-xl animate-pulse"></iconify-icon>
+                  </div>
+                  <div>
+                    <span class="text-[10px] font-mono text-amber-400 uppercase tracking-widest font-bold">Desafio Integrador Desbloqueado</span>
+                    <h2 class="text-lg md:text-xl font-bold font-heading text-white mt-0.5">Análise de Desempenho da Turma</h2>
+                  </div>
+                </div>
+                <span class="px-2.5 py-1 text-[9px] font-mono uppercase tracking-wider font-bold rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">Desafio Final</span>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1">
+                <!-- Left Column -->
+                <div class="flex flex-col justify-between space-y-4">
+                  <div class="space-y-2">
+                    <h4 class="text-[10px] font-mono uppercase text-slate-505 tracking-wider font-bold">Instruções do Projeto</h4>
+                    <p class="text-xs text-slate-300 leading-relaxed font-light">
+                      O teste definitivo. Implemente uma função inteligente para filtrar alunos, consolidar médias de notas aritméticas e mapear maioridade jurídica em um relatório formatado em Python.
+                    </p>
+                  </div>
+
+                  <div class="space-y-2">
+                    <h4 class="text-[10px] font-mono uppercase text-slate-505 tracking-wider font-bold">Técnicas Empregadas</h4>
+                    <div class="flex flex-wrap gap-1.5">
+                      <span class="text-[9px] bg-slate-900 text-slate-300 py-1 px-2.5 rounded-md border border-slate-800 font-mono">Variáveis</span>
+                      <span class="text-[9px] bg-slate-900 text-slate-300 py-1 px-2.5 rounded-md border border-slate-800 font-mono">Condicionais</span>
+                      <span class="text-[9px] bg-slate-900 text-slate-300 py-1 px-2.5 rounded-md border border-slate-800 font-mono">Loops For/While</span>
+                      <span class="text-[9px] bg-slate-900 text-slate-300 py-1 px-2.5 rounded-md border border-slate-800 font-mono">Funções</span>
+                      <span class="text-[9px] bg-slate-900 text-slate-300 py-1 px-2.5 rounded-md border border-slate-800 font-mono">Listas/Dicts</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="flex flex-col justify-between space-y-4">
+                  <div class="space-y-2.5">
+                    <h4 class="text-[10px] font-mono uppercase text-slate-550 tracking-wider font-bold">Acessar Workspace</h4>
+                    <div class="space-y-2">
+                      <a href="tutor.html?exercise=analisar_turma" class="group/item flex items-center justify-between p-3.5 rounded-xl border border-amber-500/50 bg-amber-500/10 hover:border-amber-400 hover:bg-amber-500/20 hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300">
+                        <div class="space-y-0.5">
+                          <div class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
+                            <h5 class="text-xs font-bold text-white group-hover/item:text-amber-400 transition-colors">Iniciar Desafio</h5>
+                          </div>
+                          <p class="text-[10px] text-slate-300 font-light leading-snug">Rode os casos de teste e conquiste sua certificação.</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-full border border-amber-400/50 bg-slate-900 flex items-center justify-center text-amber-400 group-hover/item:bg-amber-400 group-hover/item:text-black transition-all flex-shrink-0">
+                          <iconify-icon icon="solar:arrow-right-linear" class="text-sm"></iconify-icon>
+                        </div>
+                      </a>
+                      
+                      <!-- Hack Relock Option -->
+                      <button id="bypass-lock-btn" class="w-full text-[8px] font-mono text-slate-500 hover:text-red-400 transition-colors mt-2.5 cursor-pointer uppercase tracking-widest text-center">
+                        [ HACK: Reativar Trava de Segurança ]
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Dot Indicators -->
+        <div class="flex justify-center gap-2 mt-4" id="dots-container">
+          <button class="w-6 h-2.5 rounded-full bg-[#1CB0F6] transition-all duration-300" data-idx="0"></button>
+          <button class="w-2.5 h-2.5 rounded-full bg-slate-200 hover:bg-slate-300 transition-all duration-300" data-idx="1"></button>
+          <button class="w-2.5 h-2.5 rounded-full bg-slate-200 hover:bg-slate-300 transition-all duration-300" data-idx="2"></button>
+          <button class="w-2.5 h-2.5 rounded-full bg-slate-200 hover:bg-slate-300 transition-all duration-300" data-idx="3"></button>
+          <button class="w-2.5 h-2.5 rounded-full bg-slate-200 hover:bg-slate-300 transition-all duration-300" data-idx="4"></button>
+          <button class="w-2.5 h-2.5 rounded-full bg-slate-200 hover:bg-slate-300 transition-all duration-300" data-idx="5"></button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-50 border-t border-slate-100 py-12 px-6 text-center mt-12">
+      <div class="max-w-7xl mx-auto space-y-4">
+        <div class="logo-container justify-center">
+          <div class="logo-dot"></div>
+          <div class="logo-text text-slate-700">IA Tutor</div>
+        </div>
+        <p class="text-[10px] font-mono text-slate-400 uppercase tracking-widest">
+          Protótipo de TCC — Plataforma de Programação Anti-Overreliance © 2026
+        </p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- JS Helpers -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Reveal Animations (Observer)
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+          }
+        });
+      }, { threshold: 0.1 });
+
+      document.querySelectorAll('.animate-on-scroll').forEach(el => {
+        observer.observe(el);
+      });
+
+      // 2. Flashlight Effect Logic
+      const initFlashlight = () => {
+        const cards = document.querySelectorAll('.flashlight-card');
+        cards.forEach(card => {
+          card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+          });
+        });
+      };
+      initFlashlight();
+
+      // 3. Carousel Slider Navigation Logic
+      const slider = document.getElementById('modules-slider');
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      const dots = document.querySelectorAll('#dots-container button');
+      const cards = slider.querySelectorAll('.flashlight-card, #final-challenge-card');
+
+      const getActiveIndex = () => {
+        if (!slider || cards.length === 0) return 0;
+        const scrollLeft = slider.scrollLeft;
+        const sliderWidth = slider.clientWidth;
+        let activeIndex = 0;
+        let minDistance = Infinity;
+
+        cards.forEach((card, idx) => {
+          const cardLeft = card.offsetLeft;
+          const cardWidth = card.clientWidth;
+          const cardCenter = cardLeft + cardWidth / 2;
+          const sliderCenter = scrollLeft + sliderWidth / 2;
+          const distance = Math.abs(cardCenter - sliderCenter);
+
+          if (distance < minDistance) {
+            minDistance = distance;
+            activeIndex = idx;
+          }
+        });
+        return activeIndex;
+      };
+
+      const updateActiveState = () => {
+        if (!slider || cards.length === 0) return;
+        const scrollLeft = slider.scrollLeft;
+        const sliderWidth = slider.clientWidth;
+        const activeIndex = getActiveIndex();
+
+        // Update dot styles dynamically
+        dots.forEach((dot, idx) => {
+          if (idx === activeIndex) {
+            dot.className = "w-6 h-2.5 rounded-full bg-[#1CB0F6] transition-all duration-300";
+          } else {
+            dot.className = "w-2.5 h-2.5 rounded-full bg-slate-200 hover:bg-slate-300 transition-all duration-300";
+          }
+        });
+
+        // Toggle visibility and clickability of previous/next buttons
+        const tolerance = 10;
+        const isAtStart = scrollLeft <= tolerance;
+        const isAtEnd = scrollLeft + sliderWidth >= slider.scrollWidth - tolerance;
+
+        if (isAtStart) {
+          prevBtn.classList.add('opacity-0', 'pointer-events-none');
+        } else {
+          prevBtn.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        if (isAtEnd) {
+          nextBtn.classList.add('opacity-0', 'pointer-events-none');
+        } else {
+          nextBtn.classList.remove('opacity-0', 'pointer-events-none');
+        }
+      };
+
+      const scrollToCard = (index) => {
+        if (index < 0 || index >= cards.length) return;
+        const targetCard = cards[index];
+        const sliderWidth = slider.clientWidth;
+        const cardWidth = targetCard.clientWidth;
+        
+        // Scroll so that targetCard is centered inside the slider viewport
+        const targetScrollLeft = targetCard.offsetLeft - (sliderWidth - cardWidth) / 2;
+
+        slider.scrollTo({
+          left: targetScrollLeft,
+          behavior: 'smooth'
+        });
+      };
+
+      // Button event listeners
+      prevBtn.addEventListener('click', () => {
+        const currentIdx = getActiveIndex();
+        scrollToCard(currentIdx - 1);
+      });
+
+      nextBtn.addEventListener('click', () => {
+        const currentIdx = getActiveIndex();
+        scrollToCard(currentIdx + 1);
+      });
+
+      // Dots event listeners
+      dots.forEach((dot) => {
+        dot.addEventListener('click', () => {
+          const idx = parseInt(dot.getAttribute('data-idx'));
+          scrollToCard(idx);
+        });
+      });
+
+      // Scroll and resize listeners
+      slider.addEventListener('scroll', updateActiveState);
+      window.addEventListener('resize', updateActiveState);
+
+      // 4. Lock/Unlock Final Challenge Logic
+      const checkFinalChallengeUnlock = () => {
+        const requiredExercises = ["calcular_media", "maior_idade", "parity_01", "fizzbuzz_01", "contar_pares"];
+        let completedExercises = [];
+        try {
+          completedExercises = JSON.parse(localStorage.getItem('completed_exercises') || '[]');
+        } catch (e) {
+          completedExercises = [];
+        }
+        
+        // Count how many are completed
+        const completedCount = requiredExercises.filter(id => completedExercises.includes(id)).length;
+        
+        const progressText = document.getElementById("final-progress-text");
+        if (progressText) {
+          progressText.innerText = `${completedCount}/${requiredExercises.length}`;
+        }
+
+        const progressBar = document.getElementById("final-progress-bar");
+        if (progressBar) {
+          progressBar.style.width = `${(completedCount / requiredExercises.length) * 100}%`;
+        }
+        
+        const card = document.getElementById("final-challenge-card");
+        const lockedState = document.getElementById("final-locked-state");
+        const unlockedState = document.getElementById("final-unlocked-state");
+        
+        if (completedCount === requiredExercises.length) {
+          // Unlock
+          if (lockedState) lockedState.style.display = "none";
+          if (unlockedState) {
+            unlockedState.classList.remove("hidden");
+            unlockedState.style.display = "flex";
+          }
+          if (card) {
+            card.className = "p-6 md:p-8 rounded-2xl border border-amber-500/40 bg-slate-950 flex-shrink-0 w-full md:w-[760px] snap-center flex flex-col justify-between min-h-[380px] transition-all duration-700 relative overflow-hidden group shadow-2xl";
+          }
+        } else {
+          // Lock
+          if (lockedState) lockedState.style.display = "flex";
+          if (unlockedState) {
+            unlockedState.classList.add("hidden");
+            unlockedState.style.display = "none";
+          }
+          if (card) {
+            card.className = "p-6 md:p-8 rounded-2xl border border-slate-800 bg-slate-950 flex-shrink-0 w-full md:w-[760px] snap-center flex flex-col justify-between min-h-[380px] transition-all duration-700 relative overflow-hidden group shadow-2xl";
+          }
+        }
+      };
+
+      // Bypass button event
+      const bypassBtn = document.getElementById("bypass-unlock-btn");
+      if (bypassBtn) {
+        bypassBtn.addEventListener("click", () => {
+          const requiredExercises = ["calcular_media", "maior_idade", "parity_01", "fizzbuzz_01", "contar_pares"];
+          localStorage.setItem('completed_exercises', JSON.stringify(requiredExercises));
+          checkFinalChallengeUnlock();
+          updateActiveState();
+        });
+      }
+
+      // Relock button event for demonstration
+      const bypassLockBtn = document.getElementById("bypass-lock-btn");
+      if (bypassLockBtn) {
+        bypassLockBtn.addEventListener("click", () => {
+          localStorage.setItem('completed_exercises', JSON.stringify([]));
+          checkFinalChallengeUnlock();
+          updateActiveState();
+        });
+      }
+
+      // Initial call
+      checkFinalChallengeUnlock();
+      updateActiveState();
+    });
+  </script>
+</body>
+
+</html>

@@ -12,7 +12,7 @@ class ChallengeOrchestrator {
       user_idea: "",
       completed: false
     };
-    
+
     // Métricas comportamentais individuais por exercício
     this.metrics = {
       hints_used: 0,
@@ -295,21 +295,24 @@ function updateUIState() {
 // ==================== 2. EVENT LISTENERS ====================
 
 // Navegação de Telas
-btnStartNow.addEventListener("click", () => {
-  screenLanding.classList.remove("active");
-  screenApp.classList.add("active");
-  // Inicializa o Pyodide em background assim que entra no workspace
-  runner.init().catch(() => {});
-});
+if (btnStartNow) {
+  btnStartNow.addEventListener("click", () => {
+    window.location.href = "tutor.html";
+  });
+}
 
-btnShowFeatures.addEventListener("click", () => {
-  document.getElementById("features-anch").scrollIntoView({ behavior: "smooth" });
-});
+if (btnShowFeatures) {
+  btnShowFeatures.addEventListener("click", () => {
+    const el = document.getElementById("features-anch");
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+  });
+}
 
-btnBackLanding.addEventListener("click", () => {
-  screenApp.classList.remove("active");
-  screenLanding.classList.add("active");
-});
+if (btnBackLanding) {
+  btnBackLanding.addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+}
 
 // Salvamento da OpenAI API Key
 btnSaveKey.addEventListener("click", () => {
@@ -338,14 +341,14 @@ textareaCode.addEventListener("input", (e) => {
 });
 
 // Suporte para indentação com TAB de 4 espaços no editor
-textareaCode.addEventListener("keydown", function(e) {
+textareaCode.addEventListener("keydown", function (e) {
   if (e.key === "Tab") {
     e.preventDefault();
     const start = this.selectionStart;
     const end = this.selectionEnd;
     this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
     this.selectionStart = this.selectionEnd = start + 4;
-    
+
     // Atualiza estado
     if (currentOrch) currentOrch.state.user_code = this.value;
     lastInteractionTime = Date.now();
@@ -378,7 +381,7 @@ document.addEventListener("scroll", () => { lastInteractionTime = Date.now(); })
 btnSubmitDesc.addEventListener("click", async () => {
   lastInteractionTime = Date.now();
   const idea = textareaDesc.value.trim();
-  
+
   if (idea.length < 10) {
     showToast("Escreva pelo menos 10 caracteres para registrar.");
     return;
@@ -438,7 +441,7 @@ btnSendSocraticDesc.addEventListener("click", async () => {
 
   try {
     const reply = await tutor.ask(q, currentOrch.buildContext(), "");
-    
+
     if (isDirect) {
       replySocraticDesc.innerHTML = `<strong style="color: var(--color-error)">🚨 Bloqueio de Resposta Direta:</strong><br>${reply}`;
     } else {
@@ -467,7 +470,7 @@ btnSendSocraticCode.addEventListener("click", async () => {
 
   try {
     const reply = await tutor.ask(q, currentOrch.buildContext(), code);
-    
+
     if (isDirect) {
       replySocraticCode.innerHTML = `<strong style="color: var(--color-error)">🚨 Bloqueio de Resposta Direta:</strong><br>${reply}`;
     } else {
@@ -507,23 +510,23 @@ btnSubmitCode.addEventListener("click", async () => {
     // Renderiza resultados de saída
     execResults.style.display = "flex";
     stdoutOutput.innerText = res.stdout.trim() || "(saída vazia)";
-    
+
     // Tratamento de Erros de Execução/Compilação
     if (res.error) {
       errorWrapper.style.display = "block";
       errorOutput.innerText = res.error;
       errorAiHelp.innerHTML = "<em>IA analisando o erro...</em>";
-      
+
       // Tutor explica erro
       const errorExplanation = await tutor.explainError(res.error, code, currentOrch.buildContext());
       errorAiHelp.innerHTML = `<strong>Explicação do Professor:</strong><br>${errorExplanation}`;
-      
+
       currentOrch.state.completed = false;
       document.getElementById("tests-wrapper").style.display = "none";
     } else {
       errorWrapper.style.display = "none";
       document.getElementById("tests-wrapper").style.display = "block";
-      
+
       // Renderiza lista de testes
       testListContainer.innerHTML = "";
       let allTestsPassed = true;
@@ -531,14 +534,14 @@ btnSubmitCode.addEventListener("click", async () => {
       res.test_results.forEach(t => {
         const item = document.createElement("div");
         item.className = `test-item ${t.ok ? 'passed' : 'failed'}`;
-        
+
         const details = document.createElement("div");
         details.innerHTML = `<strong>Caso ${t.id}:</strong> ${t.error ? 'Exceção gerada' : `Obtido: <code>${t.result}</code> | Esperado: <code>${t.expected}</code>`}`;
-        
+
         const badge = document.createElement("span");
         badge.className = `test-badge ${t.ok ? 'pass' : 'fail'}`;
         badge.innerText = t.ok ? "PASS" : "FAIL";
-        
+
         item.appendChild(details);
         item.appendChild(badge);
         testListContainer.appendChild(item);
@@ -551,14 +554,14 @@ btnSubmitCode.addEventListener("click", async () => {
         testAiHelp.style.display = "block";
         testAiHelp.className = "feedback-box warning";
         testAiHelp.innerHTML = "<em>Professor analisando as falhas...</em>";
-        
+
         const testHint = await tutor.ask(
           "Me ajude a entender por que meus casos de teste falharam e o que verificar no código (sem dar a resposta pronta).",
           currentOrch.buildContext(),
           code
         );
         testAiHelp.innerHTML = `<strong>Dica do Professor:</strong><br>${testHint}`;
-        
+
         currentOrch.state.completed = false;
       } else {
         testAiHelp.style.display = "none";
@@ -595,6 +598,18 @@ setInterval(() => {
 // Init
 initApiKey();
 populateExercises();
-if (problems.length > 0) {
+
+// Suporte para carregar exercício específico via parâmetro da URL (?exercise=ID)
+const urlParams = new URLSearchParams(window.location.search);
+const exerciseParam = urlParams.get('exercise');
+if (exerciseParam && problems.some(p => p.id === exerciseParam)) {
+  loadActiveExercise(exerciseParam);
+  if (selectExercise) {
+    selectExercise.value = exerciseParam;
+  }
+} else if (problems.length > 0) {
   loadActiveExercise(problems[0].id);
 }
+
+// Inicializa o Pyodide em background
+runner.init().catch(() => { });

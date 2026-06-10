@@ -1,312 +1,916 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="scroll-smooth">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IA Tutor — Anti-Overreliance</title>
-  <!-- CSS Design System -->
-  <link rel="stylesheet" href="index.css">
+
+  <!-- Tailwind CSS Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Iconify Icon CDN -->
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+
+  <!-- Google Fonts: Inter, Outfit, JetBrains Mono -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+
   <!-- Pyodide CDN para carregar Python no navegador -->
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
+  
+
+  <script>
+    // Customização de Tema do Tailwind
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              DEFAULT: '#1CB0F6',
+              hover: '#169ad6',
+              light: 'rgba(28, 176, 246, 0.1)',
+              border: 'rgba(28, 176, 246, 0.2)'
+            },
+            neutral: {
+              body: '#FFFFFF',
+              surface: '#F9FAFB',
+              surface2: '#F3F4F6'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            heading: ['Outfit', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* =========================================
+       1. CORE DESIGN SYSTEM & VARIABLES
+       ========================================= */
+    :root {
+      --primary-accent: #1CB0F6;
+      --section-gap: 6rem;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #FFFFFF;
+      color: #0A0A0A;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Fixed Background Grid */
+    .bg-grid {
+      background-size: 40px 40px;
+      background-image: linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+    }
+
+    /* Floating Aurora Orbs */
+    .aurora {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.45;
+    }
+
+    .aurora-1 {
+      background: radial-gradient(circle, rgba(28, 176, 246, 0.15) 0%, transparent 70%);
+    }
+
+    .aurora-2 {
+      background: radial-gradient(circle, rgba(28, 176, 246, 0.1) 0%, transparent 70%);
+    }
+
+    /* Logo Dot Glow */
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background-color: var(--primary-accent);
+      box-shadow: 0 0 12px rgba(28, 176, 246, 0.6);
+      animation: logo-glow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes logo-glow {
+      0% {
+        box-shadow: 0 0 8px rgba(28, 176, 246, 0.4);
+      }
+
+      100% {
+        box-shadow: 0 0 16px rgba(28, 176, 246, 0.8);
+      }
+    }
+
+    .logo-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      color: #0A0A0A;
+    }
+
+    /* =========================================
+       2. ANIMATIONS
+       ========================================= */
+    @keyframes animationIn {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+        filter: blur(8px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0px);
+      }
+    }
+
+    .animate-on-scroll {
+      opacity: 0;
+      animation-fill-mode: forwards;
+    }
+
+    .animate-on-scroll.active {
+      animation: animationIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .animate-spin-slow {
+      animation: spin 6s linear infinite;
+    }
+
+    /* Text Reveal Mask */
+    .text-reveal-wrapper {
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: bottom;
+    }
+
+    .text-reveal-content {
+      transform: translateY(110%);
+      opacity: 0;
+      transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.2s ease;
+      display: block;
+    }
+
+    .reveal-active .text-reveal-content {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Transparent Outline text */
+    .text-stroke-outline {
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(0, 0, 0, 0.25);
+      transition: all 0.5s ease;
+    }
+
+    .text-stroke-outline:hover {
+      -webkit-text-stroke: 1px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Float Animation */
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+
+    .animate-float {
+      animation: float 6s ease-in-out infinite;
+    }
+
+    /* =========================================
+       3. SPECIAL COMPONENT EFFECTS
+       ========================================= */
+    /* Flashlight Card Glow */
+    .flashlight-card {
+      background: rgba(255, 255, 255, 0.75);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #E5E5E5;
+      transition: border-color 0.3s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .flashlight-card:hover {
+      border-color: #A3A3A3;
+      transform: translateY(-2px);
+    }
+
+    .flashlight-card::before {
+      content: "";
+      position: absolute;
+      inset: 0px;
+      background: radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+          rgba(28, 176, 246, 0.08),
+          transparent 45%);
+      opacity: 0;
+      transition: opacity 0.4s;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .flashlight-card:hover::before {
+      opacity: 1;
+    }
+
+    /* Inputs Focus Underline Animation */
+    .input-underline-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      background-color: var(--primary-accent);
+      transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      width: 0%;
+    }
+
+    .input-group:focus-within .input-underline-bar {
+      width: 100%;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #FFFFFF;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #E5E5E5;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #A3A3A3;
+    }
+
+    /* Screen management */
+    .screen {
+      display: none !important;
+    }
+
+    .screen.active {
+      display: block !important;
+    }
+
+    /* Tab switcher and tab contents */
+    .mode-tab.active {
+      color: #0A0A0A !important;
+      border-bottom-color: var(--primary-accent) !important;
+    }
+
+    .tab-content {
+      display: none !important;
+    }
+
+    .tab-content.active {
+      display: flex !important;
+    }
+
+    /* Original Sidebar and Tab structure overrides */
+    .accordion-content {
+      display: none;
+      transition: all 0.3s ease;
+    }
+
+    .accordion-item.open .accordion-content {
+      display: block;
+    }
+
+    .accordion-item.open .accordion-icon {
+      transform: rotate(180deg);
+    }
+
+    .constraints-expander .expander-content {
+      display: none;
+    }
+
+    .constraints-expander.open .expander-content {
+      display: block;
+    }
+
+    /* Sidebar sizing */
+    @media (min-width: 900px) {
+      .app-sidebar-width {
+        width: 320px;
+        min-width: 320px;
+      }
+    }
+
+    /* Code editor dark theme specs */
+    .code-textarea {
+      font-family: 'JetBrains Mono', monospace;
+      background-color: #0A0A0E;
+      color: #E2E8F0;
+      caret-color: var(--primary-accent);
+      line-height: 1.6;
+      resize: vertical;
+      border: 0;
+      outline: none;
+    }
+
+    /* Dynamically loaded element styling from app.js */
+    .test-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px solid #E5E5E5;
+      background-color: #FFFFFF;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .test-item:hover {
+      transform: translateY(-1px);
+    }
+
+    .test-item.passed {
+      border-color: rgba(34, 197, 94, 0.3);
+      background-color: rgba(240, 253, 244, 0.85);
+      color: #14532D;
+    }
+
+    .test-item.failed {
+      border-color: rgba(239, 68, 68, 0.3);
+      background-color: rgba(254, 242, 242, 0.85);
+      color: #7F1D1D;
+    }
+
+    .test-badge {
+      font-weight: 800;
+      font-size: 10px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 99px;
+      letter-spacing: 0.5px;
+    }
+
+    .test-badge.pass {
+      background-color: #22C55E;
+      color: white;
+    }
+
+    .test-badge.fail {
+      background-color: #EF4444;
+      color: white;
+    }
+
+    /* Status Banner Completed Class */
+    .status-banner {
+      transition: all 0.3s ease;
+    }
+
+    .status-banner.completed {
+      background-color: rgba(220, 252, 231, 0.9);
+      border-color: rgba(134, 239, 172, 0.6);
+      color: #15803D;
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.1);
+    }
+
+    /* Spin spinner wrapper */
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(0, 0, 0, 0.15);
+      border-radius: 50%;
+      border-top-color: var(--primary-accent);
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    /* About me bio text transition */
+    #about-bio-container.open {
+      max-height: 1000px !important;
+      opacity: 1 !important;
+      margin-top: 16px;
+    }
+  </style>
 </head>
-<body>
 
-  <!-- ==================== 1. LANDING PAGE SCREEN ==================== -->
-  <div id="screen-landing" class="screen active">
-    <div class="landing-container">
-      <header class="landing-header">
-        <div class="logo-container">
-          <div class="logo-dot"></div>
-          <div class="logo-text">IA Tutor</div>
-        </div>
-      </header>
+<body class="selection:bg-black selection:text-white relative min-h-screen">
 
-      <main class="hero-section">
-        <div class="hero-left">
-          <h1>Aprenda programação<br>sem depender da resposta pronta.</h1>
-          <p>Um tutor socrático inteligente baseado em IA para treinar sua lógica de programação em Python de forma guiada.</p>
-          <div class="hero-actions">
-            <button class="btn btn-primary" id="btn-start-now">Começar agora</button>
-            <button class="btn btn-secondary" id="btn-show-features">Ver como funciona</button>
-          </div>
-          <p class="action-caption">⚠️ Protótipo de Trabalho de Conclusão de Curso (TCC).</p>
-        </div>
+  <!-- ==================== BACKGROUND GRID & BLURS ==================== -->
+  <div class="fixed inset-0 pointer-events-none z-0 bg-grid opacity-60"></div>
+  <div class="fixed top-12 left-1/4 w-[500px] h-[500px] aurora aurora-1 pointer-events-none"></div>
+  <div class="fixed bottom-24 right-1/4 w-[450px] h-[450px] aurora aurora-2 pointer-events-none"></div>
 
-        <div class="hero-right">
-          <div class="card-benefits">
-            <h3 style="margin-bottom: 20px;">O que você ganha</h3>
-            <div class="benefit-item">
-              <div class="benefit-badge">1</div>
-              <div class="benefit-text">
-                <h4>Dicas graduais</h4>
-                <p>Receba pistas parciais para destravar seu raciocínio, sem respostas prontas.</p>
-              </div>
-            </div>
-            <div class="benefit-item">
-              <div class="benefit-badge">2</div>
-              <div class="benefit-text">
-                <h4>Professor Socrático</h4>
-                <p>Faça perguntas curtas e receba perguntas de volta que guiam você até a solução.</p>
-              </div>
-            </div>
-            <div class="benefit-item">
-              <div class="benefit-badge">3</div>
-              <div class="benefit-text">
-                <h4>Auxílio em Erros</h4>
-                <p>Execute seu código localmente e veja a explicação do erro de compilação ou falha de teste.</p>
-              </div>
-            </div>
-            <div class="benefit-item">
-              <div class="benefit-badge">4</div>
-              <div class="benefit-text">
-                <h4>Acompanhamento de Métricas</h4>
-                <p>Monitore suas métricas comportamentais como IPT, TRIB, RER e IT em tempo real.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      <section class="features-section" id="features-anch">
-        <h2>Como funciona?</h2>
-        <div class="features-grid">
-          <div class="feature-card">
-            <h3>1. Escolha o Desafio</h3>
-            <p>Selecione um exercício da lista. Você terá o enunciado, regras do professor e exemplos claros.</p>
-          </div>
-          <div class="feature-card">
-            <h3>2. Tente (Ideia ou Código)</h3>
-            <p>Esboce os passos da sua ideia em português ou escreva o código Python. Envie para o professor avaliar.</p>
-          </div>
-          <div class="feature-card">
-            <h3>3. Validação por Testes</h3>
-            <p>A conclusão do exercício ocorre automaticamente assim que seu código passa em todos os testes configurados.</p>
-          </div>
-        </div>
-      </section>
-    </div>
-  </div>
-
-  <!-- ==================== 2. WORKSPACE SCREEN ==================== -->
-  <div id="screen-app" class="screen">
-    <div class="app-layout">
-      <!-- Sidebar -->
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <div class="logo-container" style="margin-bottom: 12px;">
+  <!-- Main Wrapper -->
+  <div
+    class="relative z-10 max-w-[1600px] mx-auto min-h-screen flex flex-col bg-white/70 backdrop-blur-sm border-x border-slate-100/50 shadow-2xl">
+    <!-- ==================== 1. LANDING PAGE SCREEN ==================== -->
+    <div id="screen-landing" class="screen active flex-1">
+      <!-- Header Navigation -->
+      <header
+        class="sticky top-0 z-50 bg-white/75 backdrop-blur-md border-b border-slate-100/80 px-6 py-4 transition-all duration-500">
+        <div class="flex justify-between items-center max-w-7xl mx-auto">
+          <!-- Logo -->
+          <div class="logo-container">
             <div class="logo-dot"></div>
             <div class="logo-text">IA Tutor</div>
           </div>
-          <button class="btn btn-secondary btn-sm" id="btn-back-landing" style="width: 100%; font-size: 12px; padding: 8px 16px;">
-            ⬅ Voltar à Página Inicial
-          </button>
+
+          <div class="flex items-center">
+            <span
+              class="text-[10px] font-sans px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">TCC
+              Protótipo</span>
+          </div>
         </div>
+      </header>
 
-        <div class="sidebar-content">
-          <!-- OpenAI Configuration -->
-          <div class="form-group">
-            <label for="input-api-key">🔑 OpenAI API Key (Opcional)</label>
-            <input type="password" id="input-api-key" placeholder="sk-proj-..." style="font-family: monospace;">
-            <button class="btn btn-secondary" id="btn-save-key" style="padding: 8px 16px; font-size: 12px;">Salvar Chave</button>
+      <!-- Main Hero -->
+      <main class="max-w-7xl mx-auto px-6 py-12 md:py-24 flex flex-col gap-16 md:gap-24">
+        <!-- Hero Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+
+          <!-- Hero Left Text -->
+          <div class="lg:col-span-7 text-left space-y-8 animate-on-scroll" id="hero-left-container">
+            <div class="inline-flex items-center gap-3">
+              <span class="h-[1.5px] w-8 bg-black"></span>
+              <span class="text-[10px] font-mono text-black uppercase tracking-[0.3em]">Ambiente Socrático</span>
+            </div>
+
+            <h1 class="text-5xl md:text-7xl font-bold font-heading tracking-tighter leading-[1.05] text-black"
+              id="hero-title">
+              <span class="text-reveal-wrapper block"><span class="text-reveal-content delay-100">Aprenda
+                  lógica</span></span>
+              <span class="text-reveal-wrapper block"><span
+                  class="text-reveal-content delay-200 text-stroke-outline">sem atalhos.</span></span>
+            </h1>
+
+            <p class="text-slate-500 text-base md:text-lg font-light leading-relaxed max-w-2xl delay-300">
+              Um tutor baseado em inteligência artificial socrática para treinar sua lógica de programação
+              em Python por meio de diálogo guiado.
+            </p>
+
+            <div class="flex flex-wrap gap-4 pt-2 delay-500">
+              <!-- Main Start Button (Now binds the ID for app.js) -->
+              <button id="btn-start-now"
+                class="group relative flex items-center justify-center overflow-hidden rounded-full p-[1.5px] leading-none transform hover:scale-[1.03] transition-all duration-300 shadow-xl shadow-sky-100">
+                <span
+                  class="absolute inset-[-1000%] animate-spin-slow bg-[conic-gradient(from_0deg,transparent_0_340deg,#1CB0F6_360deg)]"></span>
+                <span
+                  class="relative flex h-full w-full items-center justify-center rounded-full bg-white px-8 py-4 ring-1 ring-black/5 group-hover:bg-slate-50 transition-colors">
+                  <span
+                    class="relative z-10 flex items-center gap-2 text-sm font-bold tracking-widest text-black uppercase font-sans">
+                    Começar agora
+                    <iconify-icon class="text-base group-hover:translate-x-1 transition-transform"
+                      icon="solar:arrow-right-linear"></iconify-icon>
+                  </span>
+                </span>
+              </button>
+
+              <button id="btn-show-features"
+                class="px-8 py-4 rounded-full border border-slate-200 text-xs font-mono uppercase tracking-widest hover:border-black hover:bg-slate-50 transition-colors">
+                Ver como funciona
+              </button>
+            </div>
+
+            <!-- <p class="text-[11px] text-slate-400 font-mono flex items-center gap-1.5 pt-4">
+              <iconify-icon icon="solar:danger-triangle-linear" class="text-amber-500 text-sm"></iconify-icon>
+              ⚠️ Protótipo desenvolvido para Trabalho de Conclusão de Curso (TCC).
+            </p> -->
           </div>
 
-          <!-- Exercise Dropdown -->
-          <div class="form-group">
-            <label for="select-exercise">🧩 Selecione o Exercício</label>
-            <select id="select-exercise">
-              <!-- Populados via JS -->
-            </select>
-          </div>
-
-          <!-- Doc/Examples Accordions -->
-          <div class="sidebar-accordion">
-            <div class="accordion-item" id="accordion-summary">
-              <div class="accordion-header">
-                <span>📄 Resumo do tema</span>
-                <span class="accordion-icon">▼</span>
+          <!-- Hero Right Side (3D Visual from reference design system) -->
+          <div
+            class="lg:col-span-5 w-full h-[450px] relative perspective-1000 animate-on-scroll delay-200 hidden md:block">
+            <!-- Card 3 (Back) -->
+            <div
+              class="absolute top-0 left-0 w-full h-[360px] bg-slate-50/60 rounded-2xl border border-slate-100 shadow-lg transform translate-z-[-100px] translate-y-[-40px] scale-90 opacity-60 transition-all duration-700 hover:translate-y-[-50px]">
+            </div>
+            <!-- Card 2 (Middle) -->
+            <div
+              class="absolute top-[20px] left-[20px] w-full h-[360px] bg-white/70 rounded-2xl border border-slate-200/80 shadow-xl transform translate-z-[-50px] translate-y-[-20px] scale-95 opacity-80 transition-all duration-700 hover:translate-y-[-25px]">
+            </div>
+            <!-- Card 1 (Front) -->
+            <div
+              class="flashlight-card absolute top-[40px] left-[40px] w-full h-[360px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden transform hover:translate-y-[-5px] transition-all duration-500 group">
+              <!-- Window Header -->
+              <div class="h-10 border-b border-slate-100 flex items-center px-4 gap-2 bg-slate-50/50">
+                <div class="w-2.5 h-2.5 rounded-full bg-slate-200"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-slate-200"></div>
+                <div class="ml-auto text-[9px] font-mono text-slate-400">System.js</div>
               </div>
-              <div class="accordion-content" id="accordion-summary-content">
-                <!-- Populado via JS -->
+              <!-- Content -->
+              <div class="p-8 flex-1 flex flex-col justify-center items-center text-center">
+                <div
+                  class="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center mb-5 shadow-xl shadow-slate-200 group-hover:scale-110 transition-transform duration-500">
+                  <iconify-icon icon="solar:stars-minimalistic-bold"
+                    class="text-2xl text-[#1CB0F6] animate-pulse"></iconify-icon>
+                </div>
+                <h3 class="text-xl font-bold font-heading mb-2 text-black">Aprenda programação</h3>
+                <p class="text-slate-400 text-xs leading-relaxed max-w-xs">Sem depender da resposta pronta</p>
+
+                <div class="mt-6 w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-[#1CB0F6] animate-pulse" style="width: 65%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Benefits Section (O que você ganha) -->
+        <section class="border-t border-slate-100 pt-16 md:pt-24 space-y-12 animate-on-scroll">
+          <div class="text-center space-y-2">
+            <span class="text-xs font-mono uppercase text-slate-400 tracking-widest">Metodologia</span>
+            <h2 class="text-3xl md:text-4xl font-bold font-heading text-black tracking-tight">O que você ganha?</h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Benefit 1 -->
+            <div
+              class="flashlight-card p-6 rounded-2xl border border-slate-200 bg-white/70 flex flex-col justify-between h-48 group">
+              <div class="flex justify-between items-start">
+                <div class="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center">
+                  <iconify-icon icon="solar:lightbulb-bolt-bold-duotone"
+                    class="text-lg text-slate-400 group-hover:text-amber-500 transition-colors"></iconify-icon>
+                </div>
+                <span
+                  class="text-xl font-heading font-black text-slate-200/80 group-hover:text-slate-400/20 transition-colors">01</span>
+              </div>
+              <div class="space-y-1">
+                <h4 class="font-bold text-sm text-black">Dicas graduais</h4>
+                <p class="text-xs text-slate-500 leading-relaxed">Pistas parciais e sequenciais para destravar o seu
+                  raciocínio lógico sem entregar respostas.</p>
               </div>
             </div>
 
-            <div class="accordion-item" id="accordion-examples">
-              <div class="accordion-header">
-                <span>🧩 Exemplos do professor</span>
-                <span class="accordion-icon">▼</span>
+            <!-- Benefit 2 -->
+            <div
+              class="flashlight-card p-6 rounded-2xl border border-slate-200 bg-white/70 flex flex-col justify-between h-48 group">
+              <div class="flex justify-between items-start">
+                <div class="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center">
+                  <iconify-icon icon="solar:chat-square-call-bold-duotone"
+                    class="text-lg text-slate-400 group-hover:text-sky-500 transition-colors"></iconify-icon>
+                </div>
+                <span
+                  class="text-xl font-heading font-black text-slate-200/80 group-hover:text-slate-400/20 transition-colors">02</span>
               </div>
-              <div class="accordion-content" id="accordion-examples-content">
-                <!-- Populado via JS -->
+              <div class="space-y-1">
+                <h4 class="font-bold text-sm text-black">Professor Socrático</h4>
+                <p class="text-xs text-slate-500 leading-relaxed">Faça perguntas livremente e receba provocações
+                  inteligentes que guiam até a solução.</p>
+              </div>
+            </div>
+
+            <!-- Benefit 3 -->
+            <div
+              class="flashlight-card p-6 rounded-2xl border border-slate-200 bg-white/70 flex flex-col justify-between h-48 group">
+              <div class="flex justify-between items-start">
+                <div class="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center">
+                  <iconify-icon icon="solar:shield-bold-duotone"
+                    class="text-lg text-slate-400 group-hover:text-green-500 transition-colors"></iconify-icon>
+                </div>
+                <span
+                  class="text-xl font-heading font-black text-slate-200/80 group-hover:text-slate-400/20 transition-colors">03</span>
+              </div>
+              <div class="space-y-1">
+                <h4 class="font-bold text-sm text-black">Auxílio em Erros</h4>
+                <p class="text-xs text-slate-500 leading-relaxed">Execute seu código e obtenha explicações didáticas de
+                  erros de sintaxe ou execução.</p>
+              </div>
+            </div>
+
+            <!-- Benefit 4 -->
+            <div
+              class="flashlight-card p-6 rounded-2xl border border-slate-200 bg-white/70 flex flex-col justify-between h-48 group">
+              <div class="flex justify-between items-start">
+                <div class="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center">
+                  <iconify-icon icon="solar:chart-2-bold-duotone"
+                    class="text-lg text-slate-400 group-hover:text-purple-500 transition-colors"></iconify-icon>
+                </div>
+                <span
+                  class="text-xl font-heading font-black text-slate-200/80 group-hover:text-slate-400/20 transition-colors">04</span>
+              </div>
+              <div class="space-y-1">
+                <h4 class="font-bold text-sm text-black">Métricas de Foco</h4>
+                <p class="text-xs text-slate-500 leading-relaxed">Visualize o seu índice de inatividade, resiliência e
+                  dependência de dicas em tempo real.</p>
               </div>
             </div>
           </div>
-        </div>
-      </aside>
+        </section>
 
-      <!-- Main Workspace -->
-      <main class="main-workspace">
-        <div class="workspace-header">
-          <div class="logo-container">
-            <div class="logo-dot"></div>
-            <div class="logo-text">Área do Estudante</div>
-          </div>
-          <div class="workspace-meta">
-            <span class="badge-tag">Socrático</span>
-            <span class="badge-tag">Anti-Overreliance</span>
-          </div>
-        </div>
-
-        <!-- Problem Header Card -->
-        <div class="problem-card">
-          <h2 id="problem-title">Título do Desafio</h2>
-          <div class="problem-statement" id="problem-statement">
-            Enunciado do problema será carregado aqui...
-          </div>
-          <!-- Constraints Expander -->
-          <div class="constraints-expander" id="constraints-expander">
-            <div class="expander-trigger">
-              <span>Restrições e Regras</span>
-              <span>▼</span>
-            </div>
-            <div class="expander-content">
-              <ul class="constraints-list" id="constraints-list">
-                <!-- Populado via JS -->
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tab Selector Mode -->
-        <div class="mode-selector">
-          <div class="mode-tab active" id="tab-desc" data-mode="desc">Descrever ideia</div>
-          <div class="mode-tab" id="tab-code" data-mode="code">Escrever código (Python)</div>
-        </div>
-
-        <!-- TAB 1: Descrever Ideia -->
-        <div class="tab-content active" id="panel-desc">
-          <div class="form-group">
-            <textarea id="textarea-desc" rows="8" placeholder="Descreva em passos em português o que você pretende fazer para resolver o problema... (mín. 10 caracteres)"></textarea>
-          </div>
-          <div class="action-row">
-            <button class="btn btn-primary" id="btn-submit-desc">Registrar tentativa</button>
-            <button class="btn btn-secondary" id="btn-hint-desc">💡 Hint</button>
-            <button class="btn btn-secondary" id="btn-ask-tutor-desc">👨‍🏫 Pergunte ao professor</button>
+        <!-- Features Section (Como funciona?) -->
+        <section class="border-t border-slate-100 pt-16 md:pt-24 space-y-12 animate-on-scroll" id="features-anch">
+          <div class="text-center space-y-2">
+            <span class="text-xs font-mono uppercase text-slate-400 tracking-widest">Passo a Passo</span>
+            <h2 class="text-3xl md:text-4xl font-bold font-heading text-black tracking-tight">Como funciona o treino?
+            </h2>
           </div>
 
-          <!-- Socratic dialogue for Description -->
-          <div class="feedback-box" id="feedback-desc" style="display: none;"></div>
-
-          <div class="accordion-item" id="accordion-socratic-desc" style="display: none; border-color: var(--color-primary);">
-            <div class="accordion-header" style="background-color: rgba(28, 176, 246, 0.1);">
-              <span style="color: var(--color-primary); font-weight: 800;">👨‍🏫 Pergunte ao Professor Socrático</span>
-            </div>
-            <div class="accordion-content" style="display: block; border-color: var(--color-border);">
-              <div class="form-group" style="margin-bottom: 12px;">
-                <input type="text" id="input-socratic-desc" placeholder="Faça uma pergunta curta sobre sua ideia...">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Feature Card 1 -->
+            <div
+              class="flashlight-card p-8 rounded-2xl border border-slate-200 bg-white/70 flex flex-col justify-between h-64 group">
+              <div class="flex justify-between items-start">
+                <div class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
+                  <iconify-icon icon="solar:folder-open-bold-duotone"
+                    class="text-xl text-slate-400 group-hover:text-sky-500 transition-colors"></iconify-icon>
+                </div>
+                <span
+                  class="text-3xl font-heading font-black text-slate-200/80 group-hover:text-sky-500/20 transition-colors">01</span>
               </div>
-              <button class="btn btn-primary btn-sm" id="btn-send-socratic-desc">Enviar Pergunta</button>
-              <div id="reply-socratic-desc" style="margin-top: 16px; white-space: pre-wrap; font-size: 14px; line-height: 1.6;"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- TAB 2: Escrever Código -->
-        <div class="tab-content" id="panel-code">
-          <div class="code-editor-wrapper">
-            <textarea id="textarea-code" class="code-textarea" rows="12" placeholder="def minha_funcao(n):&#10;    # Digite seu código Python aqui..."></textarea>
-          </div>
-          <div class="action-row">
-            <button class="btn btn-primary" id="btn-submit-code">
-              <span class="spinner" id="pyodide-spinner" style="display: none;"></span>
-              Registrar código
-            </button>
-            <button class="btn btn-secondary" id="btn-hint-code">💡 Hint</button>
-            <button class="btn btn-secondary" id="btn-ask-tutor-code">👨‍🏫 Pergunte ao professor</button>
-            <span class="action-caption">Dica: use `print()` para ver saídas no console.</span>
-          </div>
-
-          <!-- Socratic dialogue/error feedback for Code -->
-          <div class="feedback-box error" id="feedback-code" style="display: none;"></div>
-
-          <!-- Socratic Question box for Code tab -->
-          <div class="accordion-item" id="accordion-socratic-code" style="display: none; border-color: var(--color-primary);">
-            <div class="accordion-header" style="background-color: rgba(28, 176, 246, 0.1);">
-              <span style="color: var(--color-primary); font-weight: 800;">👨‍🏫 Pergunte ao Professor Socrático</span>
-            </div>
-            <div class="accordion-content" style="display: block; border-color: var(--color-border);">
-              <div class="form-group" style="margin-bottom: 12px;">
-                <input type="text" id="input-socratic-code" placeholder="Faça uma pergunta curta sobre o seu código...">
+              <div class="space-y-2">
+                <h3 class="font-bold text-base text-black group-hover:text-sky-500 transition-colors">1. Escolha o
+                  Desafio</h3>
+                <p class="text-xs text-slate-500 leading-relaxed">Selecione um exercício Python na lista lateral. Leia o
+                  enunciado e as restrições recomendadas.</p>
               </div>
-              <button class="btn btn-primary btn-sm" id="btn-send-socratic-code">Enviar Pergunta</button>
-              <div id="reply-socratic-code" style="margin-top: 16px; white-space: pre-wrap; font-size: 14px; line-height: 1.6;"></div>
-            </div>
-          </div>
-
-          <!-- Execution results -->
-          <div class="result-container" id="execution-results" style="display: none;">
-            <h3>Resultado do código</h3>
-            
-            <div id="console-wrapper">
-              <strong>Saída (stdout):</strong>
-              <div class="console-output" id="stdout-output"></div>
             </div>
 
-            <div id="error-wrapper" style="display: none; margin-top: 12px;">
-              <strong style="color: var(--color-error)">Erro de Execução:</strong>
-              <pre class="console-output" id="error-output" style="color: #F87171; border-color: #7F1D1D; margin-top: 4px;"></pre>
-              <div class="feedback-box" id="error-ai-help" style="margin-top: 12px; background-color: #FEF2F2; border-color: #FCA5A5; color: #7F1D1D;"></div>
-            </div>
-
-            <div id="tests-wrapper" style="margin-top: 12px;">
-              <strong>Verificação (testes):</strong>
-              <div class="test-list" id="test-list-container" style="margin-top: 8px;">
-                <!-- Populados via JS -->
+            <!-- Feature Card 2 -->
+            <div
+              class="flashlight-card p-8 rounded-2xl border border-slate-200 bg-white/70 flex flex-col justify-between h-64 group">
+              <div class="flex justify-between items-start">
+                <div class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
+                  <iconify-icon icon="solar:pen-new-square-bold-duotone"
+                    class="text-xl text-slate-400 group-hover:text-sky-500 transition-colors"></iconify-icon>
+                </div>
+                <span
+                  class="text-3xl font-heading font-black text-slate-200/80 group-hover:text-sky-500/20 transition-colors">02</span>
               </div>
-              <div class="feedback-box" id="test-ai-help" style="margin-top: 12px; display: none;"></div>
+              <div class="space-y-2">
+                <h3 class="font-bold text-base text-black group-hover:text-sky-500 transition-colors">2. Tente (Ideia ou
+                  Código)</h3>
+                <p class="text-xs text-slate-500 leading-relaxed">Escreva os passos da sua ideia em português
+                  estruturado ou redija o código Python no editor.</p>
+              </div>
+            </div>
+
+            <!-- Feature Card 3 -->
+            <div
+              class="flashlight-card p-8 rounded-2xl border border-slate-200 bg-white/70 flex flex-col justify-between h-64 group">
+              <div class="flex justify-between items-start">
+                <div class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
+                  <iconify-icon icon="solar:document-text-bold-duotone"
+                    class="text-xl text-slate-400 group-hover:text-sky-500 transition-colors"></iconify-icon>
+                </div>
+                <span
+                  class="text-3xl font-heading font-black text-slate-200/80 group-hover:text-sky-500/20 transition-colors">03</span>
+              </div>
+              <div class="space-y-2">
+                <h3 class="font-bold text-base text-black group-hover:text-sky-500 transition-colors">3. Validação
+                  Automática</h3>
+                <p class="text-xs text-slate-500 leading-relaxed">Execute os testes automáticos. A IA analisa os erros
+                  socraticamente até você atingir o sucesso.</p>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        <!-- Status Banner -->
-        <div class="status-banner" id="status-banner">
-          <span>Status do exercício: Em andamento</span>
-        </div>
+        <!-- About Me Section -->
+        <section class="border-t border-slate-100 pt-16 md:pt-24 space-y-12 animate-on-scroll">
+          <div class="text-center space-y-2">
+            <span class="text-xs font-mono uppercase text-slate-400 tracking-widest">Autora</span>
+            <h2 class="text-3xl md:text-4xl font-bold font-heading text-black tracking-tight">Sobre mim</h2>
+          </div>
 
-        <!-- Dashboard de Métricas -->
-        <h3 class="dashboard-title">📊 Painel de Métricas (Behavioral)</h3>
-        <div class="metrics-grid">
-          <div class="metric-card">
-            <span class="metric-value" id="metric-ipt">0</span>
-            <span class="metric-label">IPT</span>
-            <span class="metric-caption">Dicas solicitadas</span>
+          <div class="max-w-4xl mx-auto">
+            <!-- Profile Card -->
+            <div id="about-card"
+              class="flashlight-card p-0 flex flex-col md:flex-row rounded-2xl overflow-hidden group cursor-pointer select-none"
+              style="background-color: #fafafa;">
+              <!-- Left side: Portrait Image -->
+              <div
+                class="w-full md:w-1/3 bg-slate-100 min-h-[200px] md:min-h-full relative overflow-hidden flex-shrink-0">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80"
+                  class="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+                  alt="Gabi Profile">
+              </div>
+
+              <!-- Right side: Content -->
+              <div class="p-6 md:w-2/3 flex flex-col justify-center">
+                <div class="mb-2">
+                  <h3 class="font-bold text-lg text-black">Gabriela Sales</h3>
+                  <p class="text-xs font-mono text-slate-400">Tecnologia, IA, dados e educação</p>
+                </div>
+
+                <!-- Quote block inspired by design_system5.html but with accent border -->
+                <div class="border-l-[3px] border-[#1CB0F6] pl-3 py-1 my-2">
+                  <p class="text-sm text-slate-600 italic">"Transformo curiosidade em projetos, tecnologia em
+                    aprendizado e ideias em soluções reais."</p>
+                </div>
+
+                <!-- Collapsible/Expandable bio text -->
+                <div id="about-bio-container"
+                  class="max-h-0 opacity-0 overflow-hidden transition-all duration-500 ease-out space-y-4">
+                  <div class="h-px bg-slate-100 my-2"></div>
+                  <div class="text-xs text-slate-600 leading-relaxed space-y-3">
+                    <p>
+                      Sou a Gabi, uma pessoa movida por curiosidade, aprendizado e vontade de transformar ideias em
+                      projetos reais. Minha jornada passa pela Engenharia da Computação, Ciência de Dados, Inteligência
+                      Artificial, educação e empreendedorismo.
+                    </p>
+                    <p>
+                      Gosto de entender problemas, criar soluções e ensinar de um jeito mais simples e acessível. Tenho
+                      experiência com projetos de dados, IA generativa, desenvolvimento de plataformas educacionais,
+                      dashboards, automação e também com impressão 3D, onde crio produtos personalizados pela <span
+                        class="font-bold text-slate-800">3D da Gabs</span>.
+                    </p>
+                    <p>
+                      A educação sempre fez parte da minha história. Já ensinei tecnologia, lógica e matemática para
+                      jovens, e hoje quero usar a IA para ajudar pessoas a aprenderem melhor, com mais autonomia e
+                      confiança.
+                    </p>
+                    <p>
+                      No futuro, quero ser referência em IA generativa e construir soluções que unam tecnologia,
+                      criatividade e impacto social.
+                    </p>
+                  </div>
+
+                  <!-- Tags inside expansion -->
+                  <div class="pt-2">
+                    <span class="text-[9px] font-mono uppercase text-slate-400 tracking-wider block mb-1.5">Áreas de
+                      Interesse</span>
+                    <div class="flex flex-wrap gap-1.5">
+                      <span
+                        class="text-[9px] font-medium bg-slate-100 text-slate-600 py-0.5 px-2 rounded-full border border-slate-200/50">Engenharia
+                        da Computação</span>
+                      <span
+                        class="text-[9px] font-medium bg-slate-100 text-slate-600 py-0.5 px-2 rounded-full border border-slate-200/50">Ciência
+                        de Dados</span>
+                      <span
+                        class="text-[9px] font-medium bg-slate-100 text-slate-600 py-0.5 px-2 rounded-full border border-slate-200/50">IA
+                        Generativa</span>
+                      <span
+                        class="text-[9px] font-medium bg-slate-100 text-slate-600 py-0.5 px-2 rounded-full border border-slate-200/50">Educação</span>
+                      <span
+                        class="text-[9px] font-medium bg-slate-100 text-slate-600 py-0.5 px-2 rounded-full border border-slate-200/50">Analytics</span>
+                      <span
+                        class="text-[9px] font-medium bg-slate-100 text-slate-600 py-0.5 px-2 rounded-full border border-slate-200/50">Impressão
+                        3D</span>
+                      <span
+                        class="text-[9px] font-medium bg-slate-100 text-slate-600 py-0.5 px-2 rounded-full border border-slate-200/50">Empreendedorismo</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Footer with Available status and trigger prompt -->
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                  <div class="flex gap-2 items-center">
+                    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    <span class="text-xs text-neutral-400 font-sans">Disponível para novos projetos</span>
+                  </div>
+                  <span class="text-[10px] font-mono text-slate-400 uppercase tracking-widest flex items-center gap-1.5"
+                    id="about-card-prompt">
+                    <iconify-icon icon="solar:lightbulb-bold" class="text-amber-500 animate-pulse"></iconify-icon>
+                    <span>Clique para ler minha história</span>
+                    <iconify-icon icon="solar:alt-arrow-down-linear" class="text-xs transition-transform duration-500"
+                      id="about-card-arrow"></iconify-icon>
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="metric-card">
-            <span class="metric-value" id="metric-trib">0.00</span>
-            <span class="metric-label">TRIB</span>
-            <span class="metric-caption">Taxa de Resiliência</span>
-          </div>
-          <div class="metric-card">
-            <span class="metric-value" id="metric-rer">0.00</span>
-            <span class="metric-label">RER</span>
-            <span class="metric-caption">Reengajamento pós-bloqueio</span>
-          </div>
-          <div class="metric-card">
-            <span class="metric-value" id="metric-it">0s</span>
-            <span class="metric-label">IT</span>
-            <span class="metric-caption">Inatividade Total</span>
-          </div>
-        </div>
+        </section>
       </main>
+
+      <!-- Landing Footer -->
+      <footer class="bg-slate-50 border-t border-slate-100 py-12 px-6 text-center mt-12">
+        <div class="max-w-7xl mx-auto space-y-4">
+          <div class="logo-container justify-center">
+            <div class="logo-dot"></div>
+            <div class="logo-text text-slate-700">IA Tutor</div>
+          </div>
+          <p class="text-[10px] font-mono text-slate-400 uppercase tracking-widest">
+            Protótipo de TCC — Plataforma de Programação Anti-Overreliance © 2026
+          </p>
+        </div>
+      </footer>
     </div>
   </div>
 
   <!-- Toast de alertas -->
-  <div class="alert-toast" id="alert-toast">Alerta!</div>
+  <div class="alert-toast fixed bottom-6 right-6 bg-slate-900 text-white py-3.5 px-6 rounded-xl font-semibold text-xs shadow-2xl z-50 transition-all duration-300 flex items-center gap-2.5 border border-slate-800" id="alert-toast" style="display: none;">
+    <iconify-icon icon="solar:bell-bold" class="text-sky-400 text-base"></iconify-icon>
+    <span>Alerta!</span>
+  </div>
 
-  <!-- Inclusão das lógicas JS -->
-  <script src="problems.js"></script>
-  <script src="runner.js"></script>
-  <script src="tutor.js"></script>
-  <script src="app.js"></script>
+  <!-- ==================== JS HELPERS FOR VISUAL EFFECTS ==================== -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+      // 1. Reveal Animations (Observer)
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+            if (entry.target.id === 'hero-title') {
+              entry.target.classList.add('reveal-active');
+            }
+          }
+        });
+      }, { threshold: 0.1 });
+
+      document.querySelectorAll('.animate-on-scroll, #hero-title').forEach(el => {
+        el.classList.add('animate-on-scroll');
+        observer.observe(el);
+      });
+
+      // 2. Initial Page Load Reveal
+      setTimeout(() => {
+        document.querySelector('header').classList.add('loaded');
+        const heroTitle = document.getElementById('hero-title');
+        if (heroTitle) {
+          heroTitle.classList.add('reveal-active');
+          heroTitle.classList.add('active');
+        }
+      }, 100);
+
+      // 3. Flashlight Effect Logic
+      const initFlashlight = () => {
+        const cards = document.querySelectorAll('.flashlight-card');
+        cards.forEach(card => {
+          card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+          });
+        });
+      };
+      initFlashlight();
+
+      // 4. About Card click expansion logic
+      const aboutCard = document.getElementById('about-card');
+      const aboutBioContainer = document.getElementById('about-bio-container');
+      const aboutArrow = document.getElementById('about-card-arrow');
+      const aboutPrompt = document.querySelector('#about-card-prompt span');
+
+      if (aboutCard && aboutBioContainer) {
+        aboutCard.addEventListener('click', () => {
+          const isOpen = aboutBioContainer.classList.toggle('open');
+          if (isOpen) {
+            aboutArrow.style.transform = 'rotate(180deg)';
+            aboutPrompt.innerText = 'Clique para recolher';
+          } else {
+            aboutArrow.style.transform = 'rotate(0deg)';
+            aboutPrompt.innerText = 'Clique para ler minha história';
+          }
+        });
+
+        // Prevent click events inside the bio container from collapsing the card
+        aboutBioContainer.addEventListener('click', (e) => {
+          e.stopPropagation();
+        });
+      }
+
+      // 5. Landing Page Navigation
+      const btnStartNow = document.getElementById('btn-start-now');
+      if (btnStartNow) {
+        btnStartNow.addEventListener('click', () => {
+          window.location.href = 'conteudos.html';
+        });
+      }
+
+      const btnShowFeatures = document.getElementById('btn-show-features');
+      if (btnShowFeatures) {
+        btnShowFeatures.addEventListener('click', () => {
+          const el = document.getElementById('features-anch');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        });
+      }
+
+    });
+  </script>
 </body>
 </html>
