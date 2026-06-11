@@ -51,67 +51,103 @@ import sys
 import io
 import json
 import builtins
+import traceback
 
-# Redireciona a saída de tela (stdout)
 stdout_buffer = io.StringIO()
 sys.stdout = stdout_buffer
 
-# Configura o ambiente de execução restrito (Sandbox)
 allowed_builtins = [
     "abs", "all", "any", "enumerate", "len", "max", "min", "range", "sum", 
     "print", "map", "filter", "zip", "sorted", "list", "dict", "set", "tuple",
-    "int", "float", "str", "bool"
+    "int", "float", "str", "bool", "round", "type"
 ]
 safe_builtins = {k: getattr(builtins, k) for k in allowed_builtins if hasattr(builtins, k)}
 globals_dict = {"__builtins__": safe_builtins}
-locals_dict = {}
 
 compilation_error = None
 test_results = []
+tests = json.loads(tests_json_to_test)
+func_name = function_name_to_test
 
-try:
-    # user_code_to_run foi configurado via JS globals
-    exec(user_code_to_run, globals_dict, locals_dict)
-except Exception as e:
-    compilation_error = f"{type(e).__name__}: {e}"
+# Modo Função vs Modo Script
+is_function_mode = bool(func_name) and (f"def {func_name}" in user_code_to_run)
 
-if not compilation_error:
-    # Carrega testes e assinatura configurados via JS globals
-    tests = json.loads(tests_json_to_test)
-    func_name = function_name_to_test
-    
-    if func_name in locals_dict and callable(locals_dict[func_name]):
-        func = locals_dict[func_name]
-        for i, t in enumerate(tests, start=1):
-            inp = t["in"]
-            expected = t["out"]
-            try:
-                # Chama a função do estudante
-                res = func(inp)
-                ok = res == expected
-                test_results.append({
-                    "id": i,
-                    "ok": bool(ok),
-                    "result": repr(res),
-                    "expected": repr(expected),
-                    "error": None
-                })
-            except Exception as e:
-                test_results.append({
-                    "id": i,
-                    "ok": False,
-                    "result": None,
-                    "expected": repr(expected),
-                    "error": f"{type(e).__name__}: {e}"
-                })
-    else:
-        compilation_error = f"Função '{func_name}' não encontrada ou não é chamável."
+if is_function_mode:
+    # MODO FUNÇÃO (Módulo 4+)
+    locals_dict = {}
+    try:
+        exec(user_code_to_run, globals_dict, locals_dict)
+    except Exception as e:
+        compilation_error = f"{type(e).__name__}: {e}"
 
-# Restaura o stdout original
+    if not compilation_error:
+        if func_name in locals_dict and callable(locals_dict[func_name]):
+            func = locals_dict[func_name]
+            for i, t in enumerate(tests, start=1):
+                inp = t["in"]
+                expected = t["out"]
+                try:
+                    res = func(inp)
+                    ok = (res == expected)
+                    test_results.append({
+                        "id": i,
+                        "ok": bool(ok),
+                        "result": repr(res),
+                        "expected": repr(expected),
+                        "error": None
+                    })
+                except Exception as e:
+                    test_results.append({
+                        "id": i,
+                        "ok": False,
+                        "result": None,
+                        "expected": repr(expected),
+                        "error": f"{type(e).__name__}: {e}"
+                    })
+        else:
+            compilation_error = f"Função '{func_name}' não encontrada ou não é chamável."
+
+else:
+    # MODO SCRIPT (Módulo 1 a 3)
+    for i, t in enumerate(tests, start=1):
+        inp = t["in"]
+        expected = t["out"]
+        
+        stdout_buffer.seek(0)
+        stdout_buffer.truncate(0)
+        
+        test_locals = {}
+        # Injetamos a entrada do teste na variável 'entrada'
+        test_locals['entrada'] = inp
+        
+        try:
+            exec(user_code_to_run, globals_dict, test_locals)
+            
+            # Captura a saída do print
+            out_str = stdout_buffer.getvalue().strip()
+            # Converte expected para string para comparar com texto impresso
+            expected_str = str(expected)
+            
+            ok = (out_str == expected_str)
+            test_results.append({
+                "id": i,
+                "ok": bool(ok),
+                "result": out_str,
+                "expected": expected_str,
+                "error": None
+            })
+        except Exception as e:
+            test_results.append({
+                "id": i,
+                "ok": False,
+                "result": None,
+                "expected": str(expected),
+                "error": f"{type(e).__name__}: {e}"
+            })
+
 stdout_val = stdout_buffer.getvalue()
 sys.stdout = sys.__stdout__
 
-# Devolve a estrutura de resposta serializada em JSON
 json.dumps({
     "stdout": stdout_val,
     "error": compilation_error,

@@ -1,342 +1,95 @@
-# Módulo 1 — Variáveis, Tipos de Dados e Operações em Python
+# Currículo de Python — AI Programming Tutor
 
-## Objetivos de aprendizagem
-
-Ao final deste módulo, o estudante deverá ser capaz de:
-
-* Entender o que são variáveis.
-* Criar e utilizar variáveis em programas simples.
-* Diferenciar tipos de dados numéricos e textuais.
-* Realizar operações aritméticas.
-* Concatenar textos.
-* Utilizar comandos de entrada e saída em Python.
-
-## Conteúdos
-
-### Variáveis
-
-* Conceito de variável
-* Nomeação de variáveis
-* Atribuição de valores
-* Atualização de valores
-* Boas práticas para nomes de variáveis
-
-### Tipos de dados
-
-#### Numéricos
-
-* `int`
-* `float`
-
-#### Texto
-
-* `str`
-
-#### Booleano
-
-* `bool`
-* `True`
-* `False`
-
-### Interação com o usuário
-
-#### Saída de dados
-
-* `print()`
-* Quebra de linha com `\n`
-* Exibição de valores armazenados em variáveis
-
-#### Entrada de dados
-
-* `input()`
-* Leitura de informações digitadas pelo usuário
-* Conversão de tipos:
-
-  * `int()`
-  * `float()`
-  * `str()`
-
-### Operações
-
-#### Operadores aritméticos
-
-* Soma: `+`
-* Subtração: `-`
-* Divisão: `/`
-* Divisão inteira: `//`
-* Resto da divisão: `%`
-* Multiplicação: `*`
-* Potência: `**`
-
-#### Concatenação e formatação de textos
-
-* Junção de textos com `+`
-* Uso de vírgula no `print()`
-* Uso de f-string:
-
-  * `f"Olá, {nome}"`
-
-## Possíveis exercícios
-
-* Criar variáveis para armazenar nome, idade e altura.
-* Ler o nome do usuário e exibir uma mensagem personalizada.
-* Ler dois números e mostrar a soma.
-* Calcular média de notas.
-* Calcular idade a partir do ano de nascimento.
-* Montar uma frase usando concatenação.
-* Exibir mensagens formatadas usando f-string.
-* Converter valores recebidos pelo `input()` para `int` ou `float`.
+Este documento descreve os objetivos de aprendizagem e os conteúdos técnicos cobertos pela plataforma, divididos em 5 módulos progressivos mais um desafio final de integração.
 
 ---
 
-# Módulo 2 — Estruturas Condicionais em Python
+## Módulo 1 — Variáveis, Tipos de Dados e Operações
 
-## Objetivos de aprendizagem
+### Objetivos e Conteúdos
+Introduzir a sintaxe básica do Python, armazenamento de dados em memória e manipulação algébrica.
+- **Variáveis e Tipos Básicos**: Declaração, regras de nomeação, tipos numéricos (`int`, `float`), textuais (`str`) e booleanos (`bool`).
+- **Operadores Aritméticos**: Soma (`+`), Subtração (`-`), Multiplicação (`*`), Divisão (`/`), Resto (`%`) e Potência (`**`).
+- **Entrada e Saída**: O uso prático da função `print()` e a injeção da variável global de ambiente `entrada`.
+- **Formatação**: Arredondamento de valores decimais utilizando `round()`.
 
-Ao final deste módulo, o estudante deverá ser capaz de:
-
-* Compreender o uso de condições em programas.
-* Utilizar valores booleanos.
-* Comparar valores.
-* Criar decisões usando `if`, `elif` e `else`.
-* Criar fluxos diferentes de execução de acordo com uma condição.
-
-## Conteúdos
-
-### Conceito de condição
-
-* O que é uma decisão em programação
-* Fluxo condicional
-* Verdadeiro ou falso
-* Condições simples
-* Condições compostas
-
-### Tipo booleano
-
-* `bool`
-* `True`
-* `False`
-
-### Operadores lógicos
-
-* `and`
-* `or`
-* `not`
-
-### Comparadores
-
-* Igualdade: `==`
-* Diferença: `!=`
-* Maior ou igual: `>=`
-* Maior que: `>`
-* Menor que: `<`
-* Menor ou igual: `<=`
-
-### If / Elif / Else
-
-* `if`
-* `elif`
-* `else`
-* Condições encadeadas
-* Condições compostas
-
-### Múltiplas escolhas
-
-* Uso de vários `elif`
-* Introdução ao `match/case`, se for adequado ao nível da turma
-
-## Possíveis exercícios
-
-* Verificar se uma pessoa é maior de idade.
-* Verificar se um número é positivo, negativo ou zero.
-* Criar um sistema simples de aprovação por nota.
-* Classificar faixa etária.
-* Criar um menu de opções usando `if`, `elif` e `else`.
-* Verificar se um número é par ou ímpar.
-* Verificar se uma senha digitada está correta.
-* Verificar se um aluno foi aprovado, em recuperação ou reprovado.
+### Exercícios Práticos
+1. **Cálculo de IMC**: Uso de variáveis matemáticas básicas e exponenciação para determinar o Índice de Massa Corporal.
+2. **Conversor de Temperatura**: Prática da ordem de precedência matemática utilizando parênteses.
+3. **Cálculo de Desconto**: Divisão estrutural de problemas e cálculo de porcentagens sobre preços.
 
 ---
 
-# Módulo 3 — Estruturas de Repetição em Python
+## Módulo 2 — Estruturas Condicionais
 
-## Objetivos de aprendizagem
+### Objetivos e Conteúdos
+Garantir que o estudante compreenda fluxos de decisão e lógica booleana.
+- **Controle de Fluxo**: Estruturas de decisão utilizando `if`, `elif` e `else`.
+- **Comparadores Matemáticos**: Igualdade (`==`), diferença (`!=`), maior/menor ou igual (`>=`, `<=`).
+- **Lógica Booleana Prática**: Avaliação de sentenças condicionais complexas e exclusão mútua em encadeamentos lógicos.
 
-Ao final deste módulo, o estudante deverá ser capaz de:
-
-* Entender quando usar repetições em algoritmos.
-* Utilizar estruturas de repetição para executar comandos várias vezes.
-* Diferenciar `for` e `while`.
-* Controlar loops usando `break` e `continue`.
-* Simular comportamentos parecidos com `do while` usando `while True`.
-
-## Conteúdos
-
-### Conceito de repetição
-
-* O que é um loop
-* Por que usar estruturas de repetição
-* Repetições com quantidade definida
-* Repetições com condição
-
-### Controle de loops
-
-* `break`
-* `continue`
-
-### For
-
-* Estrutura `for`
-* Uso com `range()`
-* Uso de contador
-* Repetição com quantidade conhecida
-* Percorrer textos e listas
-
-### While
-
-* Estrutura `while`
-* Repetição baseada em condição
-* Quando usar `while`
-* Cuidado com loop infinito
-
-### Simulação de Do While em Python
-
-* Python não possui `do while` nativo
-* Uso de `while True`
-* Interrupção com `break`
-* Execução mínima de uma vez
-
-## Possíveis exercícios
-
-* Contar de 1 até 10.
-* Mostrar os números pares de 1 até 100.
-* Somar vários números digitados pelo usuário.
-* Criar uma tabuada.
-* Repetir um menu até o usuário escolher sair.
-* Validar entrada do usuário até receber um valor correto.
-* Usar `break` para interromper um loop.
-* Usar `continue` para pular uma repetição.
-* Criar um jogo simples de adivinhação.
+### Exercícios Práticos
+1. **Verificar Maioridade**: Criação de um bloco condicional simples (`if/else`) para idades.
+2. **Par ou Ímpar**: Utilização do operador de módulo (`%`) e retorno de tipos Booleanos (`True/False`).
+3. **Desconto por Categoria**: Encadeamento múltiplo (`elif`) para distribuir descontos baseados em checagem de *strings*.
 
 ---
 
-# Módulo 4 — Funções e Modularização em Python
+## Módulo 3 — Estruturas de Repetição (Loops)
 
-## Objetivos de aprendizagem
+### Objetivos e Conteúdos
+Ensinar o reaproveitamento de rotinas e execução em lote.
+- **Laço `while`**: Execução orientada a condições dinâmicas, sentinelas e precauções contra "loops infinitos".
+- **Laço `for`**: Iteração sobre sequências delimitadas utilizando a função `range()`.
+- **Contadores e Acumuladores**: Variáveis que atualizam seus próprios valores a cada ciclo iterativo (Ex: `soma += valor`).
 
-Ao final deste módulo, o estudante deverá ser capaz de:
-
-* Entender o que são funções.
-* Criar funções simples em Python.
-* Reutilizar blocos de código.
-* Separar problemas em partes menores.
-* Utilizar parâmetros e retornos.
-
-## Conteúdos
-
-### Conceito de função
-
-* O que é uma função
-* Por que usar funções
-* Reutilização de código
-* Organização do programa
-
-### Criação de funções
-
-* Palavra-chave `def`
-* Nome da função
-* Corpo da função
-* Chamada de função
-* Indentação
-
-### Parâmetros
-
-* O que são parâmetros
-* Envio de valores para uma função
-* Parâmetros obrigatórios
-
-### Retorno
-
-* Palavra-chave `return`
-* Funções com retorno
-* Funções sem retorno
-* Diferença entre `print()` e `return`
-
-### Modularização
-
-* Divisão do programa em partes
-* Clareza e manutenção do código
-* Evitar repetição de código
-* Organização de soluções maiores
-
-## Possíveis exercícios
-
-* Criar uma função para somar dois números.
-* Criar uma função para calcular média.
-* Criar uma função para verificar se um número é par.
-* Criar uma função para exibir uma mensagem personalizada.
-* Separar um programa em funções menores.
-* Criar uma calculadora simples usando funções.
-* Criar uma função que recebe nome e idade e retorna uma frase formatada.
+### Exercícios Práticos
+1. **Contagem Regressiva**: Utilização do laço `while` decrescente até zero para preencher uma lista.
+2. **Soma até o Limite**: Combinação de um acumulador de somas com um contador de iterações em um `while` com limite dinâmico.
+3. **Tabuada Completa**: Uso clássico do laço `for` atrelado ao `range(1, 11)`.
 
 ---
 
-# Módulo 5 — Estruturas de Dados Básicas em Python
+## Módulo 4 — Funções e Modularização
 
-## Objetivos de aprendizagem
+### Objetivos e Conteúdos
+Apresentar a abstração e a criação de blocos de códigos reutilizáveis e autossuficientes.
+- **Assinatura de Função**: Declaração de rotinas isoladas via palavra-chave `def`.
+- **Escopo e Parâmetros**: Envio de argumentos para o contexto interno da função.
+- **Saída de Dados (`return`)**: Transição entre imprimir no terminal e retornar efetivamente valores para o sistema avaliador.
+- **Padrões de Algoritmos**: *Early return* (retorno antecipado ao encontrar o resultado).
 
-Ao final deste módulo, o estudante deverá ser capaz de:
+### Exercícios Práticos
+1. **Busca em Lista**: Iterar e retornar antecipadamente o índice (`enumerate()`) de um valor específico.
+2. **Contagem de Vogais**: Iteração de *strings* e verificação de continência (`in`) com tratamento de capitalização (`lower()`).
+3. **Lista de Status**: Transformação em massa mapeando um conjunto de notas em uma nova lista de rótulos climáticos/status.
 
-* Entender o conceito de estrutura de dados.
-* Armazenar vários valores em uma mesma estrutura.
-* Percorrer coleções de dados.
-* Acessar, adicionar, alterar e remover elementos.
-* Resolver problemas simples usando listas.
+---
 
-## Conteúdos
+## Módulo 5 — Estruturas de Dados Avançadas
 
-### Conceito de estrutura de dados
+### Objetivos e Conteúdos
+Aprofundar nas coleções de dados, iteração complexa e otimização de processamento.
+- **Manipulação de Listas**: Inserção seletiva (`append`), e acesso rápido ao primeiro/último elemento via indexação negativa.
+- **Funções Integradas de Coleção**: Aproveitamento das funções hiperotimizadas nativas como `max()` e `min()`.
+- **Filtros e Presença**: Padrões de filtragem condicional (`not in`) para garantir unicidade e limpeza de dados.
 
-* O que são estruturas de dados
-* Por que usar estruturas de dados
-* Diferença entre variável simples e coleção de valores
+### Exercícios Práticos
+1. **Encontrar Extremos**: Extração eficiente do menor e maior valor sem a necessidade de desenhar loops manuais.
+2. **Filtrar Nomes**: Algoritmo de filtragem clássico preservando apenas itens cujo tamanho de *string* seja maior que cinco letras.
+3. **Remover Duplicatas**: Algoritmo de *deduplicação* processando valores ignorando os que já foram registrados em uma lista única.
 
-### Listas
+---
 
-* Criação de listas
-* Acesso por posição
-* Índices
-* Alteração de valores
-* Inserção de valores
-* Remoção de valores
-* Tamanho da lista com `len()`
+## Desafio Final 
 
-### Percorrendo listas
+O desafio final integra todos os módulos anteriores, apresentando uma estrutura de dados de nível de produção (*Lista de Dicionários*).
 
-* Uso de `for`
-* Uso de `while`
-* Percorrer todos os elementos
-* Buscar um elemento
-* Usar índice para acessar elementos
+### Conteúdos abordados:
+- Compreensão de chaves e valores estruturados.
+- Desempacotamento de arrays aninhados (ex: acessar a chave `notas` de cada aluno em um loop principal).
+- Agregação matemática global (Soma global cumulativa VS Contador de unidades).
+- Resolução de formato de lista mista de retorno para o integrador (Float, Inteiro e Arrays agregados juntos).
 
-### Operações comuns
-
-* Contar elementos
-* Somar valores
-* Calcular média
-* Encontrar maior valor com `max()`
-* Encontrar menor valor com `min()`
-* Filtrar valores
-* Verificar se um item existe na lista com `in`
-
-## Possíveis exercícios
-
-* Criar uma lista de nomes.
-* Exibir todos os elementos de uma lista.
-* Calcular a média de uma lista de notas.
-* Encontrar o maior número de uma lista.
-* Encontrar o menor número de uma lista.
-* Buscar um nome dentro de uma lista.
-* Contar quantos números pares existem em uma lista.
-* Criar uma lista de compras simples.
-* Adicionar e remover itens de uma lista.
+### Exercício Prático:
+- **Analisar Desempenho da Turma**: Dada uma lista de alunos com propriedades de idade e múltiplas notas dinâmicas, calcular a média global do sistema acadêmico, o total de alunos adultos, e extrair individualmente uma sub-lista dos alunos aprovados.

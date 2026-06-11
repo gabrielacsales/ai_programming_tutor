@@ -1,20 +1,43 @@
-// Cliente do Tutor Socrático com Guardrails e integração com OpenAI API
+// Cliente do Tutor Socrático com Guardrails e integração com API Google Gemini
 class SocraticTutor {
   constructor() {
-    this.apiKey = localStorage.getItem("openai_api_key") || "";
+    this.apiKey = localStorage.getItem("google_api_key") || "";
+    this.envApiKey = "";
+    this._loadEnvFallback();
+  }
+
+  async _loadEnvFallback() {
+    try {
+      const response = await fetch('.env');
+      if (response.ok) {
+        const text = await response.text();
+        const match = text.match(/GOOGLE_API_KEY\s*=\s*['"]?([^'"\n\r]+)['"]?/);
+        if (match && match[1]) {
+          this.envApiKey = match[1].trim();
+          window.dispatchEvent(new Event('apiKeyReady'));
+        }
+      }
+    } catch (e) {
+      // Ignore if .env doesn't exist or fetch is blocked
+    }
   }
 
   setApiKey(key) {
     this.apiKey = key.trim();
     if (this.apiKey) {
-      localStorage.setItem("openai_api_key", this.apiKey);
+      localStorage.setItem("google_api_key", this.apiKey);
     } else {
-      localStorage.removeItem("openai_api_key");
+      localStorage.removeItem("google_api_key");
     }
+    window.dispatchEvent(new Event('apiKeyReady'));
+  }
+
+  getEffectiveApiKey() {
+    return this.apiKey || this.envApiKey;
   }
 
   hasApiKey() {
-    return this.apiKey.length > 0;
+    return this.getEffectiveApiKey().length > 0;
   }
 
   // Guardrails locais de verificação de atalhos
@@ -36,38 +59,29 @@ class SocraticTutor {
     return `[contexto] exercício: ${title} | restrições: ${constraintsTxt}`;
   }
 
-  // Executa chamada HTTP para a API da OpenAI
+  // Executa chamada HTTP para a API do Google Gemini via SDK Oficial
   async _chat(system, user) {
-    if (!this.hasApiKey()) {
-      throw new Error("Chave de API da OpenAI não configurada.");
+    const keyToUse = this.getEffectiveApiKey(); 
+    if (!keyToUse) {
+      throw new Error("Chave de API do Gemini não configurada no .env e nem na tela.");
     }
 
     try {
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${this.apiKey}`
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [
-            { role: "system", content: system },
-            { role: "user", content: user }
-          ],
+      // Importa o SDK oficial do Google dinamicamente pelo CDN para rodar no navegador
+      const { GoogleGenAI } = await import("https://esm.sh/@google/genai");
+      const ai = new GoogleGenAI({ apiKey: keyToUse });
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: system + "\n\n" + user,
+        config: {
           temperature: 0.3
-        })
+        }
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || `Erro HTTP ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.choices[0].message.content.trim();
+      return response.text.trim();
     } catch (e) {
-      console.error("Erro na chamada OpenAI:", e);
+      console.error("Erro na chamada Gemini:", e);
       throw e;
     }
   }
@@ -81,7 +95,7 @@ class SocraticTutor {
 
     // 2) Se não tiver chave, devolve fallback amigável
     if (!this.hasApiKey()) {
-      return `⚠️ **Aviso:** Insira sua chave OpenAI na barra lateral para habilitar o tutor inteligente.\n\n*Dica socrática genérica:* Tente dividir o problema em pequenas partes. O que seu código deve fazer primeiro? Como obter a entrada e processá-la?`;
+      return `⚠️ **Aviso:** Insira sua chave Google Gemini na barra lateral para habilitar o tutor inteligente.\n\n*Dica socrática genérica:* Tente dividir o problema em pequenas partes. O que seu código deve fazer primeiro? Como obter a entrada e processá-la?`;
     }
 
     // 3) Chamada de IA real
@@ -107,9 +121,9 @@ class SocraticTutor {
     if (!this.hasApiKey()) {
       const cleanIdea = (idea || "").trim();
       if (cleanIdea.length < 20) {
-        return `⚠️ *(Insira a chave OpenAI para avaliação detalhada)*\n\nSua explicação está muito curta. Tente detalhar um pouco mais as etapas do que planeja fazer.`;
+        return `⚠️ *(Insira a chave Google Gemini para avaliação detalhada)*\n\nSua explicação está muito curta. Tente detalhar um pouco mais as etapas do que planeja fazer.`;
       }
-      return `⚠️ *(Insira a chave OpenAI para avaliação detalhada)*\n\nSua ideia parece ter uma boa estrutura. Tente traduzi-la em código Python na aba "Escrever código" para rodar os testes!`;
+      return `⚠️ *(Insira a chave Google Gemini para avaliação detalhada)*\n\nSua ideia parece ter uma boa estrutura. Tente traduzi-la em código Python na aba "Escrever código" para rodar os testes!`;
     }
 
     // 3) Chamada de IA real
@@ -123,7 +137,7 @@ class SocraticTutor {
   async explainError(errorMsg, codeExcerpt, ctx) {
     // 1) Se não tiver chave, heurística local para erros comuns de Python
     if (!this.hasApiKey()) {
-      let explanation = `⚠️ **Erro detectado:** \`${errorMsg}\`\n*(Insira sua chave OpenAI para receber ajuda passo a passo)*\n\n`;
+      let explanation = `⚠️ **Erro detectado:** \`${errorMsg}\`\n*(Insira sua chave Google Gemini para receber ajuda passo a passo)*\n\n`;
       if (errorMsg.includes("IndentationError")) {
         explanation += `**Dica sobre Indentação:** Em Python, os blocos de código dentro de funções, ifs ou loops devem ser deslocados para a direita por 4 espaços. Revise o alinhamento das suas linhas.`;
       } else if (errorMsg.includes("SyntaxError")) {

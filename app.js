@@ -110,12 +110,23 @@ const btnSaveKey = document.getElementById("btn-save-key");
 const alertToast = document.getElementById("alert-toast");
 
 // Accordions e Expanders
-const accordionSummary = document.getElementById("accordion-summary");
-const accordionSummaryContent = document.getElementById("accordion-summary-content");
-const accordionExamples = document.getElementById("accordion-examples");
-const accordionExamplesContent = document.getElementById("accordion-examples-content");
 const constraintsExpander = document.getElementById("constraints-expander");
 const constraintsList = document.getElementById("constraints-list");
+
+// Controle da Sidebar Retrátil
+const sidebar = document.querySelector(".sidebar");
+const btnToggleSidebar = document.getElementById("btn-toggle-sidebar");
+const sidebarHandle = document.getElementById("sidebar-handle");
+
+// Abas de Exercício e Conteúdo
+const tabExerciseStatement = document.getElementById("tab-exercise-statement");
+const tabExerciseSummary = document.getElementById("tab-exercise-summary");
+const tabExerciseExamples = document.getElementById("tab-exercise-examples");
+const viewExerciseStatement = document.getElementById("view-exercise-statement");
+const viewExerciseSummary = document.getElementById("view-exercise-summary");
+const viewExerciseExamples = document.getElementById("view-exercise-examples");
+const exerciseSummaryContent = document.getElementById("exercise-summary-content");
+const exerciseExamplesContent = document.getElementById("exercise-examples-content");
 
 // Abas de Modo
 const tabDesc = document.getElementById("tab-desc");
@@ -128,7 +139,10 @@ const problemTitle = document.getElementById("problem-title");
 const problemStatement = document.getElementById("problem-statement");
 const textareaDesc = document.getElementById("textarea-desc");
 const textareaCode = document.getElementById("textarea-code");
-const statusBanner = document.getElementById("status-banner");
+const exerciseStatusBadge = document.getElementById("exercise-status-badge");
+const exerciseStatusIcon = document.getElementById("exercise-status-icon");
+const exerciseStatusText = document.getElementById("exercise-status-text");
+
 
 // Botões e Feedback - Aba Descrição
 const btnSubmitDesc = document.getElementById("btn-submit-desc");
@@ -177,6 +191,11 @@ function showToast(message) {
   }, 4000);
 }
 
+function showActionToast(htmlContent) {
+  alertToast.innerHTML = htmlContent;
+  alertToast.style.display = "block";
+}
+
 // Atualiza o painel lateral de chaves
 function initApiKey() {
   if (tutor.hasApiKey()) {
@@ -185,13 +204,15 @@ function initApiKey() {
 }
 
 // Carrega os problemas na lista suspensa
-function populateExercises() {
+function populateExercises(currentModule = null) {
   selectExercise.innerHTML = "";
   problems.forEach(p => {
-    const opt = document.createElement("option");
-    opt.value = p.id;
-    opt.innerText = p.title;
-    selectExercise.appendChild(opt);
+    if (!currentModule || p.module === currentModule) {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.innerText = p.title;
+      selectExercise.appendChild(opt);
+    }
   });
 }
 
@@ -199,6 +220,9 @@ function populateExercises() {
 function loadActiveExercise(challengeId) {
   const p = problems.find(prob => prob.id === challengeId);
   if (!p) return;
+
+  populateExercises(p.module);
+  selectExercise.value = challengeId;
 
   // Busca ou cria a sessão do Orchestrator
   if (sessionMap.has(challengeId)) {
@@ -225,13 +249,15 @@ function loadActiveExercise(challengeId) {
     document.getElementById("constraints-expander").style.display = "none";
   }
 
-  // Preenche Resumos do Tema e Exemplos na Sidebar
-  accordionSummaryContent.innerText = p.statement; // Usa o enunciado como resumo simples
-  accordionExamplesContent.innerHTML = p.solution ? `<strong>Exemplo de solução:</strong><br><pre style="background: #f1f5f9; padding: 8px; border-radius: 4px; font-family: monospace; font-size: 12px; margin-top: 8px; white-space: pre-wrap;">${p.solution}</pre>` : "Este exercício não possui exemplos.";
+  // Preenche Resumos do Tema e Exemplos
+  exerciseSummaryContent.innerHTML = p.theory || `<p class="text-slate-600">${p.statement}</p>`;
+  exerciseExamplesContent.innerHTML = p.solution ?
+    `<strong class="block mb-2 text-slate-700">Exemplo de implementação (Solução do Professor):</strong><pre class="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-xs overflow-x-auto whitespace-pre-wrap">${p.solution}</pre>` :
+    "Este exercício não possui exemplos de solução.";
 
   // Restaura o estado da aba
   textareaDesc.value = currentOrch.state.user_idea;
-  textareaCode.value = currentOrch.state.user_code || `def ${p.function_name}(n):\n    # Escreva sua lógica aqui\n    pass`;
+  textareaCode.value = currentOrch.state.user_code || (p.function_name ? `def ${p.function_name}(n):\n    # Escreva sua lógica aqui\n    pass` : `# Os dados do teste estarão na variável 'entrada'\n# Use print() para exibir o resultado final\n\n`);
 
   // Reseta elementos de feedback visual da interface
   feedbackDesc.style.display = "none";
@@ -250,6 +276,9 @@ function loadActiveExercise(challengeId) {
   } else {
     switchMode("code");
   }
+
+  // Reseta para a aba "Desafio"
+  switchExerciseTab("statement");
 
   updateUIState();
 }
@@ -271,17 +300,45 @@ function switchMode(mode) {
   }
 }
 
+// Alterna entre abas de visualização do exercício ("Desafio", "Resumo do Tema" e "Exemplos do Professor")
+function switchExerciseTab(tabId) {
+  tabExerciseStatement.classList.remove("active");
+  tabExerciseSummary.classList.remove("active");
+  tabExerciseExamples.classList.remove("active");
+
+  viewExerciseStatement.classList.add("hidden");
+  viewExerciseSummary.classList.add("hidden");
+  viewExerciseExamples.classList.add("hidden");
+
+  if (tabId === "statement") {
+    tabExerciseStatement.classList.add("active");
+    viewExerciseStatement.classList.remove("hidden");
+  } else if (tabId === "summary") {
+    tabExerciseSummary.classList.add("active");
+    viewExerciseSummary.classList.remove("hidden");
+  } else if (tabId === "examples") {
+    tabExerciseExamples.classList.add("active");
+    viewExerciseExamples.classList.remove("hidden");
+  }
+}
+
 // Atualiza o painel de métricas e status na tela
 function updateUIState() {
   if (!currentOrch) return;
 
-  // Status Banner
-  if (currentOrch.state.completed) {
-    statusBanner.innerText = "Status do exercício: Concluído ✅";
-    statusBanner.className = "status-banner completed";
-  } else {
-    statusBanner.innerText = "Status do exercício: Em andamento";
-    statusBanner.className = "status-banner";
+  // Status Badge no Card do Módulo
+  if (exerciseStatusBadge && exerciseStatusIcon && exerciseStatusText) {
+    if (currentOrch.state.completed) {
+      exerciseStatusBadge.className = "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-green-200 bg-green-50 text-green-700 self-start md:self-auto transition-all duration-300";
+      exerciseStatusIcon.setAttribute("icon", "solar:check-circle-bold-duotone");
+      exerciseStatusIcon.className = "text-sm text-green-500";
+      exerciseStatusText.innerText = "Status: Concluído";
+    } else {
+      exerciseStatusBadge.className = "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-slate-200 bg-slate-50 text-slate-600 self-start md:self-auto transition-all duration-300";
+      exerciseStatusIcon.setAttribute("icon", "solar:hourglass-line-duotone");
+      exerciseStatusIcon.className = "text-sm text-slate-400";
+      exerciseStatusText.innerText = "Status: Em andamento";
+    }
   }
 
   // Dashboard de Métricas
@@ -314,7 +371,7 @@ if (btnBackLanding) {
   });
 }
 
-// Salvamento da OpenAI API Key
+// Salvamento da Google Gemini API Key
 btnSaveKey.addEventListener("click", () => {
   tutor.setApiKey(inputApiKey.value);
   showToast("Configurações de chave atualizadas!");
@@ -355,19 +412,39 @@ textareaCode.addEventListener("keydown", function (e) {
   }
 });
 
-// Accordions Gerais
-[accordionSummary, accordionExamples, constraintsExpander].forEach(elem => {
-  if (!elem) return;
-  const trigger = elem.querySelector(".accordion-header") || elem.querySelector(".expander-trigger");
-  trigger.addEventListener("click", () => {
-    elem.classList.toggle("open");
-    // Se for um accordion de sidebar, fecha o outro ao abrir um
-    if (elem.classList.contains("accordion-item") && elem.classList.contains("open")) {
-      const other = elem.id === "accordion-summary" ? accordionExamples : accordionSummary;
-      other.classList.remove("open");
-    }
+// Accordion de Restrições
+if (constraintsExpander) {
+  const trigger = constraintsExpander.querySelector(".expander-trigger");
+  if (trigger) {
+    trigger.addEventListener("click", () => {
+      constraintsExpander.classList.toggle("open");
+    });
+  }
+}
+
+// Event Listeners para Controle da Sidebar Retrátil
+if (sidebarHandle) {
+  sidebarHandle.addEventListener("click", () => {
+    sidebar.classList.toggle("collapsed");
   });
-});
+}
+
+if (btnToggleSidebar) {
+  btnToggleSidebar.addEventListener("click", () => {
+    sidebar.classList.toggle("collapsed");
+  });
+}
+
+// Event Listeners para as Abas Superiores de Exercício
+if (tabExerciseStatement) {
+  tabExerciseStatement.addEventListener("click", () => switchExerciseTab("statement"));
+}
+if (tabExerciseSummary) {
+  tabExerciseSummary.addEventListener("click", () => switchExerciseTab("summary"));
+}
+if (tabExerciseExamples) {
+  tabExerciseExamples.addEventListener("click", () => switchExerciseTab("examples"));
+}
 
 // Rastreamento global de inatividade
 document.addEventListener("click", () => { lastInteractionTime = Date.now(); });
@@ -566,7 +643,48 @@ btnSubmitCode.addEventListener("click", async () => {
       } else {
         testAiHelp.style.display = "none";
         currentOrch.state.completed = true;
-        showToast("Parabéns! Todos os testes passaram! 🎉");
+        
+        // Registrar sucesso no localStorage
+        let completedStr = localStorage.getItem('completed_exercises');
+        let completedList = completedStr ? JSON.parse(completedStr) : [];
+        if (!completedList.includes(currentOrch.problem.id)) {
+            completedList.push(currentOrch.problem.id);
+            localStorage.setItem('completed_exercises', JSON.stringify(completedList));
+        }
+
+        // Achar próximo exercício do módulo
+        let nextExerciseId = null;
+        let isLastOfModule = true;
+        let foundCurrent = false;
+        
+        for (let prob of problems) {
+            if (prob.module === currentOrch.problem.module) {
+                if (foundCurrent) {
+                    nextExerciseId = prob.id;
+                    isLastOfModule = false;
+                    break;
+                }
+                if (prob.id === currentOrch.problem.id) {
+                    foundCurrent = true;
+                }
+            }
+        }
+        
+        if (isLastOfModule) {
+            showActionToast(`
+              <div class="flex flex-col items-center gap-2">
+                <span>Parabéns! Todos os testes passaram! 🎉</span>
+                <button onclick="window.location.href='conteudos.html'" class="px-4 py-1.5 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition-colors">Voltar aos Módulos ➔</button>
+              </div>
+            `);
+        } else {
+            showActionToast(`
+              <div class="flex flex-col items-center gap-2">
+                <span>Parabéns! Todos os testes passaram! 🎉</span>
+                <button onclick="window.location.href='tutor.html?exercise=${nextExerciseId}'" class="px-4 py-1.5 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition-colors">Próximo Desafio ➔</button>
+              </div>
+            `);
+        }
       }
     }
   } catch (e) {
@@ -613,3 +731,6 @@ if (exerciseParam && problems.some(p => p.id === exerciseParam)) {
 
 // Inicializa o Pyodide em background
 runner.init().catch(() => { });
+
+// Registra evento de atualização da API Key por fallback (.env)
+window.addEventListener('apiKeyReady', initApiKey);
