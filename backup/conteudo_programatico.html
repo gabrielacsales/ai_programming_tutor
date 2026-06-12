@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfólio & Guia de Python — AI Programming Tutor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #f8fafc;
+            --sidebar-bg: #0f172a;
+            --text-main: #334155;
+            --text-light: #64748b;
+            --accent-blue: #0284c7;
+            --accent-light: #e0f2fe;
+            --card-bg: #ffffff;
+            --code-bg: #1e293b;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vi;
+        }
+
+        /* Sidebar de Navegação */
+        aside {
+            width: 300px;
+            background-color: var(--sidebar-bg);
+            color: #ffffff;
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        aside h1 {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #f1f5f9;
+        }
+
+        aside h1::before {
+            content: '●';
+            color: var(--accent-blue);
+        }
+
+        aside p {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            line-height: 1.4;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: block;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background-color: #1e293b;
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        /* Conteúdo Principal */
+        main {
+            margin-left: 300px;
+            flex: 1;
+            padding: 3rem;
+            max-width: 1000px;
+        }
+
+        header {
+            margin-bottom: 3rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 2rem;
+        }
+
+        header h2 {
+            font-size: 2.2rem;
+            color: #0f172a;
+            margin-bottom: 1rem;
+        }
+
+        header .badge {
+            background-color: var(--accent-light);
+            color: var(--accent-blue);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .project-intro {
+            background-color: #f0fdf4;
+            border-left: 4px solid #22c55e;
+            padding: 1.25rem;
+            border-radius: 4px;
+            margin-bottom: 2.5rem;
+            font-size: 0.95rem;
+            color: #166534;
+        }
+
+        /* Cards dos Módulos */
+        .module-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+        }
+
+        .module-card h3 {
+            font-size: 1.5rem;
+            color: #0f172a;
+            margin-bottom: 1rem;
+        }
+
+        .module-card h4 {
+            font-size: 1.1rem;
+            color: #334155;
+            margin: 1.5rem 0 0.5rem 0;
+        }
+
+        .module-card p {
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        ul.topics-list {
+            list-style-type: none;
+            margin-bottom: 1.5rem;
+        }
+
+        ul.topics-list li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        ul.topics-list li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent-blue);
+            font-weight: bold;
+        }
+
+        /* Blocos de Código (O "Ensinar" do Site) */
+        .code-block {
+            background-color: var(--code-bg);
+            color: #f8fafc;
+            font-family: 'Fira Code', monospace;
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+            line-height: 1.5;
+        }
+
+        .code-comment { color: #64748b; }
+        .code-keyword { color: #f43f5e; }
+        .code-func { color: #38bdf8; }
+        .code-str { color: #10b981; }
+
+        /* Exercícios Práticos */
+        .exercises-box {
+            background-color: #fafafa;
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .exercises-box h5 {
+            font-size: 1rem;
+            color: #0f172a;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .exercise-item {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .exercise-item strong {
+            color: var(--accent-blue);
+        }
+
+        /* Responsividade Básica */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            aside { width: 100%; height: auto; position: relative; }
+            main { margin-left: 0; padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside>
+        <h1>IA Tutor</h1>
+        <p>Projeto de Lógica de Programação para o Ambiente Virtual de Aprendizagem (AVA-BB).</p>
+        
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#sobre">Sobre o Projeto</a></li>
+                <li><a href="#modulo1">Módulo 1: Variáveis & Ops</a></li>
+                <li><a href="#modulo2">Módulo 2: Condicionais</a></li>
+                <li><a href="#modulo3">Módulo 3: Repetições</a></li>
+                <li><a href="#modulo4">Módulo 4: Funções</a></li>
+                <li><a href="#modulo5">Módulo 5: Estruturas Avançadas</a></li>
+                <li><a href="#desafio">Desafio Final Integrador</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main>
+        <header id="sobre">
+            <span class="badge">Componente Curricular: Lógica de Programação</span>
+            <h2>Currículo de Python & Aplicação Prática</h2>
+            <p class="text-light">Este espaço apresenta de forma didática todos os conceitos de programação estruturada desenvolvidos e validados no ecossistema do tutor interativo.</p>
+        </header>
+
+        <div class="project-intro">
+            <strong>O que é este projeto?</strong> Trata-se de um tutor inteligente interativo de programação em Python. O estudante analisa o problema (ex: cálculo de IMC), escreve sua linha de raciocínio lógico no campo de ideias e codifica a solução, recebendo feedback em tempo real e avaliações automatizadas.
+        </div>
+
+        <section id="modulo1" class="module-card">
+            <h3>Módulo 1 — Variáveis, Tipos de Dados e Operações</h3>
+            <p>A base de qualquer algoritmo consiste em reter informações na memória do computador e manipulá-las matematicamente através de operadores e regras de precedência.</p>
+            
+            <h4>Conceitos Chave:</h4>
+            <ul class="topics-list">
+                <li><strong>Tipagem Dinâmica:</strong> O Python identifica automaticamente tipos como inteiros (<code class="code-func">int</code>), decimais (<code class="code-func">float</code>) e textos (<code class="code-func">str</code>).</li>
+                <li><strong>Operadores:</strong> Uso de expressões matemáticas como exponenciação (<code class="code-keyword">**</code>) e resto da divisão (<code class="code-keyword">%</code>).</li>
+                <li><strong>Tratamento de Saída:</strong> Formatação e arredondamento fino com a função <code class="code-func">round()</code>.</li>
+            </ul>
+
+            <h4>Exemplo Prático (Aprenda o Código):</h4>
+            <div class="code-block">
+                <span class="code-comment"># Capturando dados da lista global 'entrada' [peso, altura]</span><br>
+                peso = entrada[0] <span class="code-comment"># float</span><br>
+                altura = entrada[1] <span class="code-comment"># float</span><br><br>
+                <span class="code-comment"># Processamento com expressão algébrica</span><br>
+                imc = peso / (altura ** 2)<br><br>
+                <span class="code-comment"># Saída formatada para 2 casas decimais</span><br>
+                <span class="code-func">print</span>(<span class="code-func">round</span>(imc, 2))
+            </div>
+
+            <div class="exercises-box">
+                <h5>Desafios Resolvidos neste Módulo:</h5>
+                <div class="exercise-item">1. <strong>Cálculo de IMC:</strong> Manipulação de variáveis e potências.</div>
+                <div class="exercise-item">2. <strong>Conversor de Temperatura:</strong> Ordem de precedência aritmética com parênteses.</div>
+                <div class="exercise-item">3. <strong>Cálculo de Desconto:</strong> Extração e cálculo de porcentagens estruturadas.</div>
+            </div>
+        </section>
+
+        <section id="modulo2" class="module-card">
+            <h3>Módulo 2 — Estruturas Condicionais</h3>
+            <p>Algoritmos inteligentes precisam tomar decisões baseados em dados reais. As estruturas de desvio condicional alteram o fluxo do software dependendo de testes booleanos.</p>
+            
+            <h4>Conceitos Chave:</h4>
+            <ul class="topics-list">
+                <li><strong>Operadores Relacionais:</strong> Comparadores de igualdade (<code class="code-keyword">==</code>), diferença (<code class="code-keyword">!=</code>) e grandezas (<code class="code-keyword">&gt;=</code>, <code class="code-keyword">&lt;=</code>).</li>
+                <li><strong>Estrutura Coesa:</strong> Uso do encadeamento <code class="code-keyword">if</code>, <code class="code-keyword">elif</code> e <code class="code-keyword">else</code> para evitar verificações redundantes no processamento.</li>
+            </ul>
+
+            <h4>Exemplo Prático (Aprenda o Código):</h4>
+            <div class="code-block">
+                idade = entrada[0]<br><br>
+                <span class="code-keyword">if</span> idade &gt;= 18:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-func">print</span>(<span class="code-str">"Maior de idade"</span>)<br>
+                <span class="code-keyword">else</span>:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-func">print</span>(<span class="code-str">"Menor de idade"</span>)
+            </div>
+
+            <div class="exercises-box">
+                <h5>Desafios Resolvidos neste Módulo:</h5>
+                <div class="exercise-item">1. <strong>Verificar Maioridade:</strong> Tomada de decisão elementar.</div>
+                <div class="exercise-item">2. <strong>Par ou Ímpar:</strong> Verificação booleana utilizando o resto da divisão por 2.</div>
+                <div class="exercise-item">3. <strong>Desconto por Categoria:</strong> Filtros aninhados avaliando strings específicas.</div>
+            </div>
+        </section>
+
+        <section id="modulo3" class="module-card">
+            <h3>Módulo 3 — Estruturas de Repetição (Loops)</h3>
+            <p>Laços de repetição automatizam tarefas massivas sem a necessidade de duplicar linhas de código. Essenciais para processamento em lotes ou iterações definidas.</p>
+            
+            <h4>Conceitos Chave:</h4>
+            <ul class="topics-list">
+                <li><strong>While (Loops Condicionais):</strong> Executa até que uma condição mapeada mude, exigindo cuidado para evitar loops infinitos.</li>
+                <li><strong>For (Loops Controlados):</strong> Ideal para percorrer intervalos numéricos pré-definidos via função <code class="code-func">range()</code>.</li>
+                <li><strong>Acumuladores:</strong> Padrão lógico onde variáveis incrementam seu próprio valor atual (<code class="code-keyword">soma += valor</code>).</li>
+            </ul>
+
+            <h4>Exemplo Prático (Aprenda o Código):</h4>
+            <div class="code-block">
+                <span class="code-comment"># Gerando uma tabuada automatizada com o laço FOR</span><br>
+                numero = entrada[0]<br>
+                <span class="code-keyword">for</span> i <span class="code-keyword">in</span> <span class="code-func">range</span>(1, 11):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;resultado = numero * i<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-func">print</span>(f<span class="code-str">"{numero} x {i} = {resultado}"</span>)
+            </div>
+
+            <div class="exercises-box">
+                <h5>Desafios Resolvidos neste Módulo:</h5>
+                <div class="exercise-item">1. <strong>Contagem Regressiva:</strong> Uso do loop <code class="code-keyword">while</code> decrescente.</div>
+                <div class="exercise-item">2. <strong>Soma até o Limite:</strong> Acumulação dinâmica de valores controlados por sentinela.</div>
+                <div class="exercise-item">3. <strong>Tabuada Completa:</strong> Aplicação do <code class="code-func">range()</code> iterativo.</div>
+            </div>
+        </section>
+
+        <section id="modulo4" class="module-card">
+            <h3>Módulo 4 — Funções e Modularização</h3>
+            <p>Dividir para conquistar. Funções organizam trechos isolados de código que executam subtarefas específicas e podem ser reaproveitados em qualquer parte do sistema.</p>
+            
+            <h4>Conceitos Chave:</h4>
+            <ul class="topics-list">
+                <li><strong>Assinatura de Funções:</strong> Declarados via palavra-chave <code class="code-keyword">def</code>.</li>
+                <li><strong>Escopo de Variáveis:</strong> Variáveis criadas dentro de uma função existem apenas no contexto dela.</li>
+                <li><strong>Retorno versus Impressão:</strong> Compreensão do <code class="code-keyword">return</code> para devolver os dados tratados para o sistema analítico.</li>
+            </ul>
+
+            <h4>Exemplo Prático (Aprenda o Código):</h4>
+            <div class="code-block">
+                <span class="code-keyword">def</span> <span class="code-func">calcular_area_retangulo</span>(base, altura):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;area = base * altura<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">return</span> area <span class="code-comment"># Devolve o valor calculado</span><br><br>
+                resultado = <span class="code-func">calcular_area_retangulo</span>(10, 5)<br>
+                <span class="code-func">print</span>(resultado)
+            </div>
+
+            <div class="exercises-box">
+                <h5>Desafios Resolvidos neste Módulo:</h5>
+                <div class="exercise-item">1. <strong>Busca em Lista:</strong> Varredura e uso de *early return* com a função <code class="code-func">enumerate()</code>.</div>
+                <div class="exercise-item">2. <strong>Contagem de Vogais:</strong> Iteração textual com controle de caixa baixa via <code class="code-func">.lower()</code>.</div>
+                <div class="exercise-item">3. <strong>Lista de Status:</strong> Mapeamento em lote transformando notas em rótulos conceituais.</div>
+            </div>
+        </section>
+
+        <section id="modulo5" class="module-card">
+            <h3>Módulo 5 — Estruturas de Dados Avançadas</h3>
+            <p>Para lidar com volumes reais de dados, precisamos agrupá-los em estruturas de coleções como listas ordens ou dicionários complexos para consultas rápidas.</p>
+            
+            <h4>Conceitos Chave:</h4>
+            <ul class="topics-list">
+                <li><strong>Métodos de Lista:</strong> Inclusão em execução via <code class="code-func">.append()</code> e indexação reversa para resgatar os últimos elementos.</li>
+                <li><strong>Análise Nativa:</strong> Utilização eficiente de funções integradas de alta performance como <code class="code-func">max()</code> e <code class="code-func">min()</code>.</li>
+                <li><strong>Deduplicação:</strong> Filtros baseados na cláusula <code class="code-keyword">not in</code> para higienização de dados brutos.</li>
+            </ul>
+
+            <h4>Exemplo Prático (Aprenda o Código):</h4>
+            <div class="code-block">
+                numeros = [12, 45, 7, 92, 18]<br><br>
+                <span class="code-comment"># Encontrando extremos sem a necessidade de desenhar loops manuais</span><br>
+                maior_valor = <span class="code-func">max</span>(numeros)<br>
+                menor_valor = <span class="code-func">min</span>(numeros)<br><br>
+                <span class="code-func">print</span>(f<span class="code-str">"Maior: {maior_valor} | Menor: {menor_valor}"</span>)
+            </div>
+
+            <div class="exercises-box">
+                <h5>Desafios Resolvidos neste Módulo:</h5>
+                <div class="exercise-item">1. <strong>Encontrar Extremos:</strong> Extração rápida com algoritmos embutidos nativos.</div>
+                <div class="exercise-item">2. <strong>Filtrar Nomes:</strong> Varredura condicional com base no comprimento de strings (<code class="code-func">len()</code>).</div>
+                <div class="exercise-item">3. <strong>Remover Duplicatas:</strong> Lógica de exclusão e criação de conjuntos de elementos únicos.</div>
+            </div>
+        </section>
+
+        <section id="desafio" class="module-card" style="border-color: var(--accent-blue); background-color: #fbfeff;">
+            <h3>🏆 Desafio Final — Análise de Desempenho de Turma</h3>
+            <p>O cume do projeto consiste na integração real de todos os conhecimentos adquiridos. Trabalhamos aqui com estruturas sofisticadas de nível de produção: <strong>Lista de Dicionários</strong>.</p>
+            
+            <h4>Habilidades Praticadas:</h4>
+            <ul class="topics-list">
+                <li>Desempacotamento de vetores estruturados aninhados (Acessar chaves internas dentro de loops).</li>
+                <li>Mapeamento estatístico com acumuladores e contadores simultâneos.</li>
+                <li>Retorno composto contendo múltiplos tipos de dados agregados no mesmo array final.</li>
+            </ul>
+
+            <h4>Código de Produção Desenvolvido:</h4>
+            <div class="code-block">
+                <span class="code-comment"># Estrutura complexa recebida pelo sistema</span><br>
+                turma = entrada[0] <span class="code-comment"># Lista de dicionários com chaves 'nome', 'idade', 'notas'</span><br><br>
+                soma_notas_global = 0<br>
+                total_alunos_adultos = 0<br>
+                aprovados = []<br><br>
+                <span class="code-keyword">for</span> aluno <span class="code-keyword">in</span> turma:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-comment"># Processando idades</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">if</span> aluno[<span class="code-str">'idade'</span>] &gt;= 18:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;total_alunos_adultos += 1<br><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-comment"># Calculando média individual para aprovação</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;media_aluno = <span class="code-func">sum</span>(aluno[<span class="code-str">'notas'</span>]) / <span class="code-func">len</span>(aluno[<span class="code-str">'notas'</span>])<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;soma_notas_global += media_aluno<br><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">if</span> media_aluno &gt;= 7.0:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;aprovados.<span class="code-func">append</span>(aluno[<span class="code-str">'nome'</span>])<br><br>
+                media_global = soma_notas_global / <span class="code-func">len</span>(turma)<br>
+                <span class="code-comment"># Retorno unificado exigido pela plataforma</span><br>
+                <span class="code-keyword">return</span> [media_global, total_alunos_adultos, aprovados]
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Script simples para iluminar o menu lateral conforme o scroll do usuário passa pelas seções
+        const sections = document.querySelectorAll('section, header');
+        const navLi = document.querySelectorAll('aside nav ul li a');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 60) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLi.forEach(a => {
+                a.classList.remove('active');
+                if (a.getAttribute('href').includes(current)) {
+                    a.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
