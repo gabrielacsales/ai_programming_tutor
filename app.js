@@ -363,6 +363,9 @@ function loadActiveExercise(challengeId) {
 
   updateUIState();
   loadChatHistory(challengeId);
+  // A revisão aparece ao entrar em qualquer exercício e não interfere
+  // no estado do aluno nem nas métricas acadêmicas já instrumentadas.
+  if (window.TutorReview) TutorReview.open(p);
 }
 
 // Alterna entre abas "Descrever Ideia" e "Código"
