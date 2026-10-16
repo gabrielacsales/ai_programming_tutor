@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Entrar | IA Tutor</title>
+<style>
+:root{font-family:Inter,system-ui,Arial,sans-serif;color:#101828;background:#f5f8fc}*{box-sizing:border-box}
+main{max-width:460px;margin:8vh auto;padding:36px;background:white;border:1px solid #e2e8f0;border-radius:22px;box-shadow:0 12px 40px #152d4b12}
+h1{margin:0 0 8px;font-size:28px}p{color:#667085;line-height:1.5}
+label{display:block;margin:16px 0 6px;font-weight:600;font-size:14px}input{display:block;width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:13px;font:inherit}
+button{border:0;border-radius:10px;background:#1cb0f6;color:white;cursor:pointer;padding:13px;font:inherit;font-weight:700;width:100%;margin-top:20px}
+button:disabled{opacity:.65}nav{display:flex;gap:8px;margin:0 0 22px}nav button{margin:0;background:#eff7fd;color:#344054}nav button[aria-pressed=true]{background:#1cb0f6;color:white}
+a{color:#0877ad}.error{color:#b42318}.success{color:#067647}#message{min-height:24px;font-size:14px}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script><script src="auth-client.js"></script>
+</head><body><main>
+<a href="index.html">← Voltar ao início</a>
+<h1 style="margin-top:20px">IA Tutor</h1><p>Entre para acompanhar seus exercícios e seu progresso.</p>
+<nav aria-label="Modo de autenticação">
+<button type="button" data-mode="login" aria-pressed="true">Entrar</button>
+<button type="button" data-mode="signup" aria-pressed="false">Criar conta</button>
+<button type="button" data-mode="reset" aria-pressed="false">Recuperar senha</button>
+</nav>
+<form id="form">
+<div id="name-block" hidden><label for="name">Nome</label><input id="name" autocomplete="name"></div>
+<label for="email">E-mail</label><input id="email" type="email" autocomplete="email" required>
+<div id="password-block"><label for="password">Senha</label><input id="password" type="password" minlength="6" autocomplete="current-password" required></div>
+<button id="submit" type="submit">Entrar</button>
+</form><p id="message" role="status" aria-live="polite"></p>
+</main><script>
+(() => {
+const client=window.TutorAuth?.client;
+const form=document.getElementById("form");
+const message=document.getElementById("message");
+const submit=document.getElementById("submit");
+const nameBlock=document.getElementById("name-block"), passwordBlock=document.getElementById("password-block");
+const password=document.getElementById("password");
+let mode="login";
+function show(type,text){message.className=type;message.textContent=text}
+function switchMode(next){
+mode=next;
+nameBlock.hidden=next!=="signup";passwordBlock.hidden=next==="reset";
+password.required=next!=="reset";password.autocomplete=next==="signup"?"new-password":"current-password";
+submit.textContent={login:"Entrar",signup:"Criar conta",reset:"Enviar e-mail"}[next];
+document.querySelectorAll("[data-mode]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===mode)));
+show("","");
+}
+document.querySelectorAll("[data-mode]").forEach(b=>b.addEventListener("click",()=>switchMode(b.dataset.mode)));
+if(!client){show("error","Configure a URL e a chave publicável em supabase-config.js antes de usar o login.");submit.disabled=true;return;}
+const next=window.TutorAuth.safeNext(new URLSearchParams(location.search).get("next"));
+form.addEventListener("submit",async event=>{
+event.preventDefault();submit.disabled=true;show("","");
+try{
+const email=document.getElementById("email").value.trim(), pass=password.value;
+let result;
+if(mode==="signup"){
+result=await client.auth.signUp({email,password:pass,options:{data:{display_name:document.getElementById("name").value.trim()},emailRedirectTo:location.origin+"/login.html"}});
+if(result.error)throw result.error;
+if(result.data.session)location.replace(next);
+else show("success","Cadastro enviado. Confira seu e-mail para confirmar a conta.");
+}else if(mode==="reset"){
+result=await client.auth.resetPasswordForEmail(email,{redirectTo:location.origin+"/reset-password.html"});
+if(result.error)throw result.error;
+show("success","Se o endereço estiver cadastrado, você receberá um e-mail para redefinir a senha.");
+}else{
+result=await client.auth.signInWithPassword({email,password:pass});
+if(result.error)throw result.error;
+location.replace(next);
+}
+}catch(e){show("error",e.message||"Não foi possível concluir a solicitação.");}
+finally{submit.disabled=false;}
+});
+})();
+</script></body></html>
