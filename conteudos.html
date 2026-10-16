@@ -152,6 +152,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="supabase-config.js"></script>
 <script src="auth-client.js"></script>
+<script src="access-client.js"></script>
 <script src="progress-store.js"></script>
 <style>body{visibility:hidden}</style>
 <script>document.addEventListener("DOMContentLoaded",async()=>{if(await TutorAuth.requireLogin()){const header=document.querySelector(".sidebar-header")||document.querySelector("header");if(header){const btn=document.createElement("button");btn.textContent="Sair da conta";btn.type="button";btn.style.cssText="border:1px solid #cbd5e1;border-radius:10px;padding:9px 13px;background:white;color:#334155;font-size:12px;cursor:pointer";btn.addEventListener("click",()=>TutorAuth.logout());header.appendChild(btn);}}});</script>
@@ -377,13 +378,13 @@
                   <h4 class="text-[10px] font-mono uppercase text-slate-400 tracking-wider font-bold">Desafios Práticos</h4>
                   <div class="space-y-2 max-h-[200px] overflow-y-auto pr-1 hide-scrollbar">
                     <!-- Exercício 1 -->
-                    <a href="tutor.html?exercise=m2_classificar_triangulo" data-exercise-id="m2_classificar_triangulo" data-requires="m1_calculo_desconto" class="exercise-link group/item flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
+                    <a href="tutor.html?exercise=m2_maioridade" data-exercise-id="m2_maioridade" data-requires="m1_calculo_desconto" class="exercise-link group/item flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
                       <div class="space-y-0.5">
                         <div class="flex items-center gap-1.5">
                           <span class="pulse-dot w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                          <h5 class="text-xs font-bold text-black group-hover/item:text-[#1CB0F6] transition-colors">Classificar Triângulo</h5>
+                          <h5 class="text-xs font-bold text-black group-hover/item:text-[#1CB0F6] transition-colors">Verificar Maioridade</h5>
                         </div>
-                        <p class="text-[10px] text-slate-400 font-light leading-snug">Classifique triângulos por seus lados.</p>
+                        <p class="text-[10px] text-slate-400 font-light leading-snug">Use condicionais para diferenciar pessoas maiores e menores de idade.</p>
                       </div>
                       <div class="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:border-[#1CB0F6] group-hover/item:bg-[#1CB0F6] group-hover/item:text-white transition-all flex-shrink-0">
                         <iconify-icon icon="solar:arrow-right-linear" class="lock-status-icon text-sm"></iconify-icon>
@@ -391,13 +392,13 @@
                     </a>
 
                     <!-- Exercício 2 -->
-                    <a href="tutor.html?exercise=m2_ano_bissexto" data-exercise-id="m2_ano_bissexto" data-requires="m2_classificar_triangulo" class="exercise-link group/item flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
+                    <a href="tutor.html?exercise=m2_par_impar" data-exercise-id="m2_par_impar" data-requires="m2_maioridade" class="exercise-link group/item flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
                       <div class="space-y-0.5">
                         <div class="flex items-center gap-1.5">
                           <span class="pulse-dot w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                          <h5 class="text-xs font-bold text-black group-hover/item:text-[#1CB0F6] transition-colors">Ano Bissexto</h5>
+                          <h5 class="text-xs font-bold text-black group-hover/item:text-[#1CB0F6] transition-colors">Par ou Ímpar</h5>
                         </div>
-                        <p class="text-[10px] text-slate-400 font-light leading-snug">Determine se um ano é bissexto.</p>
+                        <p class="text-[10px] text-slate-400 font-light leading-snug">Identifique números pares ou ímpares com o operador de resto.</p>
                       </div>
                       <div class="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:border-[#1CB0F6] group-hover/item:bg-[#1CB0F6] group-hover/item:text-white transition-all flex-shrink-0">
                         <iconify-icon icon="solar:arrow-right-linear" class="lock-status-icon text-sm"></iconify-icon>
@@ -405,7 +406,7 @@
                     </a>
 
                     <!-- Exercício 3 -->
-                    <a href="tutor.html?exercise=m2_desconto_categoria" data-exercise-id="m2_desconto_categoria" data-requires="m2_ano_bissexto" class="exercise-link group/item flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
+                    <a href="tutor.html?exercise=m2_desconto_categoria" data-exercise-id="m2_desconto_categoria" data-requires="m2_par_impar" class="exercise-link group/item flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
                       <div class="space-y-0.5">
                         <div class="flex items-center gap-1.5">
                           <span class="pulse-dot w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
@@ -477,13 +478,13 @@
                   <h4 class="text-[10px] font-mono uppercase text-slate-400 tracking-wider font-bold">Desafios Práticos</h4>
                   <div class="space-y-2 max-h-[200px] overflow-y-auto pr-1 hide-scrollbar">
                     <!-- Exercício 1 -->
-                    <a href="tutor.html?exercise=m3_fatorial" data-exercise-id="m3_fatorial" data-requires="m2_desconto_categoria" class="exercise-link group/item flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
+                    <a href="tutor.html?exercise=m3_contagem" data-exercise-id="m3_contagem" data-requires="m2_desconto_categoria" class="exercise-link group/item flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
                       <div class="space-y-0.5">
                         <div class="flex items-center gap-1.5">
                           <span class="pulse-dot w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                          <h5 class="text-xs font-bold text-black group-hover/item:text-[#1CB0F6] transition-colors">Fatorial com Loop</h5>
+                          <h5 class="text-xs font-bold text-black group-hover/item:text-[#1CB0F6] transition-colors">Contagem Regressiva</h5>
                         </div>
-                        <p class="text-[10px] text-slate-400 font-light leading-snug">Calcule fatorial de um número inteiro.</p>
+                        <p class="text-[10px] text-slate-400 font-light leading-snug">Monte uma contagem decrescente usando repetição.</p>
                       </div>
                       <div class="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:border-[#1CB0F6] group-hover/item:bg-[#1CB0F6] group-hover/item:text-white transition-all flex-shrink-0">
                         <iconify-icon icon="solar:arrow-right-linear" class="lock-status-icon text-sm"></iconify-icon>
@@ -491,7 +492,7 @@
                     </a>
 
                     <!-- Exercício 2 -->
-                    <a href="tutor.html?exercise=m3_tabuada" data-exercise-id="m3_tabuada" data-requires="m3_fatorial" class="exercise-link group/item flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
+                    <a href="tutor.html?exercise=m3_tabuada" data-exercise-id="m3_tabuada" data-requires="m3_contagem" class="exercise-link group/item flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
                       <div class="space-y-0.5">
                         <div class="flex items-center gap-1.5">
                           <span class="pulse-dot w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
@@ -575,13 +576,13 @@
                   <h4 class="text-[10px] font-mono uppercase text-slate-400 tracking-wider font-bold">Desafios Práticos</h4>
                   <div class="space-y-2 max-h-[200px] overflow-y-auto pr-1 hide-scrollbar">
                     <!-- Exercício 1 -->
-                    <a href="tutor.html?exercise=m4_converter_horas" data-exercise-id="m4_converter_horas" data-requires="m3_soma_limite" class="exercise-link group/item flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
+                    <a href="tutor.html?exercise=m4_busca_linear" data-exercise-id="m4_busca_linear" data-requires="m3_soma_limite" class="exercise-link group/item flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
                       <div class="space-y-0.5">
                         <div class="flex items-center gap-1.5">
                           <span class="pulse-dot w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                          <h5 class="text-xs font-bold text-black group-hover/item:text-[#1CB0F6] transition-colors">Converter Horas</h5>
+                          <h5 class="text-xs font-bold text-black group-hover/item:text-[#1CB0F6] transition-colors">Busca em Lista</h5>
                         </div>
-                        <p class="text-[10px] text-slate-400 font-light leading-snug">Conversão de horas para minutos.</p>
+                        <p class="text-[10px] text-slate-400 font-light leading-snug">Localize a posição de um valor em uma lista.</p>
                       </div>
                       <div class="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:border-[#1CB0F6] group-hover/item:bg-[#1CB0F6] group-hover/item:text-white transition-all flex-shrink-0">
                         <iconify-icon icon="solar:arrow-right-linear" class="lock-status-icon text-sm"></iconify-icon>
@@ -589,13 +590,13 @@
                     </a>
 
                     <!-- Exercício 2 -->
-                    <a href="tutor.html?exercise=m4_inverter_nome" data-exercise-id="m4_inverter_nome" data-requires="m4_converter_horas" class="exercise-link group/item flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
+                    <a href="tutor.html?exercise=m4_contagem_vogais" data-exercise-id="m4_contagem_vogais" data-requires="m4_busca_linear" class="exercise-link group/item flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
                       <div class="space-y-0.5">
                         <div class="flex items-center gap-1.5">
                           <span class="pulse-dot w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                          <h5 class="text-xs font-bold text-black group-hover/item:text-[#1CB0F6] transition-colors">Formatador de Nome</h5>
+                          <h5 class="text-xs font-bold text-black group-hover/item:text-[#1CB0F6] transition-colors">Contar Vogais</h5>
                         </div>
-                        <p class="text-[10px] text-slate-400 font-light leading-snug">Inverta nome e sobrenome.</p>
+                        <p class="text-[10px] text-slate-400 font-light leading-snug">Conte as vogais de um texto percorrendo seus caracteres.</p>
                       </div>
                       <div class="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:border-[#1CB0F6] group-hover/item:bg-[#1CB0F6] group-hover/item:text-white transition-all flex-shrink-0">
                         <iconify-icon icon="solar:arrow-right-linear" class="lock-status-icon text-sm"></iconify-icon>
@@ -603,7 +604,7 @@
                     </a>
 
                     <!-- Exercício 3 -->
-                    <a href="tutor.html?exercise=m4_status_nota" data-exercise-id="m4_status_nota" data-requires="m4_inverter_nome" class="exercise-link group/item flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
+                    <a href="tutor.html?exercise=m4_status_nota" data-exercise-id="m4_status_nota" data-requires="m4_contagem_vogais" class="exercise-link group/item flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-[#1CB0F6] hover:shadow-md transition-all duration-300">
                       <div class="space-y-0.5">
                         <div class="flex items-center gap-1.5">
                           <span class="pulse-dot w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
@@ -914,6 +915,7 @@
       // Carrega o progresso da conta antes de desbloquear exercícios.
       try {
         await TutorProgress.init();
+        await TutorAccess.init();
       } catch (error) {
         console.error("Erro ao carregar o progresso do aluno:", error);
         return;
@@ -1058,7 +1060,16 @@
           const iconContainer = iconEl ? iconEl.parentElement : null;
           const pulseDot = link.querySelector('.pulse-dot');
 
-          if (requires !== 'none' && !completedExercises.includes(requires)) {
+          // O status é calculado no banco (inclusive exceção da conta developer).
+          const isLocked = !TutorAccess.hasAccess(id);
+          link.setAttribute('aria-disabled', isLocked ? 'true' : 'false');
+          link.tabIndex = isLocked ? -1 : 0;
+          if (isLocked) {
+            link.title = 'Conclua os desafios anteriores para desbloquear este exercício.';
+          } else {
+            link.removeAttribute('title');
+          }
+          if (isLocked) {
             // Locked
             link.classList.add('opacity-50', 'pointer-events-none', 'grayscale');
             if (iconEl) iconEl.setAttribute('icon', 'solar:lock-bold-duotone');
@@ -1111,7 +1122,7 @@
         const lockedState = document.getElementById("final-locked-state");
         const unlockedState = document.getElementById("final-unlocked-state");
 
-        if (completedCount === requiredExercises.length) {
+        if (TutorAccess.hasAccess('analisar_turma')) {
           // Unlock
           if (lockedState) lockedState.style.display = "none";
           if (unlockedState) {
@@ -1138,6 +1149,15 @@
       ["bypass-unlock-btn", "bypass-lock-btn"].forEach(id => {
         document.getElementById(id)?.remove();
       });
+
+      // Identificação visual da conta autorizada no banco, sem chave secreta no browser.
+      if (TutorAccess.isDeveloper()) {
+        const badge = document.createElement('div');
+        badge.textContent = 'Modo desenvolvedora · Todos os desafios liberados';
+        badge.className = 'text-xs font-bold text-sky-800 bg-sky-50 border border-sky-200 rounded-xl px-4 py-2 my-3';
+        const anchor = document.querySelector('main') || document.body;
+        anchor.prepend(badge);
+      }
 
       // Initial call
       updateExerciseLocks();
