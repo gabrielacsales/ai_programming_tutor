@@ -1,0 +1,82 @@
+/* Revisão rápida — cartões clicáveis com estilo alinhado ao IA Tutor. */
+.tutor-review-dialog {
+  padding: 0;
+  border: 1px solid #d9e3ee;
+  border-radius: 24px;
+  width: min(94vw, 600px);
+  max-height: min(90vh, 760px);
+  overflow-y: auto;
+  color: #0f172a;
+  background: #fff;
+  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.25);
+}
+.tutor-review-dialog::backdrop {
+  background: rgba(13, 25, 46, 0.65);
+  backdrop-filter: blur(6px);
+}
+.tutor-review-shell { padding: 32px; font-family: Inter, system-ui, sans-serif; }
+.tutor-review-header { display: flex; align-items: center; gap: 16px; }
+.tutor-review-symbol {
+  width: 48px; height: 48px; border-radius: 15px; flex-shrink: 0;
+  display: grid; place-items: center; color: #0873a3; background: #e6f7ff;
+  font-size: 28px; font-weight: 800;
+}
+.tutor-review-eyebrow { color: #64748b; font-size: 10px; letter-spacing: .14em; font-weight: 800; }
+#tutor-review-title { margin: 2px 0 0; font-size: 25px; letter-spacing: -.035em; font-weight: 800; }
+.tutor-review-skip {
+  margin-left: auto; border: 1px solid #e2e8f0; padding: 8px 12px;
+  border-radius: 10px; color: #64748b; background: #fff;
+  font-weight: 600; font-size: 12px; cursor: pointer;
+}
+.tutor-review-skip:hover { background: #f1f5f9; color: #0f172a; }
+.tutor-review-progress { margin: 24px 0 22px; height: 9px; overflow: hidden; background: #e2e8f0; border-radius: 999px; }
+.tutor-review-progress-fill { width: 0%; background: #22b675; height: 100%; border-radius: inherit; transition: width .18s ease-out; }
+#tutor-review-desc { font-size: 14px; line-height: 1.65; color: #64748b; }
+.tutor-review-question { margin: 22px 0 12px; font-size: 18px; font-weight: 800; }
+.tutor-review-answer {
+  display: flex; flex-wrap: wrap; gap: 8px; min-height: 80px;
+  border-radius: 16px; border: 2px dashed #d9e3ee;
+  padding: 15px; align-items: center; background: #f8fafc;
+}
+.tutor-review-placed, .tutor-review-token {
+  display: inline-flex; justify-content: center; align-items: center;
+  min-height: 43px; min-width: 46px; padding: 9px 15px; border-radius: 10px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 14px; font-weight: 700; word-break: break-word;
+}
+.tutor-review-placed { color: #075e80; background: #dff4ff; border: 1px solid #a6ddf8; }
+.tutor-review-caption { margin: 26px 0 12px; font-size: 11px; letter-spacing: .09em; font-weight: 800; color: #64748b; }
+.tutor-review-bank { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; min-height: 55px; }
+.tutor-review-token {
+  background: #fff; color: #1e293b; border: 1px solid #cbd5e1;
+  box-shadow: 0 3px 0 #cbd5e1; cursor: pointer;
+  transition: background .12s ease, transform .12s ease;
+}
+.tutor-review-token:hover { background: #ecf8ff; border-color: #38bdf8; transform: translateY(-2px); }
+.tutor-review-token:active { transform: translateY(1px); box-shadow: 0 1px 0 #cbd5e1; }
+.tutor-review-dialog button:focus-visible { outline: 3px solid #0ea5e9; outline-offset: 4px; }
+.tutor-review-feedback { min-height: 46px; margin: 22px 0 0; font-size: 13px; text-align: center; color: #475569; line-height: 1.5; }
+.tutor-review-feedback.incorrect { color: #b42318; }
+.tutor-review-feedback.correct { color: #08784b; font-weight: 700; }
+.tutor-review-continue {
+  width: 100%; margin-top: 7px; padding: 14px 18px; font-weight: 800;
+  color: white; background: #1cb0f6; border: 0; border-radius: 12px;
+  cursor: pointer;
+}
+.tutor-review-continue:hover { background: #169ad6; }
+.tutor-review-wrong { animation: tutor-review-shake .25s linear; border-color: #f04438; }
+@keyframes tutor-review-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+@media (max-width: 600px) {
+  .tutor-review-shell { padding: 22px; }
+  .tutor-review-symbol { width: 42px; height: 42px; }
+  #tutor-review-title { font-size: 22px; }
+  .tutor-review-token, .tutor-review-placed { font-size: 13px; padding: 8px 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tutor-review-token, .tutor-review-progress-fill { transition: none; }
+  .tutor-review-wrong { animation: none; }
+}
