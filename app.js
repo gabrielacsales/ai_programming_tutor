@@ -444,6 +444,10 @@ textareaCode.addEventListener("input", (e) => {
   lastInteractionTime = Date.now();
 });
 
+// Ao sair de um campo, grava o rascunho imediatamente.
+textareaDesc.addEventListener("change", () => persistExercise(currentOrch));
+textareaCode.addEventListener("change", () => persistExercise(currentOrch));
+
 // Suporte para indentação com TAB de 4 espaços no editor
 textareaCode.addEventListener("keydown", function (e) {
   if (e.key === "Tab") {
@@ -695,7 +699,11 @@ btnSubmitCode.addEventListener("click", async () => {
       } else {
         testAiHelp.style.display = "none";
         currentOrch.state.completed = true;
-        
+
+        // Salva antes de exibir o botão Próximo Desafio, evitando perder
+        // a conclusão caso o aluno navegue imediatamente para outra página.
+        await persistExercise(currentOrch);
+
         // A conclusão é persistida no Supabase ao terminar esta submissão.
         // ATENÇÃO: o resultado de testes do navegador não é prova acadêmica antifraude.
 
