@@ -917,7 +917,20 @@
         await TutorProgress.init();
         await TutorAccess.init();
       } catch (error) {
-        console.error("Erro ao carregar o progresso do aluno:", error);
+        console.error("Erro ao carregar as permissões do aluno:", error);
+        // Falha fechada: nunca mostrar exercícios liberados sem consultar o banco.
+        document.querySelectorAll('.exercise-link').forEach(link => {
+          link.classList.add('opacity-50', 'pointer-events-none', 'grayscale');
+          link.tabIndex = -1;
+          link.setAttribute('aria-disabled', 'true');
+        });
+        const warning = document.createElement('div');
+        warning.setAttribute('role', 'alert');
+        warning.className = 'relative z-20 mx-auto mt-6 max-w-3xl rounded-xl border border-amber-300 bg-amber-50 px-5 py-4 text-sm text-amber-900';
+        warning.textContent = 'Não foi possível verificar suas permissões. Confira se o arquivo supabase/developer-access.sql foi executado no Supabase e recarregue a página.';
+        const pageHeader = document.querySelector('header');
+        if (pageHeader) pageHeader.after(warning);
+        else document.body.prepend(warning);
         return;
       }
       // 1. Reveal Animations (Observer)
