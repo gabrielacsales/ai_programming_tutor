@@ -446,6 +446,7 @@
 <script src="auth-client.js"></script>
 <style>body{visibility:hidden}</style>
 <script>document.addEventListener("DOMContentLoaded",async()=>{if(await TutorAuth.requireLogin()){const header=document.querySelector(".sidebar-header")||document.querySelector("header");if(header){const btn=document.createElement("button");btn.textContent="Sair da conta";btn.type="button";btn.style.cssText="border:1px solid #cbd5e1;border-radius:10px;padding:9px 13px;background:white;color:#334155;font-size:12px;cursor:pointer";btn.addEventListener("click",()=>TutorAuth.logout());header.appendChild(btn);}}});</script>
+  <link rel="stylesheet" href="preflight-review.css">
 </head>
 
 <body class="selection:bg-black selection:text-white relative min-h-screen">
@@ -933,7 +934,6 @@
   </script>
 
   <!-- Revisão interativa antes dos exercícios -->
-  <link rel="stylesheet" href="preflight-review.css">
   <script src="preflight-review.js"></script>
 
   <!-- Inclusão das lógicas JS -->
