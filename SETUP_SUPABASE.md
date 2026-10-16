@@ -35,3 +35,18 @@ O frontend estático poderá ser publicado no Cloudflare Pages via GitHub (sem b
 - `reset-password.html` — formulário de nova senha.
 
 **Segurança:** nunca envie suas senhas, API keys privadas, tokens de acesso ou sua service_role para o chat nem faça commit dessas credenciais.
+
+## 5. Etapa 4 — Testar progresso persistente (implementação inicial)
+
+Atualize a pasta local baixando **novamente** a branch `feature/supabase-auth-and-database` (não a `main`). Não precisa executar o SQL mais uma vez.
+
+1. Rode `python -m http.server 8000`, entre com uma conta de teste e acesse um exercício.
+2. Digite uma ideia e/ou código, espere ao menos 2 segundos e atualize a página. Os textos deverão reaparecer.
+3. Solucione um exercício passando todos os casos. Volte à página de conteúdos e confira o indicador de conclusão.
+4. Clique em **Sair**, entre com outra conta e verifique que o progresso da primeira não aparece.
+5. Entre novamente na primeira conta: a ideia, o código e a conclusão devem ser restaurados.
+6. No Supabase, abra **Table Editor > exercise_progress** e confira as linhas de progresso de cada ID de usuário.
+
+As tabelas já foram criadas na etapa 2; não há nova migração SQL neste teste. Os controles de bypass da demonstração foram removidos da página de conteúdos.
+
+**Limite importante:** a validação Python ainda acontece no browser. Os registros `completed` podem ser forjados por um navegador modificado e **não devem ser usados como prova antifraude ou dado confiável para a pesquisa**. Para coleta científica válida, falta validação do resultado no backend e trilhas de auditoria; ainda falta também mover Gemini para servidor e revisar HTML gerado a partir de conteúdo externo.
