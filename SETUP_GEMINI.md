@@ -35,7 +35,9 @@ O código permanece versionado no GitHub; o editor do Supabase não sincroniza a
 ## Erros comuns
 - **404**: `gemini-tutor` não foi implantada ou nome diferente.
 - **401**: a sessão expirou, a chamada não incluiu token JWT ou JWT verification rejeitou o token. Saia e entre novamente; mantenha JWT verification ligada.
-- **502**: a API Google recusou a solicitação; revise chave, acesso ao modelo e limites na sua conta.
+- **502 com log `Gemini request status: 503`**: o serviço Google ficou temporariamente indisponível ou sobrecarregado. **Não apague a função**; primeiro tente novamente mais tarde. Atualize o código e clique em **Deploy** outra vez para receber o retry automático (até 3 tentativas, com espera crescente).
+- **502 com status 400/403/404**: confira chave, conta e modelo; não são falhas temporárias.
+- **503**: falha de configuração ou gravação do banco; confira o texto completo do erro.
 - **503 "A chave Gemini ainda não foi configurada"**: salve a chave em Edge Function Secrets.
 - **429**: limite simples de testes: até 6 respostas/minuto e 80/dia por conta (limite **não atômico**).
 - **Histórico vazio**: confira se a RLS e as permissões da tabela `chat_messages` foram criadas no SQL da etapa 2.
@@ -52,3 +54,9 @@ Fontes:
 - https://supabase.com/docs/guides/functions/auth
 - https://supabase.com/docs/guides/functions/secrets
 - https://ai.google.dev/gemini-api/docs/generate-content/text-generation
+
+## Resolução de 503 do Google (após primeiro deploy)
+1. A API retornou `503`, confirmando que a requisição chegou ao provedor Google.
+2. `index.ts` foi atualizado com até 3 tentativas e backoff exponencial. No Dashboard, reabra **Edge Functions > gemini-tutor > Code**, cole o código **atual** da branch e clique em **Deploy updates**; a edição do GitHub não atualiza a função já publicada.
+3. Repita a pergunta do site. Se o erro continuar, confira no log `Gemini transient HTTP status` e, se persistente, tente temporariamente um modelo diferente criando/alterando o secret `GEMINI_MODEL` para `gemini-3.1-flash-lite` e reteste (sem colocar chave em frontend). Confirme o acesso do modelo na conta do Google AI Studio.
+4. Não precisa recriar a função nem apagar o segredo.
