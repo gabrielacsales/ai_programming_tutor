@@ -18,7 +18,8 @@
     m4_status_nota: { prompt: "Declare uma função chamada avaliar, com um parâmetro nota.", parts: ["def", "avaliar", "(", "nota", ")", ":"], note: "Definimos funções com def, parênteses e dois-pontos." },
     m5_extremos: { prompt: "Crie uma lista com dois números.", parts: ["valores", "=", "[", "3", ",", "9", "]"], note: "Listas usam colchetes e elementos separados por vírgula." },
     m5_filtrar_nomes: { prompt: "Percorra os nomes de uma lista.", parts: ["for", "nome", "in", "nomes", ":"], note: "O for percorre os elementos de uma coleção." },
-    m5_remover_duplicatas: { prompt: "Crie uma lista com dois itens.", parts: ["itens", "=", "[", "1", ",", "2", "]"], note: "Uma lista Python pode conter vários valores." }
+    m5_remover_duplicatas: { prompt: "Crie uma lista com dois itens.", parts: ["itens", "=", "[", "1", ",", "2", "]"], note: "Uma lista Python pode conter vários valores." },
+    analisar_turma: { prompt: "Crie um dicionário com o nome de uma pessoa.", parts: ["pessoa", "=", "{", "'nome'", ":", "'Ana'", "}"], note: "Dicionários usam chaves e pares de chave e valor separados por dois-pontos." }
   };
   const fallback = { prompt: "Guarde o número 20 em uma variável.", parts: ["idade", "=", "20"], note: "O operador = atribui um valor." };
   let dialog = null;
