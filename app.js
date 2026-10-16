@@ -98,6 +98,35 @@ let currentOrch = null;
 const sessionMap = new Map(); // Guarda instâncias do Orchestrator por Challenge ID
 let lastInteractionTime = Date.now();
 
+// Evita gravações no banco a cada tecla pressionada.
+const progressSaveTimers = new Map();
+
+async function persistExercise(orch) {
+  if (!orch) return;
+  try {
+    await TutorProgress.save(orch.problem.id, {
+      user_code: orch.state.user_code,
+      user_idea: orch.state.user_idea,
+      completed: orch.state.completed,
+      metrics: orch.metrics
+    });
+  } catch (error) {
+    console.error("Falha ao salvar progresso no Supabase:", error);
+    showToast("Não foi possível salvar o progresso. Verifique a conexão.");
+  }
+}
+
+function scheduleProgressSave(orch = currentOrch) {
+  if (!orch) return;
+  const id = orch.problem.id;
+  clearTimeout(progressSaveTimers.get(id));
+  progressSaveTimers.set(id, setTimeout(() => {
+    progressSaveTimers.delete(id);
+    persistExercise(orch);
+  }, 900));
+}
+
+
 // Elementos DOM
 const screenLanding = document.getElementById("screen-landing");
 const screenApp = document.getElementById("screen-app");
@@ -221,6 +250,13 @@ function loadActiveExercise(challengeId) {
   const p = problems.find(prob => prob.id === challengeId);
   if (!p) return;
 
+  // Garante que a edição anterior seja persistida antes de trocar de exercício.
+  if (currentOrch && currentOrch.problem.id !== challengeId) {
+    clearTimeout(progressSaveTimers.get(currentOrch.problem.id));
+    progressSaveTimers.delete(currentOrch.problem.id);
+    persistExercise(currentOrch);
+  }
+
   populateExercises(p.module);
   selectExercise.value = challengeId;
 
@@ -229,6 +265,15 @@ function loadActiveExercise(challengeId) {
     currentOrch = sessionMap.get(challengeId);
   } else {
     currentOrch = new ChallengeOrchestrator(p);
+    const saved = TutorProgress.get(challengeId);
+    if (saved) {
+      currentOrch.state.user_code = saved.user_code || "";
+      currentOrch.state.user_idea = saved.user_idea || "";
+      currentOrch.state.completed = !!saved.completed;
+      if (saved.metrics && typeof saved.metrics === "object") {
+        currentOrch.metrics = { ...currentOrch.metrics, ...saved.metrics };
+      }
+    }
     sessionMap.set(challengeId, currentOrch);
   }
 
@@ -389,11 +434,13 @@ tabCode.addEventListener("click", () => switchMode("code"));
 // Salvar input em tempo real no estado
 textareaDesc.addEventListener("input", (e) => {
   if (currentOrch) currentOrch.state.user_idea = e.target.value;
+  scheduleProgressSave();
   lastInteractionTime = Date.now();
 });
 
 textareaCode.addEventListener("input", (e) => {
   if (currentOrch) currentOrch.state.user_code = e.target.value;
+  scheduleProgressSave();
   lastInteractionTime = Date.now();
 });
 
@@ -408,6 +455,7 @@ textareaCode.addEventListener("keydown", function (e) {
 
     // Atualiza estado
     if (currentOrch) currentOrch.state.user_code = this.value;
+    scheduleProgressSave();
     lastInteractionTime = Date.now();
   }
 });
@@ -481,6 +529,7 @@ btnSubmitDesc.addEventListener("click", async () => {
   } finally {
     btnSubmitDesc.disabled = false;
     updateUIState();
+    scheduleProgressSave();
   }
 });
 
@@ -492,6 +541,7 @@ btnSubmitDesc.addEventListener("click", async () => {
     const hint = currentOrch.requestHint();
     showToast(`💡 Dica: ${hint}`);
     updateUIState();
+    scheduleProgressSave();
   });
 });
 
@@ -529,6 +579,7 @@ btnSendSocraticDesc.addEventListener("click", async () => {
   } finally {
     btnSendSocraticDesc.disabled = false;
     updateUIState();
+    scheduleProgressSave();
   }
 });
 
@@ -558,6 +609,7 @@ btnSendSocraticCode.addEventListener("click", async () => {
   } finally {
     btnSendSocraticCode.disabled = false;
     updateUIState();
+    scheduleProgressSave();
   }
 });
 
@@ -644,13 +696,8 @@ btnSubmitCode.addEventListener("click", async () => {
         testAiHelp.style.display = "none";
         currentOrch.state.completed = true;
         
-        // Registrar sucesso no localStorage
-        let completedStr = localStorage.getItem('completed_exercises');
-        let completedList = completedStr ? JSON.parse(completedStr) : [];
-        if (!completedList.includes(currentOrch.problem.id)) {
-            completedList.push(currentOrch.problem.id);
-            localStorage.setItem('completed_exercises', JSON.stringify(completedList));
-        }
+        // A conclusão é persistida no Supabase ao terminar esta submissão.
+        // ATENÇÃO: o resultado de testes do navegador não é prova acadêmica antifraude.
 
         // Achar próximo exercício do módulo
         let nextExerciseId = null;
@@ -695,6 +742,7 @@ btnSubmitCode.addEventListener("click", async () => {
     btnSubmitCode.disabled = false;
     pyodideSpinner.style.display = "none";
     updateUIState();
+    scheduleProgressSave();
   }
 });
 
@@ -709,28 +757,32 @@ setInterval(() => {
     if (elapsedSinceInteraction > 5000) {
       currentOrch.metrics.idle_time_seconds += 1;
       updateUIState();
+      if (currentOrch.metrics.idle_time_seconds % 20 === 0) scheduleProgressSave();
     }
   }
 }, 1000);
 
-// Init
-initApiKey();
-populateExercises();
-
-// Suporte para carregar exercício específico via parâmetro da URL (?exercise=ID)
-const urlParams = new URLSearchParams(window.location.search);
-const exerciseParam = urlParams.get('exercise');
-if (exerciseParam && problems.some(p => p.id === exerciseParam)) {
-  loadActiveExercise(exerciseParam);
-  if (selectExercise) {
-    selectExercise.value = exerciseParam;
+// Init: lê primeiro os dados da conta, depois monta a interface.
+(async function startTutor() {
+  try {
+    await TutorProgress.init();
+  } catch (error) {
+    console.error("Erro ao carregar progresso:", error);
+    showToast("Falha ao carregar o progresso. Recarregue após verificar o login.");
+    return;
   }
-} else if (problems.length > 0) {
-  loadActiveExercise(problems[0].id);
-}
-
-// Inicializa o Pyodide em background
-runner.init().catch(() => { });
+  initApiKey();
+  populateExercises();
+  const urlParams = new URLSearchParams(window.location.search);
+  const exerciseParam = urlParams.get("exercise");
+  if (exerciseParam && problems.some(p => p.id === exerciseParam)) {
+    loadActiveExercise(exerciseParam);
+    if (selectExercise) selectExercise.value = exerciseParam;
+  } else if (problems.length > 0) {
+    loadActiveExercise(problems[0].id);
+  }
+  runner.init().catch(() => {});
+})();
 
 // Registra evento de atualização da API Key por fallback (.env)
 window.addEventListener('apiKeyReady', initApiKey);
