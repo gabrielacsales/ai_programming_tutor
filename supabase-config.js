@@ -1,8 +1,7 @@
-// CONFIGURAÇÃO PÚBLICA: substitua estes dois valores pelos encontrados em
-// Supabase > Project Settings > API Keys. Use a chave PUBLICÁVEL (sb_publishable_...).
-// NUNCA insira aqui service_role, secret key ou chave da API Gemini.
-// Esta configuração é pública por definição (segurança depende de RLS).
+// Configuração pública do Supabase para o protótipo IA Tutor.
+// A URL e a chave publicável podem ser incluídas no frontend.
+// NUNCA inclua service_role, secret key, senha de banco ou chave Gemini aqui.
 window.AI_TUTOR_SUPABASE = {
-  url: "",
-  publishableKey: ""
+  url: "https://uopjjtywthbonlaqymny.supabase.co",
+  publishableKey: "sb_publishable_YmDWIdAGk6bXkwGAtS1-ig_hS6AWW2m"
 };
