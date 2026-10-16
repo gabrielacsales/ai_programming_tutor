@@ -152,6 +152,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="supabase-config.js"></script>
 <script src="auth-client.js"></script>
+<script src="progress-store.js"></script>
 <style>body{visibility:hidden}</style>
 <script>document.addEventListener("DOMContentLoaded",async()=>{if(await TutorAuth.requireLogin()){const header=document.querySelector(".sidebar-header")||document.querySelector("header");if(header){const btn=document.createElement("button");btn.textContent="Sair da conta";btn.type="button";btn.style.cssText="border:1px solid #cbd5e1;border-radius:10px;padding:9px 13px;background:white;color:#334155;font-size:12px;cursor:pointer";btn.addEventListener("click",()=>TutorAuth.logout());header.appendChild(btn);}}});</script>
 </head>
@@ -909,7 +910,14 @@
 
   <!-- JS Helpers -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Carrega o progresso da conta antes de desbloquear exercícios.
+      try {
+        await TutorProgress.init();
+      } catch (error) {
+        console.error("Erro ao carregar o progresso do aluno:", error);
+        return;
+      }
       // 1. Reveal Animations (Observer)
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -1040,12 +1048,7 @@
 
       // 4. Lock/Unlock Exercises and Final Challenge Logic
       const updateExerciseLocks = () => {
-        let completedExercises = [];
-        try {
-          completedExercises = JSON.parse(localStorage.getItem('completed_exercises') || '[]');
-        } catch (e) {
-          completedExercises = [];
-        }
+        const completedExercises = TutorProgress.getCompletedIds();
 
         const exerciseLinks = document.querySelectorAll('.exercise-link');
         exerciseLinks.forEach(link => {
@@ -1089,12 +1092,7 @@
 
       const checkFinalChallengeUnlock = () => {
         const requiredExercises = ["m1_calculo_desconto", "m2_desconto_categoria", "m3_tabuada", "m4_status_nota", "m5_remover_duplicatas"];
-        let completedExercises = [];
-        try {
-          completedExercises = JSON.parse(localStorage.getItem('completed_exercises') || '[]');
-        } catch (e) {
-          completedExercises = [];
-        }
+        const completedExercises = TutorProgress.getCompletedIds();
 
         // Count how many are completed
         const completedCount = requiredExercises.filter(id => completedExercises.includes(id)).length;
@@ -1136,34 +1134,10 @@
         }
       };
 
-      // Bypass button event
-      const bypassBtn = document.getElementById("bypass-unlock-btn");
-      if (bypassBtn) {
-        bypassBtn.addEventListener("click", () => {
-          const requiredExercises = [
-            "m1_imc", "m1_conversor_temp", "m1_calculo_desconto",
-            "m2_maioridade", "m2_par_impar", "m2_desconto_categoria",
-            "m3_contagem", "m3_soma_limite", "m3_tabuada",
-            "m4_busca_linear", "m4_contagem_vogais", "m4_status_nota",
-            "m5_extremos", "m5_filtrar_nomes", "m5_remover_duplicatas"
-          ];
-          localStorage.setItem('completed_exercises', JSON.stringify(requiredExercises));
-          updateExerciseLocks();
-          checkFinalChallengeUnlock();
-          updateActiveState();
-        });
-      }
-
-      // Relock button event for demonstration
-      const bypassLockBtn = document.getElementById("bypass-lock-btn");
-      if (bypassLockBtn) {
-        bypassLockBtn.addEventListener("click", () => {
-          localStorage.setItem('completed_exercises', JSON.stringify([]));
-          updateExerciseLocks();
-          checkFinalChallengeUnlock();
-          updateActiveState();
-        });
-      }
+      // Controles de demonstração: não permitir alterar progresso do aluno no navegador.
+      ["bypass-unlock-btn", "bypass-lock-btn"].forEach(id => {
+        document.getElementById(id)?.remove();
+      });
 
       // Initial call
       updateExerciseLocks();
