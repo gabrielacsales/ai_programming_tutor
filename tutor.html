@@ -484,21 +484,10 @@
           <!-- Sidebar Content -->
           <div class="sidebar-content p-6 overflow-y-auto flex-grow flex flex-col gap-6">
 
-            <!-- Gemini Configuration Input -->
-            <div class="mt-3">
-              <label for="input-api-key"
-                class="text-[10px] font-mono uppercase text-slate-400 tracking-wider mb-1 block">🔑 Google Gemini API Key
-                (Opcional)</label>
-              <div class="relative">
-                <input type="password" id="input-api-key" placeholder="sk-proj-..."
-                  class="w-full bg-white border border-slate-200 rounded-xl py-2.5 pl-4 pr-10 text-xs font-mono focus:border-slate-400 focus:outline-none transition-colors">
-                <div class="input-underline-bar"></div>
-              </div>
-              <button
-                class="w-full mt-2 bg-slate-800 text-white text-xs font-mono uppercase tracking-wider py-2 rounded-lg hover:bg-black transition-colors"
-                id="btn-save-key">
-                Salvar Chave
-              </button>
+            <!-- A chave Gemini fica nas Edge Function Secrets, nunca no browser. -->
+            <div class="mt-3 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3">
+              <p class="text-xs font-semibold text-sky-900">Tutor de IA protegido</p>
+              <p class="text-[11px] text-sky-700 mt-1">As mensagens são enviadas à função autenticada do Supabase.</p>
             </div>
 
             <!-- Divider -->
@@ -799,6 +788,14 @@
             </div>
 
 
+
+            <!-- Histórico do aluno autenticado (RLS do Supabase). -->
+            <details class="border border-slate-200 bg-white rounded-xl p-4" id="chat-history-details">
+              <summary class="text-sm font-bold text-slate-700 cursor-pointer">Histórico com o professor (este exercício)</summary>
+              <div id="chat-history-list" class="mt-3 flex flex-col gap-2 text-sm" aria-live="polite">
+                <p class="text-slate-500">Carregando...</p>
+              </div>
+            </details>
 
             <!-- Dashboard de Métricas -->
             <h3
