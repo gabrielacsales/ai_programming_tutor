@@ -275,16 +275,34 @@ function populateExercises(currentModule = null) {
     if (!currentModule || p.module === currentModule) {
       const opt = document.createElement("option");
       opt.value = p.id;
-      opt.innerText = p.title;
+      const locked = !TutorAccess.hasAccess(p.id);
+      opt.disabled = locked;
+      opt.innerText = p.title + (locked ? " 🔒" : "");
       selectExercise.appendChild(opt);
     }
   });
 }
 
 // Renderiza o exercício ativo
-function loadActiveExercise(challengeId) {
+let loadRequestId = 0;
+async function loadActiveExercise(challengeId) {
+  const requestId = ++loadRequestId;
   const p = problems.find(prob => prob.id === challengeId);
   if (!p) return;
+
+  // O Supabase valida o acesso mesmo com URL editada ou dropdown modificado.
+  try {
+    const allowed = await TutorAccess.verify(challengeId);
+    if (requestId !== loadRequestId) return;
+    if (!allowed) {
+      window.location.replace("conteudos.html");
+      return;
+    }
+  } catch (error) {
+    console.error("Erro ao verificar acesso ao exercício:", error);
+    showToast("Não foi possível verificar as permissões. Confira a migração SQL.");
+    return;
+  }
 
   // Garante que a edição anterior seja persistida antes de trocar de exercício.
   if (currentOrch && currentOrch.problem.id !== challengeId) {
@@ -742,6 +760,14 @@ btnSubmitCode.addEventListener("click", async () => {
         // Salva antes de exibir o botão Próximo Desafio, evitando perder
         // a conclusão caso o aluno navegue imediatamente para outra página.
         await persistExercise(currentOrch);
+        // O banco atualiza o desbloqueio do próximo desafio após a conclusão.
+        try {
+          await TutorAccess.refresh();
+          populateExercises(currentOrch.problem.module);
+          selectExercise.value = currentOrch.problem.id;
+        } catch (error) {
+          console.error("Falha ao atualizar desbloqueios:", error);
+        }
 
         // A conclusão é persistida no Supabase ao terminar esta submissão.
         // ATENÇÃO: o resultado de testes do navegador não é prova acadêmica antifraude.
@@ -813,12 +839,20 @@ setInterval(() => {
 (async function startTutor() {
   try {
     await TutorProgress.init();
+    await TutorAccess.init();
   } catch (error) {
     console.error("Erro ao carregar progresso:", error);
-    showToast("Falha ao carregar o progresso. Recarregue após verificar o login.");
+    showToast("Falha ao carregar progresso ou permissões. Execute developer-access.sql, se ainda não fez.");
     return;
   }
   populateExercises();
+  if (TutorAccess.isDeveloper()) {
+    const badge = document.createElement("div");
+    badge.textContent = "Modo desenvolvedora · Todos os exercícios liberados";
+    badge.className = "text-xs font-bold text-sky-800 bg-sky-50 border border-sky-200 rounded-xl px-4 py-2 my-2";
+    const anchor = document.querySelector(".sidebar-content") || document.body;
+    anchor.prepend(badge);
+  }
   const urlParams = new URLSearchParams(window.location.search);
   const exerciseParam = urlParams.get("exercise");
   if (exerciseParam && problems.some(p => p.id === exerciseParam)) {
