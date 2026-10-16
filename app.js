@@ -134,8 +134,6 @@ const btnStartNow = document.getElementById("btn-start-now");
 const btnShowFeatures = document.getElementById("btn-show-features");
 const btnBackLanding = document.getElementById("btn-back-landing");
 const selectExercise = document.getElementById("select-exercise");
-const inputApiKey = document.getElementById("input-api-key");
-const btnSaveKey = document.getElementById("btn-save-key");
 const alertToast = document.getElementById("alert-toast");
 
 // Accordions e Expanders
@@ -225,10 +223,48 @@ function showActionToast(htmlContent) {
   alertToast.style.display = "block";
 }
 
-// Atualiza o painel lateral de chaves
-function initApiKey() {
-  if (tutor.hasApiKey()) {
-    inputApiKey.value = tutor.apiKey;
+// A saída da IA e do código do aluno é tratada como TEXTO, não como HTML.
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[char]);
+}
+
+// Histórico persistido na tabela chat_messages, filtrado automaticamente pela RLS.
+let historyRequestNumber = 0;
+async function loadChatHistory(exerciseId) {
+  const list = document.getElementById("chat-history-list");
+  if (!list) return;
+  const requestNumber = ++historyRequestNumber;
+  list.textContent = "Carregando histórico...";
+  const client = window.TutorAuth?.client;
+  if (!client) return;
+  const { data, error } = await client.from("chat_messages")
+    .select("id,role,content,created_at")
+    .eq("exercise_id", exerciseId)
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .limit(30);
+  if (requestNumber !== historyRequestNumber) return;
+  list.replaceChildren();
+  if (error) {
+    list.textContent = "Não foi possível carregar o histórico.";
+    return;
+  }
+  if (!data?.length) {
+    list.textContent = "Ainda não há mensagens neste exercício.";
+    return;
+  }
+  for (const message of data.reverse()) {
+    const item = document.createElement("div");
+    item.className = "rounded-lg p-3 border border-slate-200 bg-slate-50";
+    const title = document.createElement("strong");
+    title.textContent = message.role === "user" ? "Aluno" : "Tutor";
+    const text = document.createElement("p");
+    text.style.whiteSpace = "pre-wrap";
+    text.textContent = message.content;
+    item.append(title, text);
+    list.appendChild(item);
   }
 }
 
@@ -326,6 +362,7 @@ function loadActiveExercise(challengeId) {
   switchExerciseTab("statement");
 
   updateUIState();
+  loadChatHistory(challengeId);
 }
 
 // Alterna entre abas "Descrever Ideia" e "Código"
@@ -415,12 +452,6 @@ if (btnBackLanding) {
     window.location.href = "index.html";
   });
 }
-
-// Salvamento da Google Gemini API Key
-btnSaveKey.addEventListener("click", () => {
-  tutor.setApiKey(inputApiKey.value);
-  showToast("Configurações de chave atualizadas!");
-});
 
 // Alternância de Exercício
 selectExercise.addEventListener("change", (e) => {
@@ -526,9 +557,10 @@ btnSubmitDesc.addEventListener("click", async () => {
     currentOrch.recordReengagement(); // Considera reengajamento após bloqueios anteriores
 
     const critique = await tutor.critiqueIdea(idea, currentOrch.buildContext());
-    feedbackDesc.innerHTML = `<strong>Feedback do Professor:</strong><br>${critique}`;
+    feedbackDesc.innerHTML = `<strong>Feedback do Professor:</strong><br>${escapeHtml(critique)}`;
+    await loadChatHistory(currentOrch.problem.id);
   } catch (e) {
-    feedbackDesc.innerHTML = `<strong>Erro ao conectar com o Tutor:</strong><br>${e.message}`;
+    feedbackDesc.innerHTML = `<strong>Erro ao conectar com o Tutor:</strong><br>${escapeHtml(e.message)}`;
     feedbackDesc.className = "feedback-box error";
   } finally {
     btnSubmitDesc.disabled = false;
@@ -574,15 +606,16 @@ btnSendSocraticDesc.addEventListener("click", async () => {
     const reply = await tutor.ask(q, currentOrch.buildContext(), "");
 
     if (isDirect) {
-      replySocraticDesc.innerHTML = `<strong style="color: var(--color-error)">🚨 Bloqueio de Resposta Direta:</strong><br>${reply}`;
+      replySocraticDesc.innerHTML = `<strong style="color: var(--color-error)">🚨 Bloqueio de Resposta Direta:</strong><br>${escapeHtml(reply)}`;
     } else {
-      replySocraticDesc.innerHTML = `<strong>Resposta do Professor:</strong><br>${reply}`;
+      replySocraticDesc.innerHTML = `<strong>Resposta do Professor:</strong><br>${escapeHtml(reply)}`;
     }
   } catch (e) {
-    replySocraticDesc.innerHTML = `<strong>Erro:</strong> ${e.message}`;
+    replySocraticDesc.innerHTML = `<strong>Erro:</strong> ${escapeHtml(e.message)}`;
   } finally {
     btnSendSocraticDesc.disabled = false;
     updateUIState();
+    loadChatHistory(currentOrch.problem.id);
     scheduleProgressSave();
   }
 });
@@ -604,15 +637,16 @@ btnSendSocraticCode.addEventListener("click", async () => {
     const reply = await tutor.ask(q, currentOrch.buildContext(), code);
 
     if (isDirect) {
-      replySocraticCode.innerHTML = `<strong style="color: var(--color-error)">🚨 Bloqueio de Resposta Direta:</strong><br>${reply}`;
+      replySocraticCode.innerHTML = `<strong style="color: var(--color-error)">🚨 Bloqueio de Resposta Direta:</strong><br>${escapeHtml(reply)}`;
     } else {
-      replySocraticCode.innerHTML = `<strong>Resposta do Professor:</strong><br>${reply}`;
+      replySocraticCode.innerHTML = `<strong>Resposta do Professor:</strong><br>${escapeHtml(reply)}`;
     }
   } catch (e) {
-    replySocraticCode.innerHTML = `<strong>Erro:</strong> ${e.message}`;
+    replySocraticCode.innerHTML = `<strong>Erro:</strong> ${escapeHtml(e.message)}`;
   } finally {
     btnSendSocraticCode.disabled = false;
     updateUIState();
+    loadChatHistory(currentOrch.problem.id);
     scheduleProgressSave();
   }
 });
@@ -652,7 +686,8 @@ btnSubmitCode.addEventListener("click", async () => {
 
       // Tutor explica erro
       const errorExplanation = await tutor.explainError(res.error, code, currentOrch.buildContext());
-      errorAiHelp.innerHTML = `<strong>Explicação do Professor:</strong><br>${errorExplanation}`;
+      errorAiHelp.innerHTML = `<strong>Explicação do Professor:</strong><br>${escapeHtml(errorExplanation)}`;
+      loadChatHistory(currentOrch.problem.id);
 
       currentOrch.state.completed = false;
       document.getElementById("tests-wrapper").style.display = "none";
@@ -669,7 +704,7 @@ btnSubmitCode.addEventListener("click", async () => {
         item.className = `test-item ${t.ok ? 'passed' : 'failed'}`;
 
         const details = document.createElement("div");
-        details.innerHTML = `<strong>Caso ${t.id}:</strong> ${t.error ? 'Exceção gerada' : `Obtido: <code>${t.result}</code> | Esperado: <code>${t.expected}</code>`}`;
+        details.innerHTML = `<strong>Caso ${escapeHtml(t.id)}:</strong> ${t.error ? 'Exceção gerada' : `Obtido: <code>${escapeHtml(t.result)}</code> | Esperado: <code>${escapeHtml(t.expected)}</code>`}`;
 
         const badge = document.createElement("span");
         badge.className = `test-badge ${t.ok ? 'pass' : 'fail'}`;
@@ -693,7 +728,8 @@ btnSubmitCode.addEventListener("click", async () => {
           currentOrch.buildContext(),
           code
         );
-        testAiHelp.innerHTML = `<strong>Dica do Professor:</strong><br>${testHint}`;
+        testAiHelp.innerHTML = `<strong>Dica do Professor:</strong><br>${escapeHtml(testHint)}`;
+        loadChatHistory(currentOrch.problem.id);
 
         currentOrch.state.completed = false;
       } else {
@@ -779,7 +815,6 @@ setInterval(() => {
     showToast("Falha ao carregar o progresso. Recarregue após verificar o login.");
     return;
   }
-  initApiKey();
   populateExercises();
   const urlParams = new URLSearchParams(window.location.search);
   const exerciseParam = urlParams.get("exercise");
@@ -792,5 +827,4 @@ setInterval(() => {
   runner.init().catch(() => {});
 })();
 
-// Registra evento de atualização da API Key por fallback (.env)
-window.addEventListener('apiKeyReady', initApiKey);
+// A chave Gemini é exclusiva da Supabase Edge Function.
