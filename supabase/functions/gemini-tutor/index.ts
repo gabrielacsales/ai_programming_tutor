@@ -96,25 +96,46 @@ Deno.serve(async (req: Request) => {
         "\nRestrições: " + constraints + "\nModo: " + mode +
         "\nMensagem do aluno: " + message + (code ? "\nCódigo/trecho atual:\n" + code : "");
 
-      const response = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(model) + ":generateContent",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "x-goog-api-key": geminiKey },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: instruction }] },
-            contents: [{ role: "user", parts: [{ text: context }] }],
-            generationConfig: { temperature: 0.3, maxOutputTokens: 700 }
-          }),
-          signal: AbortSignal.timeout(25000)
+      // Requisições HTTP diretas não têm retry automático. O Google recomenda
+      // backoff exponencial para respostas transitórias (429/503 e outros 5xx).
+      const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/" +
+        encodeURIComponent(model) + ":generateContent";
+      const payload = JSON.stringify({
+        systemInstruction: { parts: [{ text: instruction }] },
+        contents: [{ role: "user", parts: [{ text: context }] }],
+        generationConfig: { temperature: 0.3, maxOutputTokens: 700 }
+      });
+      const retryableStatuses = new Set([408, 429, 500, 502, 503, 504]);
+      let response: Response | null = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "x-goog-api-key": geminiKey },
+            body: payload,
+            signal: AbortSignal.timeout(20000),
+          });
+        } catch (error) {
+          console.error("Gemini transient network/timeout error; attempt:", attempt + 1);
+          if (attempt === 2) {
+            return json({ error: "O Gemini não respondeu após 3 tentativas. Tente novamente mais tarde." }, 502);
+          }
+          response = null;
         }
-      );
-
-      if (!response.ok) {
-        // Não mostre ao cliente o corpo de erro externo, que pode conter dados sensíveis.
-        console.error("Gemini request status:", response.status);
-        return json({ error: "O tutor de IA não respondeu. Confira a configuração e tente novamente." }, 502);
+        if (response?.ok) break;
+        if (response && !retryableStatuses.has(response.status)) {
+          console.error("Gemini non-retryable HTTP status:", response.status, "model:", model);
+          return json({ error: "O Gemini recusou a solicitação (status " + response.status + "). Confira o acesso à API e o modelo." }, 502);
+        }
+        if (response) console.warn("Gemini transient HTTP status:", response.status, "attempt:", attempt + 1, "model:", model);
+        if (attempt === 2) {
+          return json({ error: "O Gemini está temporariamente indisponível. Aguarde e tente novamente." }, 502);
+        }
+        // 1s -> 2s com jitter; não insistir indefinidamente.
+        const backoffMs = 1000 * (2 ** attempt) + Math.floor(Math.random() * 250);
+        await new Promise(resolve => setTimeout(resolve, backoffMs));
       }
+      if (!response?.ok) return json({ error: "Falha temporária ao acessar o Gemini." }, 502);
       const result = await response.json();
       reply = (result?.candidates?.[0]?.content?.parts || [])
         .map((p: { text?: string }) => p.text || "").join("").trim();
