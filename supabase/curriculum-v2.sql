@@ -37,6 +37,12 @@ from public.exercise_progress
 where coalesce(metrics ->> 'curriculum_version', '1') <> '2'
 on conflict (user_id, exercise_id) do nothing;
 
+-- Mantém o histórico antigo com versão 1 e impede misturá-lo à tutoria da versão 2.
+alter table public.chat_messages
+  add column if not exists curriculum_version integer not null default 1;
+create index if not exists chat_messages_user_exercise_version_date
+  on public.chat_messages (user_id, exercise_id, curriculum_version, created_at);
+
 -- As regras de dependência devem corresponder à ordem real dos módulos.
 insert into public.exercise_access_rules (exercise_id, required_exercise_id, is_final) values
   ('m3_contagem', 'm2_desconto_categoria', false),
