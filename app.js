@@ -356,7 +356,7 @@ async function loadActiveExercise(challengeId) {
 
   // Restaura o estado da aba
   textareaDesc.value = currentOrch.state.user_idea;
-  textareaCode.value = currentOrch.state.user_code || (p.function_name ? `def ${p.function_name}(n):\n    # Escreva sua lógica aqui\n    pass` : `# Os dados do teste estarão na variável 'entrada'\n# Use print() para exibir o resultado final\n\n`);
+  textareaCode.value = currentOrch.state.user_code || (p.function_name ? `def ${p.function_name}(${p.function_parameter || 'dados'}):\n    # Escreva sua lógica aqui\n    pass` : `# O valor do teste já está disponível na variável 'entrada'\n# Utilize print() para exibir o resultado final\n\n`);
 
   // Reseta elementos de feedback visual da interface
   feedbackDesc.style.display = "none";
