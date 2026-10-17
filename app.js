@@ -82,6 +82,7 @@ class ChallengeOrchestrator {
     }
     return {
       id: this.problem.id,
+      curriculum_version: this.problem.curriculum_version || 1,
       title: this.problem.title,
       statement: shortStmt,
       constraints: this.problem.constraints || []
@@ -242,6 +243,7 @@ async function loadChatHistory(exerciseId) {
   const { data, error } = await client.from("chat_messages")
     .select("id,role,content,created_at")
     .eq("exercise_id", exerciseId)
+    .eq("curriculum_version", problems.find(p => p.id === exerciseId)?.curriculum_version || 1)
     .order("created_at", { ascending: false })
     .order("id", { ascending: false })
     .limit(30);
