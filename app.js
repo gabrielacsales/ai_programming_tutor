@@ -361,6 +361,7 @@ async function loadActiveExercise(challengeId) {
   // Preenche Resumos do Tema e Exemplos
   exerciseSummaryContent.innerHTML = p.theory || `<p class="text-slate-600">${p.statement}</p>`;
   exerciseExamplesContent.innerHTML = learningUI.renderPracticeExamples(p);
+  learningUI.highlightPracticalExamples(exerciseExamplesContent);
 
   const codeNotice = document.getElementById("code-input-notice");
   if (codeNotice) {
