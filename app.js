@@ -398,8 +398,12 @@ async function loadActiveExercise(challengeId) {
   loadChatHistory(challengeId);
   // A revisão aparece ao entrar em qualquer exercício e não interfere
   // no estado do aluno nem nas métricas acadêmicas já instrumentadas.
-  if (window.TutorReview) TutorReview.open(p, () => {
+  TutorResearch?.record(p.id, "exercise_opened");
+  if (window.TutorReview) TutorReview.open(p, (quiz) => {
     lastInteractionTime = Date.now(); // não contar o tempo gasto no popup como inatividade
+    TutorResearch?.record(p.id, quiz?.completed ? "review_completed" : "review_skipped", {
+      mistakes: quiz?.mistakes || 0
+    });
   });
 }
 
@@ -631,6 +635,7 @@ btnSubmitDesc.addEventListener("click", async () => {
 
   try {
     currentOrch.recordAttempt(idea);
+    TutorResearch?.record(currentOrch.problem.id, "idea_submitted");
     currentOrch.metrics.idea_submissions = (Number(currentOrch.metrics.idea_submissions) || 0) + 1;
     currentOrch.recordReengagement(); // Considera reengajamento após bloqueios anteriores
 
@@ -652,7 +657,11 @@ btnSubmitDesc.addEventListener("click", async () => {
   btn.addEventListener("click", () => {
     lastInteractionTime = Date.now();
     if (!currentOrch) return;
+    const beforeHintCount = currentOrch.metrics.hints_used;
     const hint = currentOrch.requestHint();
+    if (currentOrch.metrics.hints_used > beforeHintCount) {
+      TutorResearch?.record(currentOrch.problem.id, "hint_viewed");
+    }
     showToast(`💡 Dica: ${hint}`);
     updateUIState();
     scheduleProgressSave();
@@ -679,6 +688,8 @@ btnSendSocraticDesc.addEventListener("click", async () => {
 
   const isDirect = tutor.isDirectAnswerRequest(q);
   currentOrch.recordDirectAnswerAttempt(isDirect);
+  TutorResearch?.record(currentOrch.problem.id, "tutor_question");
+  if (isDirect) TutorResearch?.record(currentOrch.problem.id, "tutor_blocked_request");
 
   try {
     const reply = await tutor.ask(q, currentOrch.buildContext(), "");
@@ -710,6 +721,8 @@ btnSendSocraticCode.addEventListener("click", async () => {
 
   const isDirect = tutor.isDirectAnswerRequest(q);
   currentOrch.recordDirectAnswerAttempt(isDirect);
+  TutorResearch?.record(currentOrch.problem.id, "tutor_question");
+  if (isDirect) TutorResearch?.record(currentOrch.problem.id, "tutor_blocked_request");
 
   try {
     const reply = await tutor.ask(q, currentOrch.buildContext(), code);
@@ -767,12 +780,22 @@ btnSubmitCode.addEventListener("click", async () => {
 
   try {
     currentOrch.recordAttempt(code);
+    TutorResearch?.record(currentOrch.problem.id, "code_submitted");
     currentOrch.state.user_code = code;
     currentOrch.metrics.code_submissions = (Number(currentOrch.metrics.code_submissions) || 0) + 1;
     currentOrch.recordReengagement();
 
     // Roda no Pyodide
     const res = await runner.run(code, currentOrch.problem.function_name, currentOrch.problem.tests);
+
+    // Evidências sobre os testes (auto-relato do navegador, não validação server-side).
+    const testCases = Array.isArray(res.test_results) ? res.test_results : [];
+    const passedTests = testCases.filter(t => t.ok).length;
+    TutorResearch?.record(currentOrch.problem.id, "test_result", {
+      passed: passedTests,
+      total: testCases.length,
+      success: testCases.length > 0 && passedTests === testCases.length && !res.error
+    });
 
     // A saída do console pertence somente ao primeiro caso de teste.
     execResults.style.display = "flex";
@@ -862,7 +885,9 @@ btnSubmitCode.addEventListener("click", async () => {
         currentOrch.state.completed = false;
       } else {
         testAiHelp.style.display = "none";
+        const newlyCompleted = !currentOrch.state.completed;
         currentOrch.state.completed = true;
+        if (newlyCompleted) TutorResearch?.record(currentOrch.problem.id, "exercise_completed");
 
         // Salva antes de exibir o botão Próximo Desafio, evitando perder
         // a conclusão caso o aluno navegue imediatamente para outra página.
@@ -937,7 +962,10 @@ setInterval(() => {
     if (elapsedSinceInteraction > 5000) {
       currentOrch.metrics.idle_time_seconds += 1;
       updateUIState();
-      if (currentOrch.metrics.idle_time_seconds % 20 === 0) scheduleProgressSave();
+      if (currentOrch.metrics.idle_time_seconds % 20 === 0) {
+        scheduleProgressSave();
+        TutorResearch?.record(currentOrch.problem.id, "idle_interval", { idle_seconds: 20 });
+      }
     }
   }
   const dialogActive = Boolean(document.querySelector(".tutor-review-dialog[open]"));
@@ -959,6 +987,8 @@ setInterval(() => {
   try {
     await TutorProgress.init();
     await TutorAccess.init();
+    // Consentimento e pré-teste são verificados no Supabase antes de habilitar coleta.
+    if (window.TutorResearch) await TutorResearch.init();
   } catch (error) {
     console.error("Erro ao carregar progresso:", error);
     showToast("Falha ao carregar progresso ou permissões. Execute developer-access.sql, se ainda não fez.");
