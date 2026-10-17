@@ -38,9 +38,12 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   border-bottom: 1px solid rgba(226,232,240,.75);
 }
 .auth-brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none;
-  font-weight: 800; letter-spacing: -.045em; font-size: 20px; white-space: nowrap; }
-.auth-brand-mark { display: grid; place-items: center; width: 36px; height: 36px;
-  background: #0A0A0A; color: #fff; border-radius: 11px; font-size: 27px; line-height: 1; }
+  font-weight: 700; letter-spacing: -.025em; font-size: 16px; text-transform: uppercase; white-space: nowrap; }
+/* Em todo o projeto, o símbolo oficial é solar:infinity-bold em quadrado preto arredondado. */
+.auth-brand-mark { display: grid; place-items: center; width: 32px; height: 32px;
+  background: #000; color: #fff; border-radius: 8px; font-size: 20px; line-height: 1;
+  box-shadow: 0 10px 15px rgba(0,0,0,.12); transition: transform .5s ease; }
+.auth-brand:hover .auth-brand-mark { transform: rotate(90deg); }
 .auth-header-back { display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
   color: #475569; font-size: 12px; font-weight: 700; border: 1px solid #E2E8F0;
   padding: 10px 15px; border-radius: 99px; background: #fff; transition: .2s ease; }
