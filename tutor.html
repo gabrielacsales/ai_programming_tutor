@@ -441,6 +441,19 @@
       margin-right: 8px;
     }
   </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script>
+<script src="auth-client.js"></script>
+<script src="access-client.js"></script>
+<style>body{visibility:hidden}</style>
+<script>document.addEventListener("DOMContentLoaded",async()=>{if(await TutorAuth.requireLogin()){const header=document.querySelector(".sidebar-header")||document.querySelector("header");if(header){const btn=document.createElement("button");btn.textContent="Sair da conta";btn.type="button";btn.style.cssText="border:1px solid #cbd5e1;border-radius:10px;padding:9px 13px;background:white;color:#334155;font-size:12px;cursor:pointer";btn.addEventListener("click",()=>TutorAuth.logout());header.appendChild(btn);}}});</script>
+  <link rel="stylesheet" href="preflight-review.css">
+  <!-- CodeMirror fornece realce Python, indentação e números de linha. -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+  <link rel="stylesheet" href="code-editor.css">
+  <link rel="stylesheet" href="learning-ui.css" />
+  <link rel="stylesheet" href="study-guide.css" />
 </head>
 
 <body class="selection:bg-black selection:text-white relative min-h-screen">
@@ -467,6 +480,12 @@
                 <div class="logo-text">IA Tutor</div>
               </div>
             </div>
+            <a href="perfil.html" id="nav-student-profile"
+              class="flex items-center justify-center gap-2 text-xs font-mono uppercase tracking-widest border border-sky-200 bg-sky-50 text-sky-800 px-4 py-2.5 rounded-xl hover:bg-sky-100 transition-all font-semibold"
+              aria-label="Abrir meu perfil e estatísticas de aprendizagem">
+              <iconify-icon icon="solar:user-rounded-bold-duotone" class="text-sm"></iconify-icon>
+              <span>Meu perfil e estatísticas</span>
+            </a>
             <!-- Back Button -->
             <button
               class="flex items-center justify-center gap-2 text-xs font-mono uppercase tracking-widest border border-slate-200 px-4 py-2.5 rounded-xl hover:bg-black hover:text-white transition-all bg-white shadow-sm"
@@ -479,21 +498,10 @@
           <!-- Sidebar Content -->
           <div class="sidebar-content p-6 overflow-y-auto flex-grow flex flex-col gap-6">
 
-            <!-- Gemini Configuration Input -->
-            <div class="mt-3">
-              <label for="input-api-key"
-                class="text-[10px] font-mono uppercase text-slate-400 tracking-wider mb-1 block">🔑 Google Gemini API Key
-                (Opcional)</label>
-              <div class="relative">
-                <input type="password" id="input-api-key" placeholder="sk-proj-..."
-                  class="w-full bg-white border border-slate-200 rounded-xl py-2.5 pl-4 pr-10 text-xs font-mono focus:border-slate-400 focus:outline-none transition-colors">
-                <div class="input-underline-bar"></div>
-              </div>
-              <button
-                class="w-full mt-2 bg-slate-800 text-white text-xs font-mono uppercase tracking-wider py-2 rounded-lg hover:bg-black transition-colors"
-                id="btn-save-key">
-                Salvar Chave
-              </button>
+            <!-- A chave Gemini fica nas Edge Function Secrets, nunca no browser. -->
+            <div class="mt-3 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3">
+              <p class="text-xs font-semibold text-sky-900">Tutor de IA protegido</p>
+              <p class="text-[11px] text-sky-700 mt-1">As mensagens são enviadas à função autenticada do Supabase.</p>
             </div>
 
             <!-- Divider -->
@@ -543,6 +551,7 @@
               </div>
             </div>
             <div class="workspace-meta flex items-center gap-3">
+              <button type="button" id="btn-feature-tour" class="feature-tour-launch">? Como usar</button>
               <span
                 class="badge-tag bg-slate-100 text-[9px] text-slate-500 font-bold uppercase py-1 px-3 rounded-full border border-slate-200/60">Socrático</span>
               <span
@@ -568,9 +577,11 @@
               class="exercise-tab cursor-pointer pb-3 text-sm font-bold text-slate-400 border-b-[3px] border-transparent -mb-[2px] transition-all hover:text-black flex items-center gap-2 focus:outline-none"
               id="tab-exercise-examples" data-target="view-exercise-examples">
               <iconify-icon icon="solar:code-file-bold-duotone" class="text-base"></iconify-icon>
-              <span>Exemplos do Professor</span>
+              <span>Exemplos Práticos</span>
             </button>
           </div>
+
+          <button type="button" class="feature-tip feature-review-tip" data-tour-step="3" aria-label="Dica: resumo e exemplos práticos" title="Como revisar o tema?">?</button>
 
           <!-- VIEW 1: Desafio (Conteúdo original) -->
           <div id="view-exercise-statement" class="flex flex-col gap-6 w-full">
@@ -585,7 +596,12 @@
                   <span id="exercise-status-text">Status: Em andamento</span>
                 </div>
               </div>
-              <div class="problem-statement text-slate-600 text-sm md:text-base leading-relaxed font-sans" id="problem-statement">
+              <button type="button" id="btn-toggle-statement" class="statement-toggle" aria-controls="problem-statement-content" aria-expanded="true">
+                <span><iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon> Enunciado</span>
+                <span id="statement-toggle-label">Recolher</span>
+              </button>
+              <div id="problem-statement-content">
+              <div class="problem-statement statement-markdown text-slate-700 text-sm md:text-base leading-relaxed font-sans" id="problem-statement">
                 Enunciado do problema será carregado aqui...
               </div>
 
@@ -608,19 +624,21 @@
                   </ul>
                 </div>
               </div>
+              </div><!-- /problem-statement-content -->
             </div>
 
             <!-- Tab Selector Mode -->
             <div class="mode-selector flex border-b-2 border-slate-100 gap-8 mt-2">
               <div
                 class="mode-tab cursor-pointer text-sm font-bold text-slate-400 border-b-[3px] border-transparent pb-3 -mb-[2px] transition-all hover:text-black"
-                id="tab-desc" data-mode="desc">
-                Descrever ideia
+                id="tab-code" data-mode="code">
+                Escrever código (Python)
               </div>
               <div
                 class="mode-tab cursor-pointer text-sm font-bold text-slate-400 border-b-[3px] border-transparent pb-3 -mb-[2px] transition-all hover:text-black"
-                id="tab-code" data-mode="code">
-                Escrever código (Python)
+                id="tab-desc" data-mode="desc">
+                Escreva com suas palavras
+                <button type="button" class="feature-tip" data-tour-step="0" aria-label="Dica: descreva sua ideia" title="Como conferir se sua ideia faz sentido?">?</button>
               </div>
             </div>
 
@@ -648,16 +666,18 @@
 
                 <button
                   class="px-5 py-3 rounded-xl border border-slate-200 bg-white text-xs font-bold uppercase tracking-wider text-slate-600 hover:border-black transition-colors"
-                  id="btn-hint-desc">💡 Hint</button>
+                  id="btn-hint-desc">💡 Dica</button>
+                <button type="button" class="feature-tip" data-tour-step="1" aria-label="Dica: dicas graduais" title="Como funcionam as dicas?">?</button>
                 <button
                   class="px-5 py-3 rounded-xl border border-slate-200 bg-white text-xs font-bold uppercase tracking-wider text-slate-600 hover:border-black transition-colors"
-                  id="btn-ask-tutor-desc">👨‍🏫 Pergunte ao professor</button>
+                  id="btn-ask-tutor-desc">👨‍🏫 Professor Socrático</button>
+                <button type="button" class="feature-tip" data-tour-step="2" aria-label="Dica: professor socrático" title="Como usar o professor?">?</button>
               </div>
 
-              <!-- Feedback Dialogue Idea -->
-              <div
-                class="feedback-box bg-sky-50/80 border border-sky-100 rounded-2xl p-5 text-sm leading-relaxed text-sky-800"
-                id="feedback-desc" style="display: none;"></div>
+              <details class="feedback-disclosure" id="feedback-panel-desc" style="display: none;" open>
+                <summary>Feedback sobre sua ideia <span class="feedback-disclosure-action">Recolher / expandir</span></summary>
+                <div class="feedback-box bg-sky-50/80 border border-sky-100 rounded-2xl p-5 text-sm leading-relaxed text-sky-800" id="feedback-desc"></div>
+              </details>
 
               <!-- Socratic Ask Section Idea -->
               <div class="accordion-item border border-sky-200 rounded-2xl overflow-hidden bg-white shadow-sm"
@@ -668,7 +688,7 @@
                 </div>
                 <div class="accordion-content p-5 bg-white space-y-4" style="display: block;">
                   <div class="form-group relative">
-                    <input type="text" id="input-socratic-desc" placeholder="Faça uma pergunta curta sobre sua ideia..."
+                    <input type="text" id="input-socratic-desc" placeholder="Pergunte sobre sua ideia (Enter para enviar)..."
                       class="w-full bg-white border border-slate-200 rounded-xl py-3 px-4 text-xs focus:border-slate-400 focus:outline-none transition-colors">
                   </div>
                   <button
@@ -683,6 +703,15 @@
 
             <!-- TAB 2: Escrever Código -->
             <div class="tab-content flex-col gap-5" id="panel-code">
+              <!-- Ajuda optativa quando o aluno fica parado no código. -->
+              <div id="idea-nudge" class="idea-nudge" hidden role="status">
+                <p class="font-semibold">Quer organizar o raciocínio antes de continuar?</p>
+                <p class="mt-1 mb-3">Descrever sua ideia pode ajudar a encontrar o próximo passo, sem revelar a solução.</p>
+                <div class="flex flex-wrap gap-2">
+                  <button id="idea-nudge-open" type="button">Descrever minha ideia</button>
+                  <button id="idea-nudge-dismiss" type="button">Agora não</button>
+                </div>
+              </div>
               <!-- IDE Window frame -->
               <div class="code-editor-wrapper border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                 <!-- Title bar -->
@@ -699,7 +728,8 @@
                   </div>
                 </div>
                 <textarea id="textarea-code" class="code-textarea w-full p-5 text-sm" rows="12"
-                  placeholder="def minha_funcao(n):&#10;    # Digite seu código Python aqui..."></textarea>
+                  aria-label="Editor de código Python" spellcheck="false"
+                  placeholder="# Digite seu código Python aqui"></textarea>
               </div>
 
               <div class="action-row flex flex-wrap gap-4 items-center">
@@ -720,17 +750,21 @@
 
                 <button
                   class="px-5 py-3 rounded-xl border border-slate-200 bg-white text-xs font-bold uppercase tracking-wider text-slate-600 hover:border-black transition-colors"
-                  id="btn-hint-code">💡 Hint</button>
+                  id="btn-hint-code">💡 Dica</button>
+                <button type="button" class="feature-tip" data-tour-step="1" aria-label="Dica: dicas graduais" title="Como funcionam as dicas?">?</button>
                 <button
                   class="px-5 py-3 rounded-xl border border-slate-200 bg-white text-xs font-bold uppercase tracking-wider text-slate-600 hover:border-black transition-colors"
-                  id="btn-ask-tutor-code">👨‍🏫 Pergunte ao professor</button>
+                  id="btn-ask-tutor-code">👨‍🏫 Professor Socrático</button>
+                <button type="button" class="feature-tip" data-tour-step="2" aria-label="Dica: professor socrático" title="Como usar o professor?">?</button>
                 <span class="text-xs text-slate-400 font-mono ml-auto">Dica: use `print()` para ver saídas no console.</span>
               </div>
 
-              <!-- Feedback Dialogue Code -->
-              <div
-                class="feedback-box bg-red-50/80 border border-red-100 rounded-2xl p-5 text-sm leading-relaxed text-red-800"
-                id="feedback-code" style="display: none;"></div>
+              <div id="code-input-notice" class="code-input-notice" role="note"></div>
+
+              <details class="feedback-disclosure" id="feedback-panel-code" style="display: none;" open>
+                <summary>Feedback do código <span class="feedback-disclosure-action">Recolher / expandir</span></summary>
+                <div class="feedback-box bg-red-50/80 border border-red-100 rounded-2xl p-5 text-sm leading-relaxed text-red-800" id="feedback-code"></div>
+              </details>
 
               <!-- Socratic Ask Section Code -->
               <div class="accordion-item border border-sky-200 rounded-2xl overflow-hidden bg-white shadow-sm"
@@ -741,7 +775,7 @@
                 </div>
                 <div class="accordion-content p-5 bg-white space-y-4" style="display: block;">
                   <div class="form-group relative">
-                    <input type="text" id="input-socratic-code" placeholder="Faça uma pergunta curta sobre o seu código..."
+                    <input type="text" id="input-socratic-code" placeholder="Pergunte sobre seu código (Enter para enviar)..."
                       class="w-full bg-white border border-slate-200 rounded-xl py-3 px-4 text-xs focus:border-slate-400 focus:outline-none transition-colors">
                   </div>
                   <button
@@ -756,14 +790,12 @@
               <!-- Execution Results -->
               <div class="result-container border-t-2 border-dashed border-slate-200 pt-6 mt-2 flex flex-col gap-4"
                 id="execution-results" style="display: none;">
-                <h3 class="text-lg font-bold font-heading text-black flex items-center gap-2">
-                  <iconify-icon icon="solar:programming-bold-duotone" class="text-slate-400"></iconify-icon>
-                  Resultado do código
-                </h3>
+                <details id="execution-feedback-details" class="execution-feedback-disclosure" open>
+                <summary class="text-lg font-bold font-heading text-black"><iconify-icon icon="solar:programming-bold-duotone" class="text-slate-400"></iconify-icon> Resultado do código <span class="feedback-disclosure-action">Recolher / expandir</span></summary>
 
                 <!-- Stdout console -->
                 <div id="console-wrapper" class="space-y-1.5">
-                  <strong class="text-xs font-mono text-slate-500 uppercase tracking-wider">Saída (stdout):</strong>
+                  <strong class="text-xs font-mono text-slate-500 uppercase tracking-wider">Saída do primeiro caso de teste (stdout):</strong>
                   <div
                     class="console-output bg-slate-900 border border-slate-800 text-slate-100 p-4 rounded-xl font-mono text-xs max-h-40 overflow-y-auto"
                     id="stdout-output"></div>
@@ -783,6 +815,7 @@
                 <!-- Test validation wrapper -->
                 <div id="tests-wrapper" class="space-y-3">
                   <strong class="text-xs font-mono text-slate-500 uppercase tracking-wider block">Verificação (testes):</strong>
+                  <div id="test-summary" aria-live="polite"></div>
                   <div class="test-list flex flex-col gap-2.5" id="test-list-container">
                     <!-- Populados via JS -->
                   </div>
@@ -790,10 +823,19 @@
                     class="feedback-box bg-amber-50 border border-amber-100 rounded-2xl p-5 text-sm leading-relaxed text-amber-800"
                     id="test-ai-help" style="display: none;"></div>
                 </div>
+                </details><!-- /execution-feedback-details -->
               </div>
             </div>
 
 
+
+            <!-- Histórico do aluno autenticado (RLS do Supabase). -->
+            <details class="border border-slate-200 bg-white rounded-xl p-4" id="chat-history-details">
+              <summary class="text-sm font-bold text-slate-700 cursor-pointer">Histórico com o professor (este exercício)</summary>
+              <div id="chat-history-list" class="mt-3 flex flex-col gap-2 text-sm" aria-live="polite">
+                <p class="text-slate-500">Carregando...</p>
+              </div>
+            </details>
 
             <!-- Dashboard de Métricas -->
             <h3
@@ -820,14 +862,14 @@
               <div
                 class="flashlight-card p-5 rounded-xl border border-slate-200 bg-white/70 shadow-sm flex flex-col justify-between h-36 group">
                 <div class="flex justify-between items-start">
-                  <span class="metric-label text-[10px] font-mono text-slate-400 uppercase tracking-wider">TRIB</span>
+                  <span class="metric-label text-[10px] font-mono text-slate-400 uppercase tracking-wider">PDR</span>
                   <iconify-icon icon="solar:shield-bold-duotone"
                     class="text-xl text-slate-400 group-hover:text-green-500 transition-colors"></iconify-icon>
                 </div>
                 <div class="space-y-0.5">
                   <span class="metric-value text-3xl font-heading font-black text-slate-800 block"
                     id="metric-trib">0.00</span>
-                  <span class="metric-caption text-[10px] text-slate-400 block leading-tight">Taxa de Resiliência</span>
+                  <span class="metric-caption text-[10px] text-slate-400 block leading-tight">Proporção de pedidos diretos</span>
                 </div>
               </div>
 
@@ -857,31 +899,25 @@
                 <div class="space-y-0.5">
                   <span class="metric-value text-3xl font-heading font-black text-slate-800 block"
                     id="metric-it">0s</span>
-                  <span class="metric-caption text-[10px] text-slate-400 block leading-tight">Inatividade Total</span>
+                  <span class="metric-caption text-[10px] text-slate-400 block leading-tight">Inatividade observada</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- VIEW 2: Resumo do Tema -->
-          <div id="view-exercise-summary" class="hidden flex flex-col gap-6 w-full">
-            <div class="bg-white border border-slate-200 p-6 md:p-8 rounded-2xl shadow-sm space-y-4">
-              <h2 class="text-xl md:text-2xl font-bold font-heading text-black tracking-tight flex items-center gap-2">
-                <iconify-icon icon="solar:document-text-bold-duotone" class="text-primary"></iconify-icon>
-                Resumo do Tema
-              </h2>
-              <div class="text-slate-600 text-sm md:text-base leading-relaxed space-y-4 font-sans" id="exercise-summary-content">
-                <!-- Populado dinamicamente via JS -->
-              </div>
+          <!-- VIEW 2: Resumo do Tema — apostila visual por exercício -->
+          <div id="view-exercise-summary" class="hidden flex flex-col w-full">
+            <div id="exercise-summary-content" class="w-full">
+              <!-- Caderno de estudo carregado dinamicamente pelo study-guide.js -->
             </div>
           </div>
 
-          <!-- VIEW 3: Exemplos do Professor -->
+          <!-- VIEW 3: Exemplos Práticos -->
           <div id="view-exercise-examples" class="hidden flex flex-col gap-6 w-full">
             <div class="bg-white border border-slate-200 p-6 md:p-8 rounded-2xl shadow-sm space-y-4">
               <h2 class="text-xl md:text-2xl font-bold font-heading text-black tracking-tight flex items-center gap-2">
                 <iconify-icon icon="solar:code-file-bold-duotone" class="text-primary"></iconify-icon>
-                Exemplos do Professor
+                Exemplos Práticos
               </h2>
               <div class="text-slate-600 text-sm md:text-base leading-relaxed font-sans" id="exercise-examples-content">
                 <!-- Populado dinamicamente via JS -->
@@ -909,6 +945,9 @@
       const initFlashlight = () => {
         const cards = document.querySelectorAll('.flashlight-card');
         cards.forEach(card => {
+          // Evita acumular listeners quando o popup e outros elementos mudam o DOM.
+          if (card.dataset.flashlightReady === 'true') return;
+          card.dataset.flashlightReady = 'true';
           card.addEventListener('mousemove', (e) => {
             const rect = card.getBoundingClientRect();
             const x = e.clientX - rect.left;
@@ -930,10 +969,22 @@
     });
   </script>
 
+  <!-- Revisão interativa antes dos exercícios -->
+  <script src="preflight-review.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/runmode/runmode.min.js"></script>
+  <script src="code-editor.js"></script>
+
   <!-- Inclusão das lógicas JS -->
   <script src="problems.js"></script>
   <script src="runner.js"></script>
   <script src="tutor.js"></script>
+  <script src="progress-store.js"></script>
+  <!-- Pesquisa desacoplada: research-collector.js não carrega no fluxo de estudo. -->
+  <script src="learning-ui.js"></script>
+  <script src="study-guide.js"></script>
   <script src="app.js"></script>
 </body>
 

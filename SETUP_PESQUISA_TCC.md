@@ -1,0 +1,74 @@
+# Preparação da Pesquisa do TCC — IA Tutor (tcc-v1)
+
+ATENÇÃO: implementado apenas na branch de testes; NENHUMA migração foi executada no seu Supabase por esta atualização. O recrutamento começa fechado pelo servidor. Não abra coleta antes de revisar TCLE, ética e retenção com orientador(a) e instituição.
+
+## Componentes preparados
+- supabase/research-study.sql — novas tabelas de consentimento, participantes, eventos com data/hora, respostas pré/pós, questionários e notas de entrevista. Inclui regras de acesso e consultas administrativas restritas.
+- pesquisa.html + research-page.js + research-instruments.js + research.css — consentimento voluntário, pré-teste, pós-teste e questionário de percepção. Instrumentos de oito questões paralelas e oito itens de percepção. Não expõe gabarito.
+- research-collector.js — monitora eventos de exercícios somente após consentimento e pré-teste, e interrompe após pós-teste/retirada.
+- painel-pesquisa.html + research-admin.js + research-admin.css — painel pseudonimizado, acompanhamento dos participantes, exportação CSV e categorização de trechos anonimizados de entrevista.
+- scripts/analyze_study.py — pontuação local de pré/pós com gabarito privado fora do repositório.
+- Kit_Pesquisa_TCC_IA_Tutor_CONFIDENCIAL.docx (entregue nesta conversa) — testes completos, gabarito, roteiro de entrevista, plano de análise, rascunho de consentimento e cautelas.
+- research-answer-key.private.json (entregue nesta conversa) — chave de correção. NÃO a envie ao GitHub.
+
+## Ordem segura de configuração
+1. Prefira um projeto Supabase de teste/staging separado; faça backup antes de qualquer migração no projeto existente.
+2. Verifique que schema.sql, developer-access.sql e curriculum-v2.sql já foram aplicados. Não execute novamente schema.sql num projeto existente.
+3. Supabase > SQL Editor > New query: copie e execute o arquivo supabase/research-study.sql. O cadastro da pesquisa inicia FECHADO no banco.
+3a. Em seguida execute supabase/senac-onboarding.sql. Ele configura a identificação Senac e exige o pré-teste inicial (educacional) antes de abrir os exercícios para alunos que se identificaram como estudantes do Senac. Veja TESTE_FLUXO_SENAC.md.
+4. No SQL Editor, autorize somente a sua conta como pesquisadora, substituindo SEU_EMAIL_AQUI no seu computador (não publique e-mail em arquivos públicos):
+
+    insert into public.researcher_accounts(user_id)
+    select id from auth.users where lower(email)=lower('SEU_EMAIL_AQUI')
+    on conflict(user_id) do nothing;
+
+5. Abra a nova branch localmente com python -m http.server 8000. Acesse http://localhost:8000/painel-pesquisa.html com sua conta. Inicialmente deve mostrar zero participantes. Outra conta deve receber Acesso restrito.
+6. Acesse http://localhost:8000/pesquisa.html: o botão de inscrição estará DESATIVADO e o servidor também bloqueará a adesão enquanto o recrutamento estiver FECHADO ou os dados institucionais estiverem incompletos.
+7. Substitua o rascunho do termo por TCLE/protocolo aprovado e inclua identificação/contato da pesquisadora, orientador(a), instituição, riscos, hipóteses legais, procedimentos, armazenamento, prazo de retenção, acesso, retirada e gravação separada para entrevista quando usada. Obtenha orientação formal quanto às exigências éticas.
+8. Preencha o texto integral do TCLE institucional no Supabase antes de qualquer abertura. Ajuste somente no SQL Editor os campos institution, researcher_contact, retention_text, consent_text (>= 200 caracteres) e protocol_reference na tabela research_study_settings. O formulário buscará esses campos pelo RPC research_public_info e os mostrará ao participante. Nada disso deve conter email ou dados privados de participantes.
+9. SOMENTE num ambiente de teste, com contas fictícias, abra temporariamente no SQL Editor:
+
+    update public.research_study_settings set enrollment_open=true,updated_at=now() where id=1;
+
+   Após o teste, feche com enrollment_open=false. Não misture contas de teste e a amostra oficial.
+10. Teste inscrição fictícia > pré > exercícios/dicas/código/Gemini > pós > questionário > exports > retirada de consentimento. Confirme tabelas research_participants, research_events, research_assessments e research_surveys no Supabase.
+10. Somente depois de concluir validações, autorizações e plano metodológico decida a data de abertura real.
+
+## Indicadores disponíveis
+- Eventos observacionais: exercício aberto, revisão concluída/pulada, dica consultada, código enviado, testes realizados (número de casos aprovados), conclusão observada, ideia registrada, pergunta ao tutor, pedido direto bloqueado e intervalo de inatividade.
+- Servidor registra timestamp de cada evento. Eventos não sobrescrevem eventos anteriores; o campo session_id permite agrupar ações de uma mesma abertura de exercício.
+- Progresso do exercício e histórico de conversas permanecem nas tabelas educacionais existentes.
+- Pré e pós: oito respostas A–D cada, únicas por conta e fase. Questionário: seis respostas Likert 1–5 + duas abertas opcionais.
+- Painel mostra códigos pseudônimos e agregações; nunca nome, e-mail, UUID, texto de código ou chats em exports de eventos.
+
+## Exportação e análise local
+1. Em painel-pesquisa.html, exporte Respostas pré/pós.
+2. Salve o JSON de gabarito privado recebido nesta conversa fora de pastas sincronizadas/publicadas.
+3. No terminal da pasta do projeto, execute o script, ajustando o nome do CSV exportado:
+
+    python scripts/analyze_study.py --assessments tcc_assessments_DATA.csv --key research-answer-key.private.json --output resultados
+
+4. Arquivos gerados: paired_scores.csv (por código, pré/pós/diferença) e descriptive_summary.json (N pareado, média, mediana, dispersão e diferenças). Não divulgue CSV bruto.
+5. Para análise qualitativa: entrevistas semiestruturadas e codificação temática por autonomia, feedback, clareza, dificuldade, confiança, dependência, usabilidade e temas emergentes. Extraia trechos sem nomes e sem detalhes identificadores.
+
+## Limitações metodológicas
+- Os oito itens A e B formam provas paralelas EXPLORATÓRIAS, não instrumentos psicometricamente validados. Realize piloto de clareza/dificuldade fora da amostra e congele a versão antes do estudo.
+- Não há grupo-controle definido: diferenças pré/pós não demonstram causalidade da IA.
+- O Python ainda roda no navegador (Pyodide). Alunos experientes podem falsificar resultados/autodeclarar eventos. O registro de eventos usa horário de servidor e acesso autenticado, mas NÃO torna o avaliador de código antifraude. Supervisione pré/pós e considere avaliação independente se a validade exigir.
+- Falhas de rede podem provocar perda de eventos, pois a fila de envio é em memória. Teste qualidade dos dados e prefira conexão estável.
+- Pseudonimização não equivale a anonimização: respostas abertas e trechos de entrevistas exigem revisão manual.
+- PDR (antigo TRIB) foi renomeado na UI: representa proporção de solicitações detectadas como pedidos diretos, NÃO resiliência psicológica; descreva sua definição operacional antes de analisar. IPT = dicas; RER = reengajamentos após bloqueio / bloqueios; IT = segundos estimados de inatividade em aba visível (>60 segundos, fora do popup da revisão), não tempo total de estudo.
+- Para gravação de entrevistas, obtenha consentimento específico e defina armazenamento separado.
+
+## Fontes institucionais úteis
+Guia ANPD: https://www.gov.br/anpd/pt-br/centrais-de-conteudo/materiais-educativos-e-publicacoes/guia-orientativo-tratamento-de-dados-pessoais-para-fins-academicos-e-para-a-realizacao-de-estudos-e-pesquisas
+
+Resolução CNS 510/2016: https://www.gov.br/conselho-nacional-de-saude/pt-br/atos-normativos/resolucoes/2016/resolucao-no-510.pdf/view
+
+Consultar orientador(a) e instituição sobre aplicabilidade concreta e requisitos de aprovação/dispensa ética antes de recrutar pessoas.
+
+## Erro de dashboard: função não encontrada
+
+Se o navegador exibir “Could not find the function public.research_dashboard without parameters in the schema cache” (PGRST202), **isso não confirma problema de autorização**: primeiro confira que research-study.sql foi executado com sucesso no mesmo projeto Supabase que o site usa. Confirme em pg_proc se a função existe e então execute `notify pgrst, 'reload schema';` se necessário. Só depois autorize sua conta em researcher_accounts. A conta developer não basta. A aplicação não executa migrações por push no GitHub.
+
+Para alunos Senac, a escolha no login e o pré-teste inicial são requisitos de navegação, mas participar da pesquisa continua voluntário. Quando a coleta estiver fechada, o diagnóstico é apenas educacional e suas respostas **não** poderão ser transformadas retroativamente em amostra de pesquisa. Nunca recrute antes de aprovação/protocolo final.

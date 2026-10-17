@@ -1,0 +1,57 @@
+/* Componentes do tutor: Markdown, exemplos, painéis recolhíveis e dicas contextuais */
+[hidden] { display: none !important; }
+.statement-toggle { width: 100%; display:flex; align-items:center; justify-content:space-between; background:#F8FAFC; color:#1E293B; border:1px solid #CBD5E1; border-radius:12px; padding:12px 16px; font-size:13px; font-weight:750; cursor:pointer; }
+.statement-toggle:hover { background:#EFF6FF; border-color:#93C5FD; }
+.statement-toggle span:first-child { display:flex; align-items:center; gap:8px; }
+#statement-toggle-label { color:#0284C7; }
+#problem-statement-content { padding-top:16px; }
+.statement-markdown { line-height:1.8; overflow-wrap:anywhere; }
+.statement-markdown p { margin:0 0 13px; }
+.statement-markdown strong { color:#0F172A; font-weight:750; }
+.statement-markdown code { font: .89em 'JetBrains Mono',monospace; color:#075985; background:#E0F2FE; border:1px solid #BAE6FD; padding:2px 5px; border-radius:5px; overflow-wrap:anywhere; }
+.statement-markdown ul, .statement-markdown ol { margin:10px 0 14px; padding-left:26px; }
+.statement-markdown ul { list-style:disc; }
+.statement-markdown ol { list-style:decimal; }
+.statement-markdown li { margin:5px 0; }
+.statement-markdown h3, .statement-markdown h4, .statement-markdown h5 { font-family:Outfit,sans-serif; font-weight:750; color:#0F172A; margin:12px 0; }
+.statement-callout { margin:15px 0; padding:14px 17px; border:1px solid #BAE6FD; border-left:4px solid #0284C7; border-radius:12px; background:#F0F9FF; }
+.statement-callout-formula { background:#F5F3FF; border-color:#DDD6FE; border-left-color:#8B5CF6; }
+.statement-callout-title { display:block; margin-bottom:7px; font-size:12px; text-transform:uppercase; letter-spacing:.05em; font-weight:800; }
+.statement-callout p { margin:0; }
+.statement-quote { border-left:3px solid #64748B; background:#F8FAFC; border-radius:8px; padding:12px 16px; }
+.statement-code, .practical-example pre { background:#0F172A; color:#E2E8F0; padding:16px; border-radius:12px; font:12px/1.75 'JetBrains Mono',monospace; overflow-x:auto; white-space:pre; }
+.statement-markdown .statement-code code, .practical-example pre code { background:transparent; color:inherit; border:none; padding:0; font:inherit; white-space:inherit; }
+/* Mesma paleta, tipografia e base escura do CodeMirror (material-darker) do aluno.
+   As classes cm-* são produzidas pelo runMode oficial; não sobrepor suas cores. */
+.practical-example pre.teacher-code-pre { background:#0b101d; color:#e2e8f0; padding:18px 20px; font:13px/1.8 'JetBrains Mono',ui-monospace,monospace; }
+.practical-example pre.teacher-code-pre code { display:block; color:inherit; font:inherit; }
+@media (max-width:600px) { .practical-example pre.teacher-code-pre { font-size:11px; padding:14px; } }
+.practical-intro { color:#475569; line-height:1.6; margin-bottom:20px; }
+.practical-example { border:1px solid #E2E8F0; border-radius:16px; background:white; padding:20px; margin:15px 0; min-width:0; }
+.practical-example-number { color:#0284C7; font-size:11px; text-transform:uppercase; letter-spacing:.06em; font-weight:800; }
+.practical-example h3 { font-family:Outfit,sans-serif; font-size:18px; font-weight:750; color:#0F172A; margin:6px 0; }
+.practical-example p { font-size:13px; color:#64748B; line-height:1.6; margin-bottom:14px; }
+.feedback-disclosure,.execution-feedback-disclosure { width:100%; min-width:0; }
+.feedback-disclosure > summary,.execution-feedback-disclosure > summary { display:flex; align-items:center; justify-content:space-between; cursor:pointer; list-style:none; color:#0F172A; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:12px; font-size:13px; font-weight:750; padding:12px 15px; gap:8px; }
+.feedback-disclosure > summary::-webkit-details-marker,.execution-feedback-disclosure > summary::-webkit-details-marker { display:none; }
+.feedback-disclosure[open] > summary,.execution-feedback-disclosure[open] > summary { border-radius:12px 12px 0 0; }
+.feedback-disclosure > .feedback-box { border-radius:0 0 12px 12px; }
+.feedback-disclosure-action { margin-left:auto; font-size:11px; font-weight:650; color:#0284C7; }
+.execution-feedback-disclosure > *:not(summary) { margin-top:16px; }
+.feature-tour-launch { white-space:nowrap; font-size:11px; font-weight:750; border:1px solid #BAE6FD; background:#F0F9FF; color:#0369A1; border-radius:99px; padding:8px 12px; cursor:pointer; }
+.feature-tip { width:24px; height:24px; padding:0; flex:0 0 24px; border-radius:50%; border:1px solid #93C5FD; background:#EFF6FF; color:#0369A1; font-size:12px; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; vertical-align:middle; }
+.feature-tip:hover,.feature-tour-launch:hover { background:#DBEAFE; }
+.feature-review-tip { display:inline-flex; margin:-8px 0 4px; }
+.feature-tour-target { outline:3px solid #0EA5E9 !important; outline-offset:4px; border-radius:6px; }
+.feature-tour-popover { position:fixed; z-index:1000; box-sizing:border-box; background:white; color:#0F172A; border:1px solid #BAE6FD; border-radius:16px; box-shadow:0 16px 48px rgba(15,23,42,.22); padding:17px; max-width:calc(100vw - 24px); }
+.feature-tour-popover[hidden] { display:none !important; }
+.feature-tour-heading { color:#0284C7; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; display:flex; justify-content:space-between; align-items:center; }
+.feature-tour-close { border:0; background:transparent; cursor:pointer; font-size:22px; line-height:1; color:#64748B; padding:2px 5px; }
+.feature-tour-popover h3 { font:800 18px Outfit,sans-serif; margin:8px 0; }
+.feature-tour-popover p { font-size:13px; line-height:1.6; color:#475569; }
+.feature-tour-actions { display:flex; gap:8px; justify-content:space-between; margin-top:16px; }
+.feature-tour-skip,.feature-tour-next { cursor:pointer; border:0; border-radius:9px; padding:9px 13px; font-size:12px; font-weight:750; }
+.feature-tour-skip { background:#F1F5F9; color:#64748B; }
+.feature-tour-next { background:#0284C7; color:white; }
+.feature-tour-next:hover { background:#0369A1; }
+@media (max-width:640px) { .practical-example { padding:14px; } .feature-tour-popover { padding:14px; } .feature-tour-launch { font-size:10px; padding:6px 9px; } }

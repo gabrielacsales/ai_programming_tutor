@@ -1,0 +1,56 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Painel da Pesquisadora | IA Tutor</title><link rel="stylesheet" href="research.css"><link rel="stylesheet" href="research-admin.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script><script src="auth-client.js"></script><script defer src="research-admin.js"></script>
+</head><body>
+<header class="topbar"><a href="conteudos.html" class="logo"><span>∞</span> IA TUTOR</a><nav><a href="conteudos.html">Módulos</a><a href="pesquisa.html">Participação</a></nav></header>
+<main class="research-shell">
+<p class="eyebrow">ACESSO RESTRITO / PESQUISADORA</p><h1>Monitoramento do estudo</h1>
+<p class="intro">Apenas contas autorizadas na tabela <code>researcher_accounts</code> podem consultar os dados agregados. Identificadores e dados dos participantes são pseudonimizados.</p>
+<div id="admin-status" role="status">Validando autorização no banco...</div>
+<div id="admin-error" class="warning" role="alert" hidden></div>
+<div id="admin-body" hidden>
+<section class="panel">
+<div class="flex-top"><h2>Visão geral da coleta</h2><button type="button" id="reload-admin">Atualizar dados</button></div>
+<div class="admin-stats">
+<div><span>Participantes ativos</span><strong id="admin-total">0</strong></div>
+<div><span>Pré-testes</span><strong id="admin-pre">0</strong></div>
+<div><span>Pós-testes</span><strong id="admin-post">0</strong></div>
+<div><span>Pares pré/pós</span><strong id="admin-paired">0</strong></div>
+<div><span>Questionários</span><strong id="admin-surveys">0</strong></div>
+<div><span>Eventos datados</span><strong id="admin-events">0</strong></div>
+</div>
+<p class="muted">Resultados dos testes ainda não foram pontuados: o gabarito fica fora do repositório público e a correção é realizada sobre o CSV exportado. Não interprete os eventos do navegador como provas antifraude de habilidade.</p>
+</section>
+<section class="panel">
+<h2>Participantes pseudonimizados</h2>
+<p class="muted">Um código por participante. Não aparecem emails ou nomes nesta tabela.</p>
+<div class="table-scroll"><table id="participants-table"><thead><tr><th>Código</th><th>Pré</th><th>Pós</th><th>Questionário</th><th>Eventos</th><th>Envios código</th><th>Dicas</th><th>Tutor</th><th>Exercícios</th><th>Dias ativos</th></tr></thead><tbody></tbody></table></div>
+</section>
+<section class="panel">
+<h2>Exportação para análise</h2>
+<p>Os arquivos CSV podem ser abertos no Excel, Python ou R. Evite compartilhar os arquivos brutos; respostas abertas podem conter informações identificáveis.</p>
+<div class="export-actions">
+<button type="button" data-export="summary">Resumo por participante</button>
+<button type="button" data-export="assessments">Respostas pré/pós</button>
+<button type="button" data-export="surveys">Questionários</button>
+<button type="button" data-export="events">Eventos datados</button>
+<button type="button" data-export="interviews">Entrevistas categorizadas</button>
+</div>
+</section>
+<section class="panel">
+<h2>Codificação das entrevistas</h2>
+<p>Registre um trecho anonimizado e o tema correspondente. Guarde o áudio e o consentimento de gravação em meio separado, se houver autorização específica.</p>
+<form id="interview-form" class="admin-interview">
+<label>Código da pessoa participante<select id="interview-participant" required><option value="">Escolha um código</option></select></label>
+<label>Categoria temática<select id="interview-theme" required>
+<option value="">Selecione</option><option value="autonomia">Autonomia</option><option value="feedback">Feedback socrático</option>
+<option value="clareza">Clareza</option><option value="dificuldade">Dificuldade</option><option value="confianca">Confiança</option>
+<option value="dependencia">Dependência da IA</option><option value="usabilidade">Usabilidade</option><option value="outro">Outro</option>
+</select></label>
+<label>Trecho anonimizado<textarea id="interview-excerpt" required minlength="5" maxlength="1500" placeholder="Registre uma fala curta, sem nome ou dados identificáveis."></textarea></label>
+<button class="primary" type="submit">Salvar categoria da entrevista</button>
+</form>
+<p id="admin-action-message" role="status" aria-live="polite"></p>
+</section>
+</div></main></body></html>

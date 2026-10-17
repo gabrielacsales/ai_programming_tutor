@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Entre ou crie sua conta no IA Tutor para praticar lógica de programação.">
+  <title>Entrar ou criar conta | IA Tutor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="login.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="auth-client.js"></script>
+</head>
+<body>
+  <div class="auth-background" aria-hidden="true"></div>
+  <div class="auth-orb auth-orb-one" aria-hidden="true"></div>
+  <div class="auth-orb auth-orb-two" aria-hidden="true"></div>
+
+  <header class="auth-header">
+    <a class="auth-brand" href="index.html" aria-label="IA Tutor — início">
+      <span class="auth-brand-mark" aria-hidden="true">∞</span>
+      <span>IA Tutor</span>
+    </a>
+    <a class="auth-header-back" href="index.html">
+      <span aria-hidden="true">←</span> Voltar ao início
+    </a>
+  </header>
+
+  <main class="auth-main">
+    <section class="auth-intro" aria-labelledby="auth-main-title">
+      <p class="auth-eyebrow">Ambiente socrático / IA Tutor</p>
+      <h1 id="auth-main-title">Aprenda lógica.<br><span>Sem atalhos.</span></h1>
+      <p class="auth-description">Um espaço para pensar, testar hipóteses e desenvolver sua lógica de programação em Python. Sua jornada continua de onde você parou.</p>
+      <div class="auth-benefits" aria-label="Recursos do ambiente">
+        <span class="auth-benefit"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m5 12 4 4L19 6"/></svg> Progresso salvo</span>
+        <span class="auth-benefit"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18h6M10 22h4M9 14c-1-2-4-3-4-7a7 7 0 0 1 14 0c0 4-3 5-4 7"/></svg> Dicas graduais</span>
+        <span class="auth-benefit"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 9h8M8 13h5M5 20l-1-4a8 8 0 1 1 4 4l-3 0Z"/></svg> Professor socrático</span>
+      </div>
+      <div class="auth-preview" aria-hidden="true">
+        <div class="auth-preview-head">
+          <span class="auth-preview-dot"></span><span class="auth-preview-dot"></span><span class="auth-preview-dot"></span>
+          <span class="auth-preview-filename">meu_raciocinio.py</span>
+        </div>
+        <pre><span class="py-comment"># Cada tentativa faz parte do aprendizado</span>
+<span class="py-keyword">def</span> <span class="py-function">aprender</span>(tentativas):
+    <span class="py-keyword">for</span> passo <span class="py-keyword">in</span> tentativas:
+        <span class="py-function">print</span>(<span class="py-string">"Continue explorando!"</span>)</pre>
+      </div>
+    </section>
+
+    <section class="auth-card" aria-labelledby="form-heading">
+      <div class="auth-card-heading">
+        <div>
+          <span class="auth-card-kicker">Seu espaço de aprendizagem</span>
+          <h2 id="form-heading">Boas-vindas de volta</h2>
+          <p id="form-description" class="auth-card-subtitle">Entre na sua conta para continuar os exercícios.</p>
+        </div>
+        <span class="auth-card-emblem" aria-hidden="true">✳</span>
+      </div>
+
+      <aside id="already-signed-in" class="auth-signed-in" hidden>
+        <p>Você já está conectado neste navegador.</p>
+        <a id="continue-session" href="conteudos.html">Continuar para meus módulos →</a>
+      </aside>
+
+      <nav id="auth-tabs" class="auth-tabs" aria-label="Opções de autenticação">
+        <button class="auth-tab" type="button" data-mode="login" aria-pressed="true">Entrar</button>
+        <button class="auth-tab" type="button" data-mode="signup" aria-pressed="false">Criar conta</button>
+      </nav>
+      <button type="button" id="back-to-login" class="auth-back-login" hidden>← Voltar ao login</button>
+
+      <form id="form" class="auth-fields">
+        <div id="name-block" class="auth-field" hidden>
+          <label for="name">Nome</label>
+          <input id="name" name="name" autocomplete="name" placeholder="Como podemos te chamar?">
+        </div>
+
+        <div class="auth-field">
+          <label for="email">E-mail</label>
+          <div class="auth-input-wrap">
+            <input id="email" name="email" type="email" autocomplete="email" placeholder="seuemail@exemplo.com" required>
+          </div>
+        </div>
+
+        <div id="password-block" class="auth-field">
+          <label for="password">Senha</label>
+          <div class="auth-input-wrap">
+            <input id="password" name="password" type="password" minlength="6" autocomplete="current-password" placeholder="Digite sua senha" required>
+          </div>
+        </div>
+
+        <div id="senac-block" class="auth-field">
+          <label for="senac-choice">Você é estudante do Senac?</label>
+          <select id="senac-choice" name="senac-choice">
+            <option value="">Já informei ou prefiro decidir depois</option>
+            <option value="yes">Sim, estudo no Senac</option>
+            <option value="no">Não estudo no Senac</option>
+          </select>
+          <p class="auth-field-help">Essa identificação não exige pré-teste e não bloqueia seu acesso aos exercícios.</p>
+        </div>
+
+        <div id="form-footer" class="auth-form-footer">
+          <p class="auth-session-note">Sua sessão pode continuar ativa neste navegador.</p>
+          <button type="button" id="forgot-password" class="auth-reset-trigger">Esqueci minha senha</button>
+        </div>
+        <button id="submit" class="auth-submit" type="submit">Entrar</button>
+      </form>
+      <p id="message" class="auth-message" role="status" aria-live="polite"></p>
+      <p class="auth-card-bottom">Protótipo educacional · IA Tutor</p>
+    </section>
+  </main>
+
+  <footer class="auth-page-footer"><span>IA TUTOR / APRENDIZAGEM EM PYTHON</span><span>APRENDA NO SEU RITMO.</span></footer>
+
+  <script>
+  (() => {
+    "use strict";
+    const client = window.TutorAuth?.client;
+    const form = document.getElementById("form");
+    const message = document.getElementById("message");
+    const submit = document.getElementById("submit");
+    const nameBlock = document.getElementById("name-block");
+    const passwordBlock = document.getElementById("password-block");
+    const password = document.getElementById("password");
+    const senacBlock = document.getElementById("senac-block");
+    const senacChoice = document.getElementById("senac-choice");
+    const forgotPassword = document.getElementById("forgot-password");
+    const formFooter = document.getElementById("form-footer");
+    const tabs = document.getElementById("auth-tabs");
+    const backToLogin = document.getElementById("back-to-login");
+    const alreadySignedIn = document.getElementById("already-signed-in");
+    const next = window.TutorAuth.safeNext(new URLSearchParams(location.search).get("next"));
+    let mode = "login";
+
+    function show(type, text) {
+      message.className = "auth-message" + (type ? " " + type : "");
+      message.textContent = text;
+    }
+
+    function switchMode(nextMode) {
+      if (!["login", "signup", "reset"].includes(nextMode)) return;
+      mode = nextMode;
+      nameBlock.hidden = nextMode !== "signup";
+      passwordBlock.hidden = nextMode === "reset";
+      senacBlock.hidden = nextMode === "reset";
+      senacChoice.required = nextMode === "signup";
+      senacChoice.options[0].textContent = nextMode === "signup"
+        ? "Selecione uma opção" : "Já informei ou prefiro decidir depois";
+      password.required = nextMode !== "reset";
+      password.autocomplete = nextMode === "signup" ? "new-password" : "current-password";
+      formFooter.hidden = nextMode === "reset";
+      forgotPassword.hidden = nextMode !== "login";
+      tabs.hidden = nextMode === "reset";
+      backToLogin.hidden = nextMode !== "reset";
+      submit.textContent = { login: "Entrar", signup: "Criar minha conta", reset: "Enviar e-mail de recuperação" }[nextMode];
+      document.getElementById("form-heading").textContent =
+        { login: "Boas-vindas de volta", signup: "Vamos começar?", reset: "Recuperar acesso" }[nextMode];
+      document.getElementById("form-description").textContent =
+        { login: "Entre na sua conta para continuar os exercícios.",
+          signup: "Crie sua conta e salve seu progresso ao longo da trilha.",
+          reset: "Enviaremos as instruções de recuperação para seu e-mail." }[nextMode];
+      document.querySelectorAll("[data-mode]").forEach(button => {
+        button.setAttribute("aria-pressed", String(button.dataset.mode === nextMode));
+      });
+      show("", "");
+    }
+
+    document.querySelectorAll("[data-mode]").forEach(button =>
+      button.addEventListener("click", () => switchMode(button.dataset.mode)));
+    forgotPassword.addEventListener("click", () => switchMode("reset"));
+    backToLogin.addEventListener("click", () => switchMode("login"));
+    if (!client) {
+      show("error", "Configure a URL e a chave publicável do Supabase para usar o login.");
+      submit.disabled = true;
+      return;
+    }
+
+    // Sessão persistida: oferecemos continuar, sem forçar novo login ou deslogar.
+    client.auth.getUser().then(({ data, error }) => {
+      if (!error && data?.user) {
+        alreadySignedIn.hidden = false;
+        document.getElementById("continue-session").href = next;
+      }
+    }).catch(() => { /* Sem sessão acessível: o formulário continua disponível. */ });
+
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      submit.disabled = true;
+      show("", "");
+      try {
+        const email = document.getElementById("email").value.trim();
+        const pass = password.value;
+        let result;
+        if (mode === "signup") {
+          result = await client.auth.signUp({
+            email, password: pass,
+            options: {
+              data: {
+                display_name: document.getElementById("name").value.trim(),
+                senac_student: senacChoice.value === "yes"
+              },
+              emailRedirectTo: new URL("login.html", location.href).href
+            }
+          });
+          if (result.error) throw result.error;
+          if (result.data.session) location.replace(next);
+          else show("success", "Cadastro enviado. Confira seu e-mail para confirmar a conta.");
+        } else if (mode === "reset") {
+          result = await client.auth.resetPasswordForEmail(email, {
+            redirectTo: new URL("reset-password.html", location.href).href
+          });
+          if (result.error) throw result.error;
+          show("success", "Se o endereço estiver cadastrado, você receberá um e-mail para redefinir a senha.");
+        } else {
+          result = await client.auth.signInWithPassword({ email, password: pass });
+          if (result.error) throw result.error;
+          // A escolha Senac fica como metadado opcional, não exige pré-teste.
+          if (senacChoice.value === "yes" || senacChoice.value === "no") {
+            try {
+              const updated = await client.auth.updateUser({
+                data: { senac_student: senacChoice.value === "yes" }
+              });
+              if (updated.error) console.warn("Identificação Senac não salva:", updated.error.message);
+            } catch (error) {
+              console.warn("Identificação Senac não salva:", error);
+            }
+          }
+          location.replace(next);
+        }
+      } catch (error) {
+        show("error", error.message || "Não foi possível concluir a solicitação.");
+      } finally {
+        submit.disabled = false;
+      }
+    });
+    switchMode("login");
+  })();
+  </script>
+</body>
+</html>

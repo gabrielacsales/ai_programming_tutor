@@ -52,6 +52,8 @@ import io
 import json
 import builtins
 import traceback
+import ast
+import math
 
 stdout_buffer = io.StringIO()
 sys.stdout = stdout_buffer
@@ -66,11 +68,24 @@ globals_dict = {"__builtins__": safe_builtins}
 
 compilation_error = None
 test_results = []
+preview_stdout = ""
 tests = json.loads(tests_json_to_test)
+
+# Diagnóstico pedagógico: 'entrada' vem do avaliador e varia entre os testes.
+# Uma reatribuição de 'entrada' no código causa resultados constantes incorretos.
+input_overwritten = False
+try:
+    student_tree = ast.parse(user_code_to_run)
+    input_overwritten = any(
+        isinstance(node, ast.Name) and node.id == "entrada" and isinstance(node.ctx, ast.Store)
+        for node in ast.walk(student_tree)
+    )
+except SyntaxError:
+    pass
 func_name = function_name_to_test
 
 # Modo Função vs Modo Script
-is_function_mode = bool(func_name) and (f"def {func_name}" in user_code_to_run)
+is_function_mode = bool(func_name)
 
 if is_function_mode:
     # MODO FUNÇÃO (Módulo 4+)
@@ -94,6 +109,7 @@ if is_function_mode:
                         "ok": bool(ok),
                         "result": repr(res),
                         "expected": repr(expected),
+                        "input": repr(inp),
                         "error": None
                     })
                 except Exception as e:
@@ -102,6 +118,7 @@ if is_function_mode:
                         "ok": False,
                         "result": None,
                         "expected": repr(expected),
+                        "input": repr(inp),
                         "error": f"{type(e).__name__}: {e}"
                     })
         else:
@@ -125,15 +142,33 @@ else:
             
             # Captura a saída do print
             out_str = stdout_buffer.getvalue().strip()
-            # Converte expected para string para comparar com texto impresso
+            if i == 1:
+                preview_stdout = out_str
+            # Compare tipos/valores, não apenas texto. Evita penalizar '77' vs '77.0'
+            # e permite listas, números negativos e booleanos exibidos corretamente.
+            # Para enunciados de texto, preservamos a comparação literal.
             expected_str = str(expected)
-            
-            ok = (out_str == expected_str)
+            if isinstance(expected, str):
+                ok = (out_str == expected)
+            else:
+                try:
+                    parsed = ast.literal_eval(out_str)
+                    if isinstance(expected, bool):
+                        ok = type(parsed) is bool and parsed == expected
+                    elif isinstance(expected, (int, float)) and not isinstance(parsed, bool):
+                        ok = isinstance(parsed, (int, float)) and math.isclose(
+                            float(parsed), float(expected), rel_tol=1e-9, abs_tol=1e-9
+                        )
+                    else:
+                        ok = parsed == expected
+                except (SyntaxError, ValueError, TypeError, MemoryError):
+                    ok = False
             test_results.append({
                 "id": i,
                 "ok": bool(ok),
                 "result": out_str,
                 "expected": expected_str,
+                "input": repr(inp),
                 "error": None
             })
         except Exception as e:
@@ -142,14 +177,15 @@ else:
                 "ok": False,
                 "result": None,
                 "expected": str(expected),
+                "input": repr(inp),
                 "error": f"{type(e).__name__}: {e}"
             })
 
-stdout_val = stdout_buffer.getvalue()
 sys.stdout = sys.__stdout__
 
 json.dumps({
-    "stdout": stdout_val,
+    "stdout": preview_stdout,
+    "input_overwritten": input_overwritten,
     "error": compilation_error,
     "test_results": test_results
 })

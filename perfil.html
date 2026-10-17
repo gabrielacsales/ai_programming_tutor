@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meu Perfil | IA Tutor</title>
+  <meta name="description" content="Seu progresso pessoal de aprendizagem em Python no IA Tutor.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Mesmo componente Iconify usado na logo de conteudos.html -->
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <link rel="stylesheet" href="perfil.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="auth-client.js"></script>
+  <script src="access-client.js"></script>
+  <script src="problems.js"></script>
+  <script defer src="perfil.js"></script>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="site-header">
+      <a class="brand" href="conteudos.html" aria-label="IA Tutor — Voltar aos módulos">
+        <span class="brand-icon"><iconify-icon icon="solar:infinity-bold" aria-hidden="true"></iconify-icon></span>
+        <span class="brand-name">IA Tutor</span>
+      </a>
+      <nav aria-label="Navegação principal" class="header-links">
+        <a href="conteudos.html">Módulos</a>
+        <a href="perfil.html" aria-current="page">Meu perfil</a>
+        <button id="logout-btn" type="button">Sair</button>
+      </nav>
+    </header>
+    <main class="content">
+      <div id="load-status" role="status" aria-live="polite">Carregando seu perfil...</div>
+      <div id="profile-content" hidden>
+        <section class="welcome-card" aria-labelledby="profile-heading">
+          <div class="profile-identity">
+            <div id="avatar-initials" class="avatar" aria-hidden="true">AL</div>
+            <div class="profile-copy">
+              <p class="eyebrow">PAINEL DE APRENDIZAGEM / PYTHON</p>
+              <div class="name-row">
+                <h1 id="profile-heading">Meu perfil</h1>
+                <span id="role-label" class="role-label" hidden></span>
+              </div>
+              <p id="student-email" class="muted"></p>
+              <p id="member-since" class="member-since"></p>
+            </div>
+          </div>
+          <div class="welcome-actions">
+            <a class="primary-link" id="continue-link" href="conteudos.html">Continuar aprendendo <span aria-hidden="true">→</span></a>
+            <a class="secondary-link" href="conteudos.html">Ver módulos</a>
+          </div>
+        </section>
+
+        <section class="overview" aria-labelledby="stats-heading">
+          <div class="section-heading"><div><p class="eyebrow">PAINEL DO ALUNO / BIG NUMBERS</p><h2 id="stats-heading">Em números</h2></div><span class="curriculum-tag">Trilha atual · Versão 2</span></div>
+          <div class="stats-grid">
+            <article class="stat-card"><span class="stat-icon" aria-hidden="true">✓</span><p class="stat-label">Exercícios concluídos</p><p id="stat-completed" class="stat-value">—</p><p class="stat-foot">De 16 atividades</p></article>
+            <article class="stat-card"><span class="stat-icon" aria-hidden="true">↗</span><p class="stat-label">Progresso geral</p><p id="stat-percent" class="stat-value">—</p><p class="stat-foot">Trilha de Python</p></article>
+            <article class="stat-card"><span class="stat-icon" aria-hidden="true">◷</span><p class="stat-label">Em andamento</p><p id="stat-started" class="stat-value">—</p><p class="stat-foot">Rascunhos ainda não concluídos</p></article>
+            <article class="stat-card"><span class="stat-icon" aria-hidden="true">⌁</span><p class="stat-label">Última atividade</p><p id="stat-last-active" class="stat-value stat-value-date">—</p><p class="stat-foot">Atualização do exercício</p></article>
+          </div>
+          <div class="overall-progress" aria-label="Progresso geral do curso">
+            <div class="progress-label"><span>Seu avanço</span><strong id="progress-caption">0 de 16 desafios</strong></div>
+            <div class="track" role="progressbar" aria-label="Exercícios concluídos" aria-valuemin="0" aria-valuemax="16" aria-valuenow="0" id="overall-progressbar"><span class="fill" id="overall-fill"></span></div>
+          </div>
+        </section>
+
+        <section class="charts-section" aria-labelledby="charts-heading">
+          <div class="section-heading">
+            <div><p class="eyebrow">VISUALIZAÇÃO DE DADOS / 01</p><h2 id="charts-heading">Visão analítica</h2></div>
+            <p class="section-aside">Dados reais da sua jornada, sem estimativas de evolução histórica.</p>
+          </div>
+          <div class="charts-grid">
+            <article class="chart-panel chart-panel-donut">
+              <div class="chart-heading">
+                <div><span class="chart-overline">01 / CONCLUSÃO</span><h3>Progresso da trilha</h3></div>
+                <span class="chart-unit">TOTAL · 16</span>
+              </div>
+              <div class="donut-layout">
+                <div id="chart-donut" class="donut-chart" role="img" aria-label="Distribuição de exercícios concluídos e pendentes">
+                  <div class="donut-hole"><strong id="chart-donut-number">0%</strong><span>concluído</span></div>
+                </div>
+                <div class="donut-legend">
+                  <div><span class="legend-dot done"></span><span>Concluídos</span><strong id="chart-done-count">0</strong></div>
+                  <div><span class="legend-dot remaining"></span><span>Restantes</span><strong id="chart-remaining-count">16</strong></div>
+                  <p class="chart-note">Desbloquear exercícios não equivale a concluí-los.</p>
+                </div>
+              </div>
+            </article>
+            <article class="chart-panel">
+              <div class="chart-heading">
+                <div><span class="chart-overline">02 / MÓDULOS</span><h3>Conclusões por módulo</h3></div>
+                <span class="chart-unit">EXERCÍCIOS</span>
+              </div>
+              <div id="chart-modules" class="module-chart" role="group" aria-label="Número de atividades concluídas em cada módulo"></div>
+              <p class="chart-note">Cada barra utiliza o total de atividades do próprio módulo.</p>
+            </article>
+          </div>
+          <article class="chart-panel chart-panel-wide">
+            <div class="chart-heading">
+              <div>
+                <span class="chart-overline">03 / INTERAÇÃO AO LONGO DO TEMPO</span>
+                <h3>Conversas com o professor</h3>
+                <p class="chart-description">Quantidade de mensagens enviadas ao tutor por dia, nos últimos 14 dias.</p>
+              </div>
+              <div class="timeline-period">ÚLTIMOS 14 DIAS <strong id="chart-timeline-total">0 interações</strong></div>
+            </div>
+            <div id="chart-timeline" class="timeline-chart" role="img" aria-label="Evolução diária das interações com o professor socrático nos últimos 14 dias"></div>
+            <p id="chart-timeline-empty" class="chart-empty" hidden>Ainda não houve interações com o professor socrático nesse período.</p>
+            <p class="chart-note">Fonte: mensagens da sua conta registradas em `chat_messages` na versão atual do currículo. O gráfico conta mensagens enviadas ao tutor, inclusive solicitações de análise; não mede acertos ou desempenho.</p>
+          </article>
+        </section>
+
+        <section class="modules-section" aria-labelledby="modules-heading">
+          <div class="section-heading"><div><p class="eyebrow">DETALHAMENTO / 04</p><h2 id="modules-heading">Progresso por módulo</h2></div></div>
+          <div class="module-grid" id="module-grid"></div>
+        </section>
+
+        <section class="learning-section" aria-labelledby="learning-heading">
+          <div class="section-heading"><div><p class="eyebrow">INDICADORES DE ESTUDO / 05</p><h2 id="learning-heading">Como você está estudando</h2></div></div>
+          <div class="stats-grid learning-grid">
+            <article class="stat-card"><p class="stat-label">Dicas consultadas</p><p id="stat-hints" class="stat-value">—</p></article>
+            <article class="stat-card"><p class="stat-label">Envios de código registrados</p><p id="stat-submissions" class="stat-value">—</p></article>
+            <article class="stat-card"><p class="stat-label">Interações com o tutor</p><p id="stat-tutor" class="stat-value">—</p></article>
+            <article class="stat-card"><p class="stat-label">Solicitações diretas bloqueadas</p><p id="stat-blocked" class="stat-value">—</p></article>
+            <article class="stat-card"><p class="stat-label">Reengajamentos após bloqueios</p><p id="stat-reengagement" class="stat-value">—</p></article>
+            <article class="stat-card"><p class="stat-label">Inatividade registrada</p><p id="stat-idle" class="stat-value stat-value-date">—</p></article>
+          </div>
+          <p class="data-note">Os números correspondem apenas às atividades da versão atual do currículo e à sua conta. Os envios de código começaram a ser contados nesta atualização, portanto submissões anteriores podem não aparecer. As interações com o tutor incluem perguntas e análises automáticas registradas no histórico. Inatividade registrada é o tempo sem interação detectado durante os exercícios; não é o tempo total de estudo. Estas estatísticas ajudam no acompanhamento, mas não representam nota nem diagnóstico da aprendizagem.</p>
+        </section>
+      </div>
+      <div id="error-status" class="error-status" role="alert" hidden>
+        <h2>Não conseguimos carregar suas estatísticas.</h2>
+        <p id="error-details">Verifique sua conexão e tente novamente.</p>
+        <button type="button" id="retry-btn">Tentar novamente</button>
+      </div>
+    </main>
+    <footer class="footer">IA Tutor · Seu perfil é pessoal e só pode ser consultado com sua conta.</footer>
+  </div>
+</body>
+</html>

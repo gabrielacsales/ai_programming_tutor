@@ -1,49 +1,16 @@
 // Cliente do Tutor Socrático com Guardrails e integração com API Google Gemini
 class SocraticTutor {
   constructor() {
-    this.apiKey = localStorage.getItem("google_api_key") || "";
-    this.envApiKey = "";
-    this._loadEnvFallback();
-  }
-
-  async _loadEnvFallback() {
-    try {
-      const response = await fetch('.env');
-      if (response.ok) {
-        const text = await response.text();
-        const match = text.match(/GOOGLE_API_KEY\s*=\s*['"]?([^'"\n\r]+)['"]?/);
-        if (match && match[1]) {
-          this.envApiKey = match[1].trim();
-          window.dispatchEvent(new Event('apiKeyReady'));
-        }
-      }
-    } catch (e) {
-      // Ignore if .env doesn't exist or fetch is blocked
-    }
-  }
-
-  setApiKey(key) {
-    this.apiKey = key.trim();
-    if (this.apiKey) {
-      localStorage.setItem("google_api_key", this.apiKey);
-    } else {
-      localStorage.removeItem("google_api_key");
-    }
-    window.dispatchEvent(new Event('apiKeyReady'));
-  }
-
-  getEffectiveApiKey() {
-    return this.apiKey || this.envApiKey;
-  }
-
-  hasApiKey() {
-    return this.getEffectiveApiKey().length > 0;
+    // Limpa chaves antigas guardadas no navegador (Gemini agora roda no servidor).
+    localStorage.removeItem("google_api_key");
   }
 
   // Guardrails locais de verificação de atalhos
   isDirectAnswerRequest(text) {
-    const finalAskRe = /\b(resposta|solu[cç][aã]o|c[oó]digo\s*completo|gabarito)\b/i;
-    return finalAskRe.test(text || "");
+    const explicitRequest = /(?:me\s+(?:d[aáe]|pass(?:a|e)|mostr(?:a|e)|mand(?:a|e)|entreg(?:a|ue))|quero\s+(?:a|o)|qual\s+(?:é\s+)?(?:a|o)).{0,40}(?:gabarito|solu[cç][aã]o|resposta|c[oó]digo)/i;
+    const readySolution = /(?:gabarito|c[oó]digo\s+(?:completo|pronto)|(?:resposta|solu[cç][aã]o)\s+(?:final|pronta|completa))/i;
+    const solveForMe = /(?:resolv[ae]\s+(?:esse|o)\s+exerc[ií]cio\s+(?:para|pra)\s+mim|fa[çc]a\s+(?:esse|o)\s+exerc[ií]cio\s+(?:para|pra)\s+mim)/i;
+    return explicitRequest.test(text || "") || readySolution.test(text || "") || solveForMe.test(text || "");
   }
 
   suggestsReadyLibrary(text) {
@@ -59,102 +26,46 @@ class SocraticTutor {
     return `[contexto] exercício: ${title} | restrições: ${constraintsTxt}`;
   }
 
-  // Executa chamada HTTP para a API do Google Gemini via SDK Oficial
-  async _chat(system, user) {
-    const keyToUse = this.getEffectiveApiKey(); 
-    if (!keyToUse) {
-      throw new Error("Chave de API do Gemini não configurada no .env e nem na tela.");
-    }
-
-    try {
-      // Importa o SDK oficial do Google dinamicamente pelo CDN para rodar no navegador
-      const { GoogleGenAI } = await import("https://esm.sh/@google/genai");
-      const ai = new GoogleGenAI({ apiKey: keyToUse });
-
-      const response = await ai.models.generateContent({
-        model: "gemini-3.5-flash",
-        contents: system + "\n\n" + user,
-        config: {
-          temperature: 0.3
+  // Chamada autenticada à Supabase Edge Function: a chave Gemini nunca chega ao browser.
+  async _chat(mode, message, ctx, code = "") {
+    const client = window.TutorAuth?.client;
+    if (!client) throw new Error("Faça login para usar o professor.");
+    const { data, error } = await client.functions.invoke("gemini-tutor", {
+      body: {
+        mode,
+        message,
+        code,
+        exercise: {
+          id: ctx.id,
+          curriculum_version: ctx.curriculum_version || 1,
+          title: ctx.title,
+          statement: ctx.statement || "",
+          constraints: ctx.constraints || []
         }
-      });
-
-      return response.text.trim();
-    } catch (e) {
-      console.error("Erro na chamada Gemini:", e);
-      throw e;
+      }
+    });
+    if (error) {
+      const backendError = (data && data.error) ||
+        (error.context && typeof error.context.json === "function"
+          ? await error.context.json().then(x => x?.error).catch(() => "")
+          : "");
+      throw new Error(backendError || "Não foi possível acessar o tutor. Confira se a Edge Function gemini-tutor foi publicada.");
     }
+    if (!data || typeof data.reply !== "string") throw new Error("Resposta inválida do tutor.");
+    return data.reply;
   }
 
-  // Pergunta socrática geral
+  // Pergunta socrática geral (a proteção contra pedido de gabarito também roda no servidor).
   async ask(userMessage, ctx, currentCode = "") {
-    // 1) Interceptação local (gating imediato de resposta pronta)
-    if (this.isDirectAnswerRequest(userMessage)) {
-      return `Para o ${this._ctxToStr(ctx)}, não posso fornecer o código pronto ou gabarito direto.\n\nVamos dar um passo atrás: qual seria a entrada de dados (argumentos) e o retorno esperado dessa função? Tente esboçar apenas a definição da função (def) e podemos continuar a partir daí.`;
-    }
-
-    // 2) Se não tiver chave, devolve fallback amigável
-    if (!this.hasApiKey()) {
-      return `⚠️ **Aviso:** Insira sua chave Google Gemini na barra lateral para habilitar o tutor inteligente.\n\n*Dica socrática genérica:* Tente dividir o problema em pequenas partes. O que seu código deve fazer primeiro? Como obter a entrada e processá-la?`;
-    }
-
-    // 3) Chamada de IA real
-    const sys = `Você é um professor socrático de programação. Nunca entregue a solução final ou código pronto. Use o contexto fornecido para manter a conversa alinhada ao exercício e à linguagem (Python). Quando o aluno tentar usar atalhos (ex.: usar lib pronta se a meta é implementar do zero), reoriente de forma gentil, propondo pequenos passos e fazendo perguntas.`;
-    
-    let user = `${this._ctxToStr(ctx)}`;
-    if (currentCode) {
-      user += `\n[Código atual do aluno]:\n${currentCode}`;
-    }
-    user += `\nPergunta do aluno: ${userMessage}`;
-
-    return await this._chat(sys, user);
+    return this._chat("ask", userMessage, ctx, currentCode);
   }
 
-  // Avaliação da ideia inicial (método critique_idea)
   async critiqueIdea(idea, ctx) {
-    // 1) Intercepta tentativa de usar bibliotecas prontas
-    if (this.suggestsReadyLibrary(idea)) {
-      return `No ${this._ctxToStr(ctx)}, o objetivo é que você construa o algoritmo do zero. Evite usar funções prontas de bibliotecas externas.\n\nTente descrever os passos lógicos básicos que você vai usar usando estruturas de controle básicas (como loops, condicionais ou operadores matemáticos).`;
-    }
-
-    // 2) Se não tiver chave, heurística local
-    if (!this.hasApiKey()) {
-      const cleanIdea = (idea || "").trim();
-      if (cleanIdea.length < 20) {
-        return `⚠️ *(Insira a chave Google Gemini para avaliação detalhada)*\n\nSua explicação está muito curta. Tente detalhar um pouco mais as etapas do que planeja fazer.`;
-      }
-      return `⚠️ *(Insira a chave Google Gemini para avaliação detalhada)*\n\nSua ideia parece ter uma boa estrutura. Tente traduzi-la em código Python na aba "Escrever código" para rodar os testes!`;
-    }
-
-    // 3) Chamada de IA real
-    const sys = `Você é um professor de programação. Avalie se a descrição de ideia do aluno faz sentido em alto nível para o contexto fornecido. Responda em 1 ou 2 frases, sem apresentar nenhum código e sem entregar a resposta final. Se fizer sentido lógico, diga: 'Sim, a lógica faz sentido.' e o incentive a ir para o código. Se houver falhas de lógica ou lacunas, aponte-as de forma socrática, fazendo 1–2 perguntas orientadoras.`;
-    
-    const user = `${this._ctxToStr(ctx)}\nDescrição da ideia do aluno: ${idea}`;
-    return await this._chat(sys, user);
+    return this._chat("critique", idea, ctx);
   }
 
-  // Explica erros de compilação ou execução de forma pedagógica
   async explainError(errorMsg, codeExcerpt, ctx) {
-    // 1) Se não tiver chave, heurística local para erros comuns de Python
-    if (!this.hasApiKey()) {
-      let explanation = `⚠️ **Erro detectado:** \`${errorMsg}\`\n*(Insira sua chave Google Gemini para receber ajuda passo a passo)*\n\n`;
-      if (errorMsg.includes("IndentationError")) {
-        explanation += `**Dica sobre Indentação:** Em Python, os blocos de código dentro de funções, ifs ou loops devem ser deslocados para a direita por 4 espaços. Revise o alinhamento das suas linhas.`;
-      } else if (errorMsg.includes("SyntaxError")) {
-        explanation += `**Dica sobre Sintaxe:** Há um erro de digitação no seu código. Verifique se esqueceu de fechar parênteses, aspas ou os dois pontos (\`:\`) ao final de definições de funções, loops ou condições.`;
-      } else if (errorMsg.includes("NameError")) {
-        explanation += `**Dica sobre Nomes:** Você usou uma variável ou função que não foi definida ou cujo nome está escrito de forma incorreta.`;
-      } else {
-        explanation += `Revise o erro acima. Se travar, utilize o botão "💡 Dica" na interface.`;
-      }
-      return explanation;
-    }
-
-    // 2) Chamada de IA real
-    const sys = `Você é um professor experiente de Python. Explique a causa provável do erro e indique os próximos passos lógicos para resolvê-lo, sem fornecer o código corrigido pronto. Reforce as restrições e regras do exercício.`;
-    
-    const user = `${this._ctxToStr(ctx)}\nErro gerado:\n${errorMsg}\n\nTrecho de código do aluno:\n${codeExcerpt.substring(0, 400)}`;
-    return await this._chat(sys, user);
+    return this._chat("error", errorMsg, ctx, codeExcerpt);
   }
 }
 

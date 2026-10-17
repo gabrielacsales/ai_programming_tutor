@@ -1,0 +1,17 @@
+
+.admin-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0}
+.admin-stats>div{background:#fafafa;border:1px solid #e4e4e7;border-radius:12px;padding:19px}
+.admin-stats span{display:block;font:500 11px ui-monospace,monospace;color:#71717a;margin-bottom:9px}
+.admin-stats strong{font:700 31px Inter,sans-serif;letter-spacing:-.05em}
+.table-scroll{overflow-x:auto;max-width:100%;border:1px solid #e4e4e7;border-radius:12px}
+table{width:100%;border-collapse:collapse;white-space:nowrap;font:12px/1.5 Inter,sans-serif}
+th,td{padding:11px 14px;text-align:left;border-bottom:1px solid #e4e4e7}
+th{background:#fafafa;font:700 10px ui-monospace,monospace;text-transform:uppercase}
+td:first-child{font:700 12px ui-monospace,monospace}
+.export-actions{display:flex;flex-wrap:wrap;gap:10px}
+.admin-interview{display:grid;grid-template-columns:1fr 1fr;gap:17px}
+.admin-interview label{display:grid;gap:7px;font-weight:600}
+.admin-interview label:nth-child(3){grid-column:1/-1}
+.admin-interview button{justify-self:start}
+.admin-interview input,.admin-interview select{width:100%;padding:11px;border:1px solid #e4e4e7;border-radius:9px;background:white}
+@media(max-width:650px){.admin-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-interview{grid-template-columns:1fr}}

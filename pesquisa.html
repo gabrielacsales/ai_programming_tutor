@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pesquisa do TCC | IA Tutor</title>
+<link rel="stylesheet" href="research.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script><script src="auth-client.js"></script>
+<script src="research-instruments.js"></script><script defer src="research-page.js"></script></head>
+<body>
+<header class="topbar"><a href="conteudos.html" class="logo"><span>∞</span> IA TUTOR</a><nav><a href="conteudos.html">Módulos</a><a href="perfil.html">Meu perfil</a></nav></header>
+<main class="research-shell">
+<p class="eyebrow">ESTUDO DE USABILIDADE E APRENDIZAGEM</p>
+<h1>Pesquisa do TCC</h1>
+<p class="intro">A participação é voluntária e separada do uso normal do IA Tutor. Você pode continuar estudando mesmo sem participar da pesquisa.</p>
+<div id="status" role="status" aria-live="polite">Verificando sua participação...</div>
+<section id="consent-section" class="panel" hidden>
+<h2>Informações e consentimento</h2>
+<p><strong>Objetivo:</strong> investigar como um tutor socrático de IA influencia o raciocínio, a autonomia e a experiência de pessoas iniciantes em programação.</p>
+<p><strong>O que será feito:</strong> um pré-teste de 8 questões, uso dos exercícios durante o período combinado, um pós-teste de 8 questões, questionário de percepção e convite opcional para entrevista.</p>
+<p><strong>Dados coletados:</strong> respostas aos testes e questionário; eventos de estudo datados, como envio de código, dicas, testes executados, uso do tutor e conclusão de exercícios. As conversas já são guardadas pelo serviço educacional; a pesquisa usa indicadores de interação e não copia o texto dos chats para o log de eventos.</p>
+<p><strong>Privacidade:</strong> relatórios internos usam código de participante. A pesquisadora pode vincular dados em ambiente administrativo protegido; não divulgue nomes e emails em resultados. Pseudonimização não significa anonimização completa.</p>
+<p><strong>Riscos e direitos:</strong> possíveis desconfortos com questões e risco residual de privacidade; você pode não participar, deixar de responder perguntas abertas ou retirar a participação a qualquer momento sem prejuízo no uso educacional. A retirada exclui os dados vinculados desta área de pesquisa, sem apagar automaticamente sua conta e rascunhos educacionais.</p>
+<p><strong>Retenção, contato e responsável:</strong> estas informações deverão constar no TCLE final aprovado pela instituição antes de abrir a coleta. O presente formulário é um protótipo e <strong>não substitui aprovação ética/TCLE institucional</strong>.</p>
+<div class="warning">A coleta está fechada por padrão no banco. O recrutamento somente deve ser liberado depois de definir contatos, retenção, protocolo, consentimento e eventuais exigências do comitê de ética. Este protótipo aceita apenas participantes com 18 anos ou mais.</div>
+<div id="official-terms" class="panel" hidden>
+<h3>Termo de consentimento da instituição</h3>
+<p><strong>Instituição:</strong> <span id="official-institution"></span></p>
+<p><strong>Contato da pesquisa:</strong> <span id="official-contact"></span></p>
+<p><strong>Referência da revisão ética:</strong> <span id="official-protocol"></span></p>
+<p><strong>Retenção dos dados:</strong> <span id="official-retention"></span></p>
+<p id="official-consent-text" style="white-space:pre-wrap"></p>
+</div>
+<p id="registration-status" class="muted" role="status">Aguardando publicação do termo final da pesquisa.</p>
+<form id="consent-form">
+<label class="check"><input type="checkbox" id="adult" required> Confirmo ter 18 anos ou mais.</label>
+<label class="check"><input type="checkbox" id="consent" required> Li as informações do estudo e concordo voluntariamente com a coleta descrita, conforme o documento institucional definitivo.</label>
+<button class="primary" type="submit" id="join-study" disabled>Concordo em participar</button>
+</form>
+</section>
+<section id="registered-section" class="panel" hidden>
+<div class="flex-top"><div><h2>Minha participação</h2><p>Identificador para suas atividades de pesquisa: <strong id="participant-code" class="code"></strong></p></div><button id="withdraw-button" type="button" class="danger">Retirar participação e excluir dados da pesquisa</button></div>
+<p id="progress-message"></p>
+<div class="stage-grid">
+<button type="button" class="stage-button" id="open-pre">1. Pré-teste <span id="pre-flag"></span></button>
+<button type="button" class="stage-button" id="open-post">2. Pós-teste <span id="post-flag"></span></button>
+<button type="button" class="stage-button" id="open-survey">3. Questionário final <span id="survey-flag"></span></button>
+</div>
+<p class="muted">Use o pré-teste antes dos exercícios do período de pesquisa e o pós-teste ao final. As avaliações não exibem gabarito e permitem somente um envio por etapa.</p>
+</section>
+<section id="instrument-section" class="panel" hidden>
+<div class="flex-top"><div><p class="eyebrow" id="instrument-tag"></p><h2 id="instrument-heading"></h2></div><button id="close-instrument" type="button">Fechar</button></div>
+<p id="instrument-intro"></p>
+<form id="instrument-form"><div id="questions"></div><button type="submit" class="primary">Enviar respostas definitivamente</button></form>
+</section>
+<div id="error-box" class="warning" role="alert" hidden></div>
+</main>
+</body></html>

@@ -1,0 +1,103 @@
+-- Atualização didática do TCC, currículo versão 2.
+-- EXECUTE no Supabase SQL Editor ANTES de abrir o novo frontend no navegador.
+-- Pré-requisito: supabase/developer-access.sql da branch atual já executado.
+-- 1) Preserva os registros da versão anterior numa tabela restrita.
+-- 2) Faz somente conclusões da versão 2 liberarem próximos exercícios.
+-- Sem excluir registros das tabelas já existentes.
+-- Atualiza as dependências do módulo 3 para contagem -> soma -> tabuada.
+
+begin;
+
+create table if not exists public.exercise_progress_v1_archive (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  exercise_id text not null,
+  user_code text not null default '',
+  user_idea text not null default '',
+  completed boolean not null default false,
+  metrics jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null,
+  archived_at timestamptz not null default now(),
+  primary key (user_id, exercise_id)
+);
+
+alter table public.exercise_progress_v1_archive enable row level security;
+revoke all on public.exercise_progress_v1_archive from anon, authenticated;
+grant select on public.exercise_progress_v1_archive to authenticated;
+
+drop policy if exists "Read own archived curriculum v1 progress" on public.exercise_progress_v1_archive;
+create policy "Read own archived curriculum v1 progress"
+  on public.exercise_progress_v1_archive for select to authenticated
+  using ((select auth.uid()) = user_id);
+
+-- Cópia feita antes que o currículo novo sobrescreva rascunhos antigos.
+insert into public.exercise_progress_v1_archive
+  (user_id, exercise_id, user_code, user_idea, completed, metrics, updated_at)
+select user_id, exercise_id, user_code, user_idea, completed, metrics, updated_at
+from public.exercise_progress
+where coalesce(metrics ->> 'curriculum_version', '1') <> '2'
+on conflict (user_id, exercise_id) do nothing;
+
+-- Mantém o histórico antigo com versão 1 e impede misturá-lo à tutoria da versão 2.
+alter table public.chat_messages
+  add column if not exists curriculum_version integer not null default 1;
+create index if not exists chat_messages_user_exercise_version_date
+  on public.chat_messages (user_id, exercise_id, curriculum_version, created_at);
+
+-- As regras de dependência devem corresponder à ordem real dos módulos.
+insert into public.exercise_access_rules (exercise_id, required_exercise_id, is_final) values
+  ('m3_contagem', 'm2_desconto_categoria', false),
+  ('m3_soma_limite', 'm3_contagem', false),
+  ('m3_tabuada', 'm3_soma_limite', false),
+  ('m4_busca_linear', 'm3_tabuada', false)
+on conflict (exercise_id) do update set
+  required_exercise_id = excluded.required_exercise_id,
+  is_final = excluded.is_final;
+
+-- Estudantes concluem cada exercício da nova versão antes de avançar.
+-- Mantém a exceção para desenvolvedora, com autorização exclusivamente no banco.
+create or replace function public.can_access_exercise(p_exercise_id text)
+returns boolean
+language sql stable security definer set search_path = ''
+as $$
+  select (select auth.uid()) is not null and exists (
+    select 1
+    from public.exercise_access_rules e
+    where e.exercise_id = p_exercise_id and (
+      public.is_tutor_developer()
+      or (
+        not e.is_final and (
+          e.required_exercise_id is null or exists (
+            select 1 from public.exercise_progress p
+            where p.user_id = (select auth.uid())
+              and p.exercise_id = e.required_exercise_id
+              and p.completed = true
+              and p.metrics ->> 'curriculum_version' = '2'
+          )
+        )
+      )
+      or (
+        e.is_final and (
+          select count(distinct p.exercise_id)
+          from public.exercise_progress p
+          where p.user_id = (select auth.uid())
+            and p.completed = true
+            and p.metrics ->> 'curriculum_version' = '2'
+            and p.exercise_id in (
+              'm1_calculo_desconto', 'm2_desconto_categoria',
+              'm3_tabuada', 'm4_status_nota', 'm5_remover_duplicatas'
+            )
+        ) = 5
+      )
+    )
+  );
+$$;
+
+revoke all on function public.can_access_exercise(text) from public, anon, authenticated;
+grant execute on function public.can_access_exercise(text) to authenticated;
+
+commit;
+
+-- Conferência opcional (SQL Editor):
+-- select exercise_id, completed, updated_at
+-- from public.exercise_progress_v1_archive
+-- order by updated_at desc limit 20;

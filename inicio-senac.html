@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Primeiros passos | IA Tutor</title>
+<link rel="stylesheet" href="research.css">
+<style>
+.step{display:none}.step.active{display:block}.radio-choice{display:flex;align-items:center;gap:12px;border:1px solid #e4e4e7;padding:17px;border-radius:12px;margin:12px 0;cursor:pointer}
+.radio-choice:hover{border-color:#1cb0f6;background:#f0f9ff}.radio-choice input{width:18px;height:18px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.actions button{width:auto}
+.information{background:#f0f9ff;border:1px solid #bae6fd;padding:16px;border-radius:12px}
+#institutional-consent{white-space:pre-wrap;padding:15px;background:#fafafa;border:1px solid #e4e4e7;border-radius:9px;max-height:250px;overflow-y:auto}
+.status-mark{display:inline-block;padding:5px 10px;border-radius:20px;background:#e0f2fe;font-size:11px;font-weight:700;margin-bottom:12px}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script><script src="auth-client.js"></script>
+<script src="research-instruments.js"></script><script defer src="senac-onboarding.js"></script>
+</head>
+<body>
+<header class="topbar"><a href="index.html" class="logo"><span>∞</span> IA TUTOR</a><nav><a href="perfil.html">Meu perfil</a><button type="button" id="logout">Sair</button></nav></header>
+<main class="research-shell">
+<p class="eyebrow">IA TUTOR / PRIMEIROS PASSOS</p>
+<h1>Boas-vindas à sua trilha</h1>
+<p class="intro">Vamos preparar seu acesso aos exercícios. O pré-teste é um diagnóstico inicial, não vale nota e não exige conhecimentos prévios.</p>
+<div id="onboarding-status" role="status" aria-live="polite">Verificando seus dados...</div>
+<div id="onboarding-error" class="warning" role="alert" hidden></div>
+
+<section id="identify-step" class="panel step">
+<span class="status-mark">Etapa 1 de 2</span><h2>Você é estudante do Senac?</h2>
+<p>Essa identificação organiza a trilha de acompanhamento. Se for estudante do Senac, você fará um breve diagnóstico antes de acessar os exercícios. A participação na pesquisa acadêmica é opcional.</p>
+<form id="identity-form">
+<label class="radio-choice"><input type="radio" name="senac-affiliation" value="yes" required> Sim, sou estudante do Senac</label>
+<label class="radio-choice"><input type="radio" name="senac-affiliation" value="no" required> Não sou estudante do Senac</label>
+<button type="submit" class="primary">Continuar</button>
+</form>
+</section>
+
+<section id="diagnostic-step" class="panel step">
+<span class="status-mark">Etapa 2 de 2</span>
+<h2>Diagnóstico inicial de lógica de programação</h2>
+<p class="information"><strong>Responda com sinceridade, apenas o que você realmente sabe.</strong> O intuito é conhecer seu ponto de partida, e não avaliar sua inteligência ou atribuir uma nota. Se não souber, marque <strong>“Não sei”</strong>. Não use o tutor, execute códigos ou procure as respostas durante este diagnóstico.</p>
+<p>São oito questões sobre variáveis, operações, decisões, laços, listas e funções. Você poderá fechar esta página e voltar outro dia. <strong>Até concluir o diagnóstico, os exercícios ficarão bloqueados para quem se identificou como estudante do Senac.</strong></p>
+<div id="research-consent" class="panel" hidden>
+<h3>Participação opcional na pesquisa do TCC</h3>
+<p>A pesquisa investiga como perguntas socráticas podem apoiar o raciocínio de iniciantes. Concordar permite usar este teste inicial e registrar eventos posteriores de estudo na pesquisa. Recusar não impedirá o uso do IA Tutor após o diagnóstico.</p>
+<p><strong>Instituição:</strong> <span id="study-institution"></span> · <strong>Contato:</strong> <span id="study-contact"></span></p>
+<p><strong>Referência do protocolo:</strong> <span id="study-protocol"></span></p>
+<p><strong>Retenção:</strong> <span id="study-retention"></span></p>
+<div id="institutional-consent" aria-label="Termo de consentimento institucional"></div>
+<label class="check"><input type="checkbox" id="research-adult"> Confirmo ter 18 anos ou mais.</label>
+<label class="check"><input type="checkbox" id="research-agree"> Li o termo institucional e concordo voluntariamente com o uso dos meus dados na pesquisa.</label>
+<button type="button" id="research-enroll">Aceitar participação na pesquisa</button>
+<p id="research-message" class="muted"></p>
+</div>
+<p id="research-disabled" class="muted" hidden>O recrutamento do TCC está fechado ou ainda não configurado. Você poderá fazer o diagnóstico educacional sem registrar respostas na pesquisa. Atenção: um pré-teste realizado antes do consentimento não poderá ser incluído retroativamente na amostra oficial.</p>
+<div id="research-enrolled" class="information" hidden>Consentimento registrado. Suas respostas ao pré-teste serão incluídas na pesquisa. Você poderá retirar a participação posteriormente.</div>
+<div class="actions">
+<button type="button" id="open-diagnostic" class="primary">Iniciar meu pré-teste</button>
+<a href="perfil.html">Responder em outra visita</a>
+</div>
+</section>
+
+<section id="questions-step" class="panel step">
+<span class="status-mark">DIAGNÓSTICO / 8 QUESTÕES</span>
+<h2>O que você sabe neste momento?</h2>
+<p class="muted">Marque uma alternativa por questão. Não há problema algum em marcar “Não sei”. Não existem penalidades por erros.</p>
+<form id="diagnostic-form">
+<div id="diagnostic-questions"></div>
+<div class="actions"><button class="primary" type="submit" id="finish-diagnostic">Concluir diagnóstico</button><button id="close-diagnostic" type="button">Responder depois</button></div>
+</form>
+</section>
+
+<section id="ready-step" class="panel step">
+<h2>Tudo pronto!</h2>
+<p>Seu diagnóstico inicial foi concluído. Agora você pode começar os exercícios de Python.</p>
+<a class="primary" style="display:inline-block;text-decoration:none" href="conteudos.html">Ir aos módulos →</a>
+</section>
+</main>
+</body></html>

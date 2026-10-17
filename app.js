@@ -7,7 +7,7 @@ class ChallengeOrchestrator {
     this.state = {
       attempts: [],
       hints_given: [],
-      mode: "descricao",
+      mode: "codigo",
       user_code: "",
       user_idea: "",
       completed: false
@@ -16,6 +16,8 @@ class ChallengeOrchestrator {
     // Métricas comportamentais individuais por exercício
     this.metrics = {
       hints_used: 0,
+      code_submissions: 0, // registrado a partir desta atualização
+      idea_submissions: 0,
       blocked_direct_answer_attempts: 0,
       direct_answer_attempts: 0,
       reengagement_after_block: 0,
@@ -82,6 +84,7 @@ class ChallengeOrchestrator {
     }
     return {
       id: this.problem.id,
+      curriculum_version: this.problem.curriculum_version || 1,
       title: this.problem.title,
       statement: shortStmt,
       constraints: this.problem.constraints || []
@@ -96,7 +99,38 @@ const tutor = new SocraticTutor();
 // Estado geral da aplicação
 let currentOrch = null;
 const sessionMap = new Map(); // Guarda instâncias do Orchestrator por Challenge ID
+let showIdeaOnFirstVisit = false; // Uma vez por conta neste navegador.
+const ideaNudgesShown = new Set();
 let lastInteractionTime = Date.now();
+
+// Evita gravações no banco a cada tecla pressionada.
+const progressSaveTimers = new Map();
+
+async function persistExercise(orch) {
+  if (!orch) return;
+  try {
+    await TutorProgress.save(orch.problem.id, {
+      user_code: orch.state.user_code,
+      user_idea: orch.state.user_idea,
+      completed: orch.state.completed,
+      metrics: orch.metrics
+    });
+  } catch (error) {
+    console.error("Falha ao salvar progresso no Supabase:", error);
+    showToast("Não foi possível salvar o progresso. Verifique a conexão.");
+  }
+}
+
+function scheduleProgressSave(orch = currentOrch) {
+  if (!orch) return;
+  const id = orch.problem.id;
+  clearTimeout(progressSaveTimers.get(id));
+  progressSaveTimers.set(id, setTimeout(() => {
+    progressSaveTimers.delete(id);
+    persistExercise(orch);
+  }, 900));
+}
+
 
 // Elementos DOM
 const screenLanding = document.getElementById("screen-landing");
@@ -105,8 +139,6 @@ const btnStartNow = document.getElementById("btn-start-now");
 const btnShowFeatures = document.getElementById("btn-show-features");
 const btnBackLanding = document.getElementById("btn-back-landing");
 const selectExercise = document.getElementById("select-exercise");
-const inputApiKey = document.getElementById("input-api-key");
-const btnSaveKey = document.getElementById("btn-save-key");
 const alertToast = document.getElementById("alert-toast");
 
 // Accordions e Expanders
@@ -196,10 +228,49 @@ function showActionToast(htmlContent) {
   alertToast.style.display = "block";
 }
 
-// Atualiza o painel lateral de chaves
-function initApiKey() {
-  if (tutor.hasApiKey()) {
-    inputApiKey.value = tutor.apiKey;
+// A saída da IA e do código do aluno é tratada como TEXTO, não como HTML.
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[char]);
+}
+
+// Histórico persistido na tabela chat_messages, filtrado automaticamente pela RLS.
+let historyRequestNumber = 0;
+async function loadChatHistory(exerciseId) {
+  const list = document.getElementById("chat-history-list");
+  if (!list) return;
+  const requestNumber = ++historyRequestNumber;
+  list.textContent = "Carregando histórico...";
+  const client = window.TutorAuth?.client;
+  if (!client) return;
+  const { data, error } = await client.from("chat_messages")
+    .select("id,role,content,created_at")
+    .eq("exercise_id", exerciseId)
+    .eq("curriculum_version", problems.find(p => p.id === exerciseId)?.curriculum_version || 1)
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .limit(30);
+  if (requestNumber !== historyRequestNumber) return;
+  list.replaceChildren();
+  if (error) {
+    list.textContent = "Não foi possível carregar o histórico.";
+    return;
+  }
+  if (!data?.length) {
+    list.textContent = "Ainda não há mensagens neste exercício.";
+    return;
+  }
+  for (const message of data.reverse()) {
+    const item = document.createElement("div");
+    item.className = "rounded-lg p-3 border border-slate-200 bg-slate-50";
+    const title = document.createElement("strong");
+    title.textContent = message.role === "user" ? "Aluno" : "Tutor";
+    const text = document.createElement("p");
+    text.style.whiteSpace = "pre-wrap";
+    text.textContent = message.content;
+    item.append(title, text);
+    list.appendChild(item);
   }
 }
 
@@ -210,16 +281,41 @@ function populateExercises(currentModule = null) {
     if (!currentModule || p.module === currentModule) {
       const opt = document.createElement("option");
       opt.value = p.id;
-      opt.innerText = p.title;
+      const locked = !TutorAccess.hasAccess(p.id);
+      opt.disabled = locked;
+      opt.innerText = p.title + (locked ? " 🔒" : "");
       selectExercise.appendChild(opt);
     }
   });
 }
 
 // Renderiza o exercício ativo
-function loadActiveExercise(challengeId) {
+let loadRequestId = 0;
+async function loadActiveExercise(challengeId) {
+  const requestId = ++loadRequestId;
   const p = problems.find(prob => prob.id === challengeId);
   if (!p) return;
+
+  // O Supabase valida o acesso mesmo com URL editada ou dropdown modificado.
+  try {
+    const allowed = await TutorAccess.verify(challengeId);
+    if (requestId !== loadRequestId) return;
+    if (!allowed) {
+      window.location.replace("conteudos.html");
+      return;
+    }
+  } catch (error) {
+    console.error("Erro ao verificar acesso ao exercício:", error);
+    showToast("Não foi possível verificar as permissões. Confira a migração SQL.");
+    return;
+  }
+
+  // Garante que a edição anterior seja persistida antes de trocar de exercício.
+  if (currentOrch && currentOrch.problem.id !== challengeId) {
+    clearTimeout(progressSaveTimers.get(currentOrch.problem.id));
+    progressSaveTimers.delete(currentOrch.problem.id);
+    persistExercise(currentOrch);
+  }
 
   populateExercises(p.module);
   selectExercise.value = challengeId;
@@ -229,12 +325,25 @@ function loadActiveExercise(challengeId) {
     currentOrch = sessionMap.get(challengeId);
   } else {
     currentOrch = new ChallengeOrchestrator(p);
+    const saved = TutorProgress.get(challengeId);
+    if (saved) {
+      currentOrch.state.user_code = saved.user_code || "";
+      currentOrch.state.user_idea = saved.user_idea || "";
+      currentOrch.state.completed = !!saved.completed;
+      if (saved.metrics && typeof saved.metrics === "object") {
+        currentOrch.metrics = { ...currentOrch.metrics, ...saved.metrics };
+      }
+    }
     sessionMap.set(challengeId, currentOrch);
   }
 
   // Preenche metadados do exercício
   problemTitle.innerText = p.title;
-  problemStatement.innerText = p.statement;
+  problemStatement.innerHTML = learningUI.renderExerciseStatementMarkdown(p.statement);
+  const statementBody = document.getElementById("problem-statement-content");
+  statementBody.hidden = false;
+  document.getElementById("btn-toggle-statement").setAttribute("aria-expanded", "true");
+  document.getElementById("statement-toggle-label").textContent = "Recolher";
 
   // Preenche Restrições (constraints)
   constraintsList.innerHTML = "";
@@ -250,18 +359,27 @@ function loadActiveExercise(challengeId) {
   }
 
   // Preenche Resumos do Tema e Exemplos
-  exerciseSummaryContent.innerHTML = p.theory || `<p class="text-slate-600">${p.statement}</p>`;
-  exerciseExamplesContent.innerHTML = p.solution ?
-    `<strong class="block mb-2 text-slate-700">Exemplo de implementação (Solução do Professor):</strong><pre class="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-xs overflow-x-auto whitespace-pre-wrap">${p.solution}</pre>` :
-    "Este exercício não possui exemplos de solução.";
+  exerciseSummaryContent.innerHTML = StudyGuide.render(p, problems);
+  exerciseExamplesContent.innerHTML = learningUI.renderPracticeExamples(p);
+  learningUI.highlightPracticalExamples(exerciseExamplesContent);
+
+  const codeNotice = document.getElementById("code-input-notice");
+  if (codeNotice) {
+    codeNotice.textContent = p.function_name
+      ? "Este exercício recebe o valor pelo parâmetro da função. Não altere o nome da função e use return (não print) para devolver o resultado."
+      : "O ambiente já fornece a variável entrada e muda seu valor em cada teste. NÃO escreva entrada = 6 (ou outro valor fixo): use apenas entrada para calcular o resultado.";
+  }
 
   // Restaura o estado da aba
   textareaDesc.value = currentOrch.state.user_idea;
-  textareaCode.value = currentOrch.state.user_code || (p.function_name ? `def ${p.function_name}(n):\n    # Escreva sua lógica aqui\n    pass` : `# Os dados do teste estarão na variável 'entrada'\n# Use print() para exibir o resultado final\n\n`);
+  TutorEditor.setValue(currentOrch.state.user_code || (p.function_name
+    ? `def ${p.function_name}(${p.function_parameter || 'dados'}):\n    # Escreva sua lógica aqui\n    pass`
+    : `# entrada é definida automaticamente em cada caso de teste. NÃO a redefina.\n# Utilize print() para exibir o resultado.\n\n`));
 
   // Reseta elementos de feedback visual da interface
-  feedbackDesc.style.display = "none";
-  feedbackCode.style.display = "none";
+  learningUI.setFeedbackVisible("desc", false);
+  learningUI.setFeedbackVisible("code", false);
+  document.getElementById("execution-feedback-details").open = true;
   accSocraticDesc.style.display = "none";
   accSocraticCode.style.display = "none";
   inputSocraticDesc.value = "";
@@ -270,18 +388,41 @@ function loadActiveExercise(challengeId) {
   replySocraticCode.innerText = "";
   execResults.style.display = "none";
 
-  // Sincroniza abas
-  if (currentOrch.state.mode === "descricao") {
-    switchMode("desc");
-  } else {
-    switchMode("code");
-  }
+  // O código é o fluxo principal. A primeira visita oferece uma única
+  // oportunidade inicial de descrever a ideia, sem obrigar nas demais sessões.
+  const mode = showIdeaOnFirstVisit ? "desc" : "code";
+  showIdeaOnFirstVisit = false;
+  switchMode(mode);
+  const ideaNudge = document.getElementById("idea-nudge");
+  if (ideaNudge) ideaNudge.hidden = true;
+  lastInteractionTime = Date.now();
 
   // Reseta para a aba "Desafio"
   switchExerciseTab("statement");
 
   updateUIState();
+  loadChatHistory(challengeId);
+  // A revisão aparece ao entrar em qualquer exercício e não interfere
+  // no estado do aluno nem nas métricas acadêmicas já instrumentadas.
+  if (window.TutorReview) TutorReview.open(p, () => {
+    lastInteractionTime = Date.now(); // não contar o tempo gasto no popup como inatividade
+    // Guia interativo somente depois que o aluno fecha a revisão inicial.
+    learningUI.initFeatureTour();
+  });
+  else learningUI.initFeatureTour();
 }
+
+// Ações do material de revisão: navegar até exemplos ou voltar ao desafio.
+exerciseSummaryContent.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-study-tab]");
+  if (!button || !exerciseSummaryContent.contains(button)) return;
+  const destination = button.dataset.studyTab;
+  if (destination !== "examples" && destination !== "statement") return;
+  switchExerciseTab(destination);
+  const tab = destination === "examples" ? tabExerciseExamples : tabExerciseStatement;
+  tab.focus();
+  tab.scrollIntoView({ behavior: "smooth", block: "nearest" });
+});
 
 // Alterna entre abas "Descrever Ideia" e "Código"
 function switchMode(mode) {
@@ -297,6 +438,7 @@ function switchMode(mode) {
     panelCode.classList.add("active");
     panelDesc.classList.remove("active");
     if (currentOrch) currentOrch.state.mode = "codigo";
+    TutorEditor.refresh();
   }
 }
 
@@ -371,15 +513,26 @@ if (btnBackLanding) {
   });
 }
 
-// Salvamento da Google Gemini API Key
-btnSaveKey.addEventListener("click", () => {
-  tutor.setApiKey(inputApiKey.value);
-  showToast("Configurações de chave atualizadas!");
-});
-
 // Alternância de Exercício
 selectExercise.addEventListener("change", (e) => {
   loadActiveExercise(e.target.value);
+});
+
+// Ordenação no DOM: código antes de ideia, inclusive para navegação por teclado.
+tabCode.parentNode.insertBefore(tabCode, tabDesc);
+panelCode.parentNode.insertBefore(panelCode, panelDesc);
+
+// Ajuda opcional após 90s sem interação, nunca troca de aba sozinha.
+const ideaNudgeElement = document.getElementById("idea-nudge");
+document.getElementById("idea-nudge-open")?.addEventListener("click", () => {
+  if (ideaNudgeElement) ideaNudgeElement.hidden = true;
+  lastInteractionTime = Date.now();
+  switchMode("desc");
+  textareaDesc.focus();
+});
+document.getElementById("idea-nudge-dismiss")?.addEventListener("click", () => {
+  if (ideaNudgeElement) ideaNudgeElement.hidden = true;
+  lastInteractionTime = Date.now();
 });
 
 // Alternância de Abas
@@ -389,13 +542,26 @@ tabCode.addEventListener("click", () => switchMode("code"));
 // Salvar input em tempo real no estado
 textareaDesc.addEventListener("input", (e) => {
   if (currentOrch) currentOrch.state.user_idea = e.target.value;
+  scheduleProgressSave();
   lastInteractionTime = Date.now();
 });
 
 textareaCode.addEventListener("input", (e) => {
   if (currentOrch) currentOrch.state.user_code = e.target.value;
+  scheduleProgressSave();
   lastInteractionTime = Date.now();
 });
+
+// Realce/indentação CodeMirror: sincroniza o textarea escondido com o rascunho.
+TutorEditor.start((value) => {
+  if (currentOrch) currentOrch.state.user_code = value;
+  scheduleProgressSave();
+  lastInteractionTime = Date.now();
+});
+
+// Ao sair de um campo, grava o rascunho imediatamente.
+textareaDesc.addEventListener("change", () => persistExercise(currentOrch));
+textareaCode.addEventListener("change", () => persistExercise(currentOrch));
 
 // Suporte para indentação com TAB de 4 espaços no editor
 textareaCode.addEventListener("keydown", function (e) {
@@ -408,8 +574,18 @@ textareaCode.addEventListener("keydown", function (e) {
 
     // Atualiza estado
     if (currentOrch) currentOrch.state.user_code = this.value;
+    scheduleProgressSave();
     lastInteractionTime = Date.now();
   }
+});
+
+// Enunciado recolhível (mantém espaço de trabalho e progresso intactos).
+document.getElementById("btn-toggle-statement").addEventListener("click", () => {
+  const content = document.getElementById("problem-statement-content");
+  const expanded = content.hidden;
+  content.hidden = !expanded;
+  document.getElementById("btn-toggle-statement").setAttribute("aria-expanded", String(expanded));
+  document.getElementById("statement-toggle-label").textContent = expanded ? "Recolher" : "Expandir";
 });
 
 // Accordion de Restrições
@@ -421,6 +597,20 @@ if (constraintsExpander) {
     });
   }
 }
+
+// Salva as últimas alterações antes de sair do exercício para ver estatísticas.
+document.getElementById("nav-student-profile")?.addEventListener("click", async (event) => {
+  if (!currentOrch) return;
+  event.preventDefault();
+  const button = event.currentTarget;
+  button.style.pointerEvents = "none";
+  const id = currentOrch.problem.id;
+  clearTimeout(progressSaveTimers.get(id));
+  progressSaveTimers.delete(id);
+  currentOrch.state.user_code = TutorEditor.getValue();
+  await persistExercise(currentOrch);
+  window.location.href = "perfil.html";
+});
 
 // Event Listeners para Controle da Sidebar Retrátil
 if (sidebarHandle) {
@@ -465,22 +655,25 @@ btnSubmitDesc.addEventListener("click", async () => {
   }
 
   btnSubmitDesc.disabled = true;
-  feedbackDesc.style.display = "block";
+  learningUI.setFeedbackVisible("desc", true);
   feedbackDesc.className = "feedback-box";
   feedbackDesc.innerHTML = "<em>Professor avaliando sua ideia...</em>";
 
   try {
     currentOrch.recordAttempt(idea);
+    currentOrch.metrics.idea_submissions = (Number(currentOrch.metrics.idea_submissions) || 0) + 1;
     currentOrch.recordReengagement(); // Considera reengajamento após bloqueios anteriores
 
     const critique = await tutor.critiqueIdea(idea, currentOrch.buildContext());
-    feedbackDesc.innerHTML = `<strong>Feedback do Professor:</strong><br>${critique}`;
+    feedbackDesc.innerHTML = `<strong>Feedback do Professor:</strong><br>${escapeHtml(critique)}`;
+    await loadChatHistory(currentOrch.problem.id);
   } catch (e) {
-    feedbackDesc.innerHTML = `<strong>Erro ao conectar com o Tutor:</strong><br>${e.message}`;
+    feedbackDesc.innerHTML = `<strong>Erro ao conectar com o Tutor:</strong><br>${escapeHtml(e.message)}`;
     feedbackDesc.className = "feedback-box error";
   } finally {
     btnSubmitDesc.disabled = false;
     updateUIState();
+    scheduleProgressSave();
   }
 });
 
@@ -492,6 +685,7 @@ btnSubmitDesc.addEventListener("click", async () => {
     const hint = currentOrch.requestHint();
     showToast(`💡 Dica: ${hint}`);
     updateUIState();
+    scheduleProgressSave();
   });
 });
 
@@ -520,15 +714,17 @@ btnSendSocraticDesc.addEventListener("click", async () => {
     const reply = await tutor.ask(q, currentOrch.buildContext(), "");
 
     if (isDirect) {
-      replySocraticDesc.innerHTML = `<strong style="color: var(--color-error)">🚨 Bloqueio de Resposta Direta:</strong><br>${reply}`;
+      replySocraticDesc.innerHTML = `<strong style="color: var(--color-error)">🚨 Bloqueio de Resposta Direta:</strong><br>${escapeHtml(reply)}`;
     } else {
-      replySocraticDesc.innerHTML = `<strong>Resposta do Professor:</strong><br>${reply}`;
+      replySocraticDesc.innerHTML = `<strong>Resposta do Professor:</strong><br>${escapeHtml(reply)}`;
     }
   } catch (e) {
-    replySocraticDesc.innerHTML = `<strong>Erro:</strong> ${e.message}`;
+    replySocraticDesc.innerHTML = `<strong>Erro:</strong> ${escapeHtml(e.message)}`;
   } finally {
     btnSendSocraticDesc.disabled = false;
     updateUIState();
+    loadChatHistory(currentOrch.problem.id);
+    scheduleProgressSave();
   }
 });
 
@@ -549,22 +745,44 @@ btnSendSocraticCode.addEventListener("click", async () => {
     const reply = await tutor.ask(q, currentOrch.buildContext(), code);
 
     if (isDirect) {
-      replySocraticCode.innerHTML = `<strong style="color: var(--color-error)">🚨 Bloqueio de Resposta Direta:</strong><br>${reply}`;
+      replySocraticCode.innerHTML = `<strong style="color: var(--color-error)">🚨 Bloqueio de Resposta Direta:</strong><br>${escapeHtml(reply)}`;
     } else {
-      replySocraticCode.innerHTML = `<strong>Resposta do Professor:</strong><br>${reply}`;
+      replySocraticCode.innerHTML = `<strong>Resposta do Professor:</strong><br>${escapeHtml(reply)}`;
     }
   } catch (e) {
-    replySocraticCode.innerHTML = `<strong>Erro:</strong> ${e.message}`;
+    replySocraticCode.innerHTML = `<strong>Erro:</strong> ${escapeHtml(e.message)}`;
   } finally {
     btnSendSocraticCode.disabled = false;
     updateUIState();
+    loadChatHistory(currentOrch.problem.id);
+    scheduleProgressSave();
   }
+});
+
+// Envio por Enter, nas duas abas, usando exatamente a mesma ação do botão.
+// Mantém o botão funcionando e não duplica pedidos durante uma chamada pendente.
+[
+  [inputSocraticDesc, btnSendSocraticDesc],
+  [inputSocraticCode, btnSendSocraticCode]
+].forEach(([input, button]) => {
+  input.addEventListener("keydown", (event) => {
+    if (
+      event.key !== "Enter" ||
+      event.isComposing ||
+      event.keyCode === 229 ||
+      event.repeat
+    ) return;
+    event.preventDefault();
+    if (!button.disabled && input.value.trim()) {
+      button.click();
+    }
+  });
 });
 
 // 6. Registrar e Testar Código Python (Pyodide)
 btnSubmitCode.addEventListener("click", async () => {
   lastInteractionTime = Date.now();
-  const code = textareaCode.value;
+  const code = TutorEditor.getValue();
 
   if (code.trim().length < 3) {
     showToast("Escreva seu código antes de submeter.");
@@ -575,18 +793,23 @@ btnSubmitCode.addEventListener("click", async () => {
   btnSubmitCode.disabled = true;
   pyodideSpinner.style.display = "inline-block";
   execResults.style.display = "none";
-  feedbackCode.style.display = "none";
+  learningUI.setFeedbackVisible("code", false);
+  document.getElementById("execution-feedback-details").open = true;
 
   try {
     currentOrch.recordAttempt(code);
+    currentOrch.state.user_code = code;
+    currentOrch.metrics.code_submissions = (Number(currentOrch.metrics.code_submissions) || 0) + 1;
     currentOrch.recordReengagement();
 
     // Roda no Pyodide
     const res = await runner.run(code, currentOrch.problem.function_name, currentOrch.problem.tests);
 
-    // Renderiza resultados de saída
+    // A saída do console pertence somente ao primeiro caso de teste.
     execResults.style.display = "flex";
-    stdoutOutput.innerText = res.stdout.trim() || "(saída vazia)";
+    stdoutOutput.innerText = currentOrch.problem.function_name
+      ? "A função devolve valores com return. Veja o resultado de cada caso abaixo."
+      : (res.stdout || "(sem saída no primeiro teste)");
 
     // Tratamento de Erros de Execução/Compilação
     if (res.error) {
@@ -596,7 +819,8 @@ btnSubmitCode.addEventListener("click", async () => {
 
       // Tutor explica erro
       const errorExplanation = await tutor.explainError(res.error, code, currentOrch.buildContext());
-      errorAiHelp.innerHTML = `<strong>Explicação do Professor:</strong><br>${errorExplanation}`;
+      errorAiHelp.innerHTML = `<strong>Explicação do Professor:</strong><br>${escapeHtml(errorExplanation)}`;
+      loadChatHistory(currentOrch.problem.id);
 
       currentOrch.state.completed = false;
       document.getElementById("tests-wrapper").style.display = "none";
@@ -604,53 +828,87 @@ btnSubmitCode.addEventListener("click", async () => {
       errorWrapper.style.display = "none";
       document.getElementById("tests-wrapper").style.display = "block";
 
-      // Renderiza lista de testes
-      testListContainer.innerHTML = "";
-      let allTestsPassed = true;
+      // Cada caso deixa explícita a entrada, o resultado e a saída esperada.
+      // Saídas geradas pelo aluno entram no DOM como texto, nunca como HTML.
+      testListContainer.replaceChildren();
+      const cases = Array.isArray(res.test_results) ? res.test_results : [];
+      const passed = cases.filter(t => t.ok).length;
+      const allTestsPassed = cases.length > 0 && passed === cases.length;
 
-      res.test_results.forEach(t => {
+      const summary = document.getElementById("test-summary");
+      summary.className = "execution-summary " + (allTestsPassed ? "ok" : "partial");
+      summary.textContent = allTestsPassed
+        ? `Todos os ${cases.length} testes passaram. Excelente!`
+        : `${passed} de ${cases.length} testes passaram. Seu código precisa funcionar com entradas diferentes.`;
+
+      cases.forEach(t => {
         const item = document.createElement("div");
-        item.className = `test-item ${t.ok ? 'passed' : 'failed'}`;
-
+        item.className = `test-item ${t.ok ? "passed" : "failed"}`;
         const details = document.createElement("div");
-        details.innerHTML = `<strong>Caso ${t.id}:</strong> ${t.error ? 'Exceção gerada' : `Obtido: <code>${t.result}</code> | Esperado: <code>${t.expected}</code>`}`;
+        details.className = "test-case-text";
 
+        const head = document.createElement("strong");
+        head.textContent = "Caso " + t.id;
+        const entry = document.createElement("div");
+        entry.className = "test-case-input";
+        entry.textContent = "Entrada fornecida: " + (t.input ?? "—");
+
+        const values = document.createElement("div");
+        values.className = "test-case-values";
+        const expected = document.createElement("span");
+        expected.textContent = "Esperado: ";
+        const expectedCode = document.createElement("code");
+        expectedCode.textContent = String(t.expected ?? "");
+        expected.appendChild(expectedCode);
+        const received = document.createElement("span");
+        received.textContent = "Obtido: ";
+        const receivedCode = document.createElement("code");
+        receivedCode.textContent = t.result === null || t.result === undefined
+          ? "(sem retorno)" : String(t.result);
+        received.appendChild(receivedCode);
+        values.append(expected, received);
+        details.append(head, entry, values);
+
+        if (t.error) {
+          const err = document.createElement("div");
+          err.className = "test-case-error";
+          err.textContent = "Erro Python: " + t.error;
+          details.appendChild(err);
+        }
         const badge = document.createElement("span");
-        badge.className = `test-badge ${t.ok ? 'pass' : 'fail'}`;
-        badge.innerText = t.ok ? "PASS" : "FAIL";
-
-        item.appendChild(details);
-        item.appendChild(badge);
+        badge.className = `test-badge ${t.ok ? "pass" : "fail"}`;
+        badge.textContent = t.ok ? "PASSOU" : "REVER";
+        item.append(details, badge);
         testListContainer.appendChild(item);
-
-        if (!t.ok) allTestsPassed = false;
       });
 
-      // Se falhou nos testes, IA dá dicas sobre falha
       if (!allTestsPassed) {
+        // Feedback determinístico, sem uma chamada Gemini automática a cada falha.
+        // A ajuda socrática permanece disponível ao clicar em "Pergunte ao professor".
         testAiHelp.style.display = "block";
         testAiHelp.className = "feedback-box warning";
-        testAiHelp.innerHTML = "<em>Professor analisando as falhas...</em>";
-
-        const testHint = await tutor.ask(
-          "Me ajude a entender por que meus casos de teste falharam e o que verificar no código (sem dar a resposta pronta).",
-          currentOrch.buildContext(),
-          code
-        );
-        testAiHelp.innerHTML = `<strong>Dica do Professor:</strong><br>${testHint}`;
-
+        testAiHelp.textContent = res.input_overwritten && !currentOrch.problem.function_name
+          ? "Atenção: você atribuiu um valor a 'entrada' no próprio código. O avaliador já define essa variável com um valor diferente em cada caso. Remova a linha 'entrada = ...' e use o valor recebido."
+          : "Compare a entrada, o resultado esperado e o obtido em cada caso. Tente localizar qual parte do seu raciocínio não funciona para todos os valores. Se precisar, use Dica ou Pergunte ao professor.";
         currentOrch.state.completed = false;
       } else {
         testAiHelp.style.display = "none";
         currentOrch.state.completed = true;
-        
-        // Registrar sucesso no localStorage
-        let completedStr = localStorage.getItem('completed_exercises');
-        let completedList = completedStr ? JSON.parse(completedStr) : [];
-        if (!completedList.includes(currentOrch.problem.id)) {
-            completedList.push(currentOrch.problem.id);
-            localStorage.setItem('completed_exercises', JSON.stringify(completedList));
+
+        // Salva antes de exibir o botão Próximo Desafio, evitando perder
+        // a conclusão caso o aluno navegue imediatamente para outra página.
+        await persistExercise(currentOrch);
+        // O banco atualiza o desbloqueio do próximo desafio após a conclusão.
+        try {
+          await TutorAccess.refresh();
+          populateExercises(currentOrch.problem.module);
+          selectExercise.value = currentOrch.problem.id;
+        } catch (error) {
+          console.error("Falha ao atualizar desbloqueios:", error);
         }
+
+        // A conclusão é persistida no Supabase ao terminar esta submissão.
+        // ATENÇÃO: o resultado de testes do navegador não é prova acadêmica antifraude.
 
         // Achar próximo exercício do módulo
         let nextExerciseId = null;
@@ -689,12 +947,13 @@ btnSubmitCode.addEventListener("click", async () => {
     }
   } catch (e) {
     console.error(e);
-    feedbackCode.style.display = "block";
+    learningUI.setFeedbackVisible("code", true);
     feedbackCode.innerText = `Erro interno ao rodar o Python: ${e.message}`;
   } finally {
     btnSubmitCode.disabled = false;
     pyodideSpinner.style.display = "none";
     updateUIState();
+    scheduleProgressSave();
   }
 });
 
@@ -703,34 +962,78 @@ btnSubmitCode.addEventListener("click", async () => {
 
 // Loop periódico para contar o Tempo de Inatividade (IT)
 setInterval(() => {
-  if (currentOrch && !currentOrch.state.completed && screenApp.classList.contains("active")) {
+  // Inatividade é um indício operacional (não mede tempo total de estudo).
+  // Não contabilizar abas ocultas nem o tempo gasto na revisão em blocos.
+  const reviewOpen = Boolean(document.querySelector(".tutor-review-dialog[open]"));
+  if (currentOrch && !currentOrch.state.completed && screenApp.classList.contains("active") &&
+      !document.hidden && !reviewOpen) {
     const elapsedSinceInteraction = Date.now() - lastInteractionTime;
-    // Se o aluno está sem interagir por mais de 5 segundos, incrementa o tempo de inatividade
-    if (elapsedSinceInteraction > 5000) {
+    // Após 60s sem clique, digitação ou rolagem, incrementa tempo inativo observado.
+    if (elapsedSinceInteraction > 60000) {
       currentOrch.metrics.idle_time_seconds += 1;
       updateUIState();
+      if (currentOrch.metrics.idle_time_seconds % 20 === 0) {
+        scheduleProgressSave();
+      }
     }
+  }
+  const dialogActive = Boolean(document.querySelector(".tutor-review-dialog[open]"));
+  if (
+    currentOrch && !currentOrch.state.completed &&
+    currentOrch.state.mode === "codigo" &&
+    !dialogActive &&
+    ideaNudgeElement?.hidden &&
+    !ideaNudgesShown.has(currentOrch.problem.id) &&
+    Date.now() - lastInteractionTime >= 90000
+  ) {
+    ideaNudgesShown.add(currentOrch.problem.id);
+    ideaNudgeElement.hidden = false; // convite discreto, não troca de aba
   }
 }, 1000);
 
-// Init
-initApiKey();
-populateExercises();
-
-// Suporte para carregar exercício específico via parâmetro da URL (?exercise=ID)
-const urlParams = new URLSearchParams(window.location.search);
-const exerciseParam = urlParams.get('exercise');
-if (exerciseParam && problems.some(p => p.id === exerciseParam)) {
-  loadActiveExercise(exerciseParam);
-  if (selectExercise) {
-    selectExercise.value = exerciseParam;
+// Init: lê primeiro os dados da conta, depois monta a interface.
+(async function startTutor() {
+  // A proteção do banco também é aplicada ao carregar um link direto.
+  if (!await TutorAuth.requireLogin()) return;
+  try {
+    await TutorProgress.init();
+    await TutorAccess.init();
+    // Instrumentação da pesquisa permanece desligada no fluxo de estudo.
+    // A coleta só pode ser reativada em implantação acadêmica específica.
+  } catch (error) {
+    console.error("Erro ao carregar progresso:", error);
+    showToast("Falha ao carregar progresso ou permissões. Execute developer-access.sql, se ainda não fez.");
+    return;
   }
-} else if (problems.length > 0) {
-  loadActiveExercise(problems[0].id);
-}
+  // Por usuário e por navegador: somente a primeira abertura recomenda começar
+  // pela ideia. Depois, o fluxo normal abre direto no editor Python.
+  const authInfo = await TutorAuth.client.auth.getUser();
+  const signedInId = authInfo.data?.user?.id;
+  if (signedInId) {
+    const firstVisitKey = "tutor_first_visit_intro_" + signedInId;
+    showIdeaOnFirstVisit = localStorage.getItem(firstVisitKey) !== "1";
+    if (showIdeaOnFirstVisit) localStorage.setItem(firstVisitKey, "1");
+  }
 
-// Inicializa o Pyodide em background
-runner.init().catch(() => { });
+  populateExercises();
+  if (TutorAccess.isDeveloper()) {
+    const badge = document.createElement("div");
+    badge.textContent = "Modo desenvolvedora · Todos os exercícios liberados";
+    badge.className = "text-xs font-bold text-sky-800 bg-sky-50 border border-sky-200 rounded-xl px-4 py-2 my-2";
+    const anchor = document.querySelector(".sidebar-content") || document.body;
+    anchor.prepend(badge);
+  }
+  const urlParams = new URLSearchParams(window.location.search);
+  const exerciseParam = urlParams.get("exercise");
+  if (exerciseParam && problems.some(p => p.id === exerciseParam)) {
+    loadActiveExercise(exerciseParam);
+    if (selectExercise) selectExercise.value = exerciseParam;
+  } else if (problems.length > 0) {
+    loadActiveExercise(problems[0].id);
+  }
+  // Não inicializar Pyodide enquanto o popup de revisão estiver aberto.
+  // A inicialização pesada podia bloquear os primeiros cliques no quiz.
+  // CodeRunner.run() já carrega o interpretador sob demanda quando necessário.
+})();
 
-// Registra evento de atualização da API Key por fallback (.env)
-window.addEventListener('apiKeyReady', initApiKey);
+// A chave Gemini é exclusiva da Supabase Edge Function.
