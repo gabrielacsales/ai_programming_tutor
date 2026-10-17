@@ -22,19 +22,20 @@ ATENÇÃO: implementado apenas na branch de testes; NENHUMA migração foi execu
     on conflict(user_id) do nothing;
 
 5. Abra a nova branch localmente com python -m http.server 8000. Acesse http://localhost:8000/painel-pesquisa.html com sua conta. Inicialmente deve mostrar zero participantes. Outra conta deve receber Acesso restrito.
-6. Acesse http://localhost:8000/pesquisa.html: mesmo marcando as caixas o servidor deve bloquear inscrição, pois o recrutamento está FECHADO.
+6. Acesse http://localhost:8000/pesquisa.html: o botão de inscrição estará DESATIVADO e o servidor também bloqueará a adesão enquanto o recrutamento estiver FECHADO ou os dados institucionais estiverem incompletos.
 7. Substitua o rascunho do termo por TCLE/protocolo aprovado e inclua identificação/contato da pesquisadora, orientador(a), instituição, riscos, hipóteses legais, procedimentos, armazenamento, prazo de retenção, acesso, retirada e gravação separada para entrevista quando usada. Obtenha orientação formal quanto às exigências éticas.
-8. SOMENTE num ambiente de teste, com contas fictícias, abra temporariamente no SQL Editor:
+8. Preencha o texto integral do TCLE institucional no Supabase antes de qualquer abertura. Ajuste somente no SQL Editor os campos institution, researcher_contact, retention_text, consent_text (>= 200 caracteres) e protocol_reference na tabela research_study_settings. O formulário buscará esses campos pelo RPC research_public_info e os mostrará ao participante. Nada disso deve conter email ou dados privados de participantes.
+9. SOMENTE num ambiente de teste, com contas fictícias, abra temporariamente no SQL Editor:
 
     update public.research_study_settings set enrollment_open=true,updated_at=now() where id=1;
 
    Após o teste, feche com enrollment_open=false. Não misture contas de teste e a amostra oficial.
-9. Teste inscrição fictícia > pré > exercícios/dicas/código/Gemini > pós > questionário > exports > retirada de consentimento. Confirme tabelas research_participants, research_events, research_assessments e research_surveys no Supabase.
+10. Teste inscrição fictícia > pré > exercícios/dicas/código/Gemini > pós > questionário > exports > retirada de consentimento. Confirme tabelas research_participants, research_events, research_assessments e research_surveys no Supabase.
 10. Somente depois de concluir validações, autorizações e plano metodológico decida a data de abertura real.
 
 ## Indicadores disponíveis
 - Eventos observacionais: exercício aberto, revisão concluída/pulada, dica consultada, código enviado, testes realizados (número de casos aprovados), conclusão observada, ideia registrada, pergunta ao tutor, pedido direto bloqueado e intervalo de inatividade.
-- Servidor registra timestamp de cada evento. Eventos não sobrescrevem eventos anteriores.
+- Servidor registra timestamp de cada evento. Eventos não sobrescrevem eventos anteriores; o campo session_id permite agrupar ações de uma mesma abertura de exercício.
 - Progresso do exercício e histórico de conversas permanecem nas tabelas educacionais existentes.
 - Pré e pós: oito respostas A–D cada, únicas por conta e fase. Questionário: seis respostas Likert 1–5 + duas abertas opcionais.
 - Painel mostra códigos pseudônimos e agregações; nunca nome, e-mail, UUID, texto de código ou chats em exports de eventos.
