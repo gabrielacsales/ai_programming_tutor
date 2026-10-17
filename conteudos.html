@@ -155,7 +155,7 @@
 <script src="access-client.js"></script>
 <script src="progress-store.js"></script>
 <style>body{visibility:hidden}</style>
-<script>document.addEventListener("DOMContentLoaded",async()=>{if(await TutorAuth.requireCourseReady()){const header=document.querySelector(".sidebar-header")||document.querySelector("header");if(header){const btn=document.createElement("button");btn.textContent="Sair da conta";btn.type="button";btn.style.cssText="border:1px solid #cbd5e1;border-radius:10px;padding:9px 13px;background:white;color:#334155;font-size:12px;cursor:pointer";btn.addEventListener("click",()=>TutorAuth.logout());header.appendChild(btn);}}});</script>
+<script>document.addEventListener("DOMContentLoaded",async()=>{if(await TutorAuth.requireLogin()){const header=document.querySelector(".sidebar-header")||document.querySelector("header");if(header){const btn=document.createElement("button");btn.textContent="Sair da conta";btn.type="button";btn.style.cssText="border:1px solid #cbd5e1;border-radius:10px;padding:9px 13px;background:white;color:#334155;font-size:12px;cursor:pointer";btn.addEventListener("click",()=>TutorAuth.logout());header.appendChild(btn);}}});</script>
 </head>
 
 <body class="selection:bg-black selection:text-white relative min-h-screen">
@@ -184,10 +184,6 @@
         </a>
 
         <div class="flex flex-wrap justify-end items-center gap-3">
-          <a href="pesquisa.html" class="flex items-center gap-2 text-xs font-mono uppercase tracking-widest border border-slate-200 px-4 py-2 rounded-full hover:bg-slate-50 transition-all" aria-label="Participação voluntária na pesquisa do TCC">
-            <iconify-icon icon="solar:clipboard-text-bold-duotone" class="text-sm"></iconify-icon>
-            <span>Pesquisa TCC</span>
-          </a>
           <a href="perfil.html" class="flex items-center gap-2 text-xs font-mono uppercase tracking-widest border border-sky-200 bg-sky-50 text-sky-800 px-4 py-2 rounded-full hover:bg-sky-100 transition-all" aria-label="Ver meu perfil de estudante e estatísticas">
             <iconify-icon icon="solar:user-rounded-bold-duotone" class="text-sm"></iconify-icon>
             <span>Meu perfil</span>
@@ -918,7 +914,7 @@
   <!-- JS Helpers -->
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      if (!await TutorAuth.requireCourseReady()) return;
+      if (!await TutorAuth.requireLogin()) return;
       // Carrega o progresso da conta antes de desbloquear exercícios.
       try {
         await TutorProgress.init();
