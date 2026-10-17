@@ -15,6 +15,7 @@ ATENÇÃO: implementado apenas na branch de testes; NENHUMA migração foi execu
 1. Prefira um projeto Supabase de teste/staging separado; faça backup antes de qualquer migração no projeto existente.
 2. Verifique que schema.sql, developer-access.sql e curriculum-v2.sql já foram aplicados. Não execute novamente schema.sql num projeto existente.
 3. Supabase > SQL Editor > New query: copie e execute o arquivo supabase/research-study.sql. O cadastro da pesquisa inicia FECHADO no banco.
+3a. Em seguida execute supabase/senac-onboarding.sql. Ele configura a identificação Senac e exige o pré-teste inicial (educacional) antes de abrir os exercícios para alunos que se identificaram como estudantes do Senac. Veja TESTE_FLUXO_SENAC.md.
 4. No SQL Editor, autorize somente a sua conta como pesquisadora, substituindo SEU_EMAIL_AQUI no seu computador (não publique e-mail em arquivos públicos):
 
     insert into public.researcher_accounts(user_id)
@@ -65,3 +66,9 @@ Guia ANPD: https://www.gov.br/anpd/pt-br/centrais-de-conteudo/materiais-educativ
 Resolução CNS 510/2016: https://www.gov.br/conselho-nacional-de-saude/pt-br/atos-normativos/resolucoes/2016/resolucao-no-510.pdf/view
 
 Consultar orientador(a) e instituição sobre aplicabilidade concreta e requisitos de aprovação/dispensa ética antes de recrutar pessoas.
+
+## Erro de dashboard: função não encontrada
+
+Se o navegador exibir “Could not find the function public.research_dashboard without parameters in the schema cache” (PGRST202), **isso não confirma problema de autorização**: primeiro confira que research-study.sql foi executado com sucesso no mesmo projeto Supabase que o site usa. Confirme em pg_proc se a função existe e então execute `notify pgrst, 'reload schema';` se necessário. Só depois autorize sua conta em researcher_accounts. A conta developer não basta. A aplicação não executa migrações por push no GitHub.
+
+Para alunos Senac, a escolha no login e o pré-teste inicial são requisitos de navegação, mas participar da pesquisa continua voluntário. Quando a coleta estiver fechada, o diagnóstico é apenas educacional e suas respostas **não** poderão ser transformadas retroativamente em amostra de pesquisa. Nunca recrute antes de aprovação/protocolo final.
