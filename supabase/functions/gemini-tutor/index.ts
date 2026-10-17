@@ -208,8 +208,12 @@ Deno.serve(async (req: Request) => {
       if (!reply) return json({ error: "A IA não retornou texto. Tente novamente." }, 502);
       // Se o modelo retornar código ou uma receita completa, preferir um convite
       // de raciocínio a expor uma solução. As Dicas/Exemplos seguem separadas.
-      if (mode === "ask" && looksLikeReadySolution(reply)) {
-        console.warn("Resposta de tutoria excessivamente direta bloqueada.");
+      if (mode === "ask" && (
+        looksLikeReadySolution(reply) ||
+        !reply.includes("?") ||
+        reply.split(/\s+/).length > 95
+      )) {
+        console.warn("Resposta de tutoria pouco socrática ou direta demais; usando orientação segura.");
         reply = hasConversation
           ? "Quero entender melhor sua tentativa: qual parte do seu raciocínio você já testou e onde começou a dúvida?"
           : "Para começarmos pelo seu raciocínio, quais informações o exercício fornece e o que você espera obter ao final?";
