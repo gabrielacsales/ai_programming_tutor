@@ -452,6 +452,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
   <link rel="stylesheet" href="code-editor.css">
+  <link rel="stylesheet" href="learning-ui.css" />
 </head>
 
 <body class="selection:bg-black selection:text-white relative min-h-screen">
@@ -549,6 +550,7 @@
               </div>
             </div>
             <div class="workspace-meta flex items-center gap-3">
+              <button type="button" id="btn-feature-tour" class="feature-tour-launch">? Como usar</button>
               <span
                 class="badge-tag bg-slate-100 text-[9px] text-slate-500 font-bold uppercase py-1 px-3 rounded-full border border-slate-200/60">Socrático</span>
               <span
@@ -574,9 +576,11 @@
               class="exercise-tab cursor-pointer pb-3 text-sm font-bold text-slate-400 border-b-[3px] border-transparent -mb-[2px] transition-all hover:text-black flex items-center gap-2 focus:outline-none"
               id="tab-exercise-examples" data-target="view-exercise-examples">
               <iconify-icon icon="solar:code-file-bold-duotone" class="text-base"></iconify-icon>
-              <span>Exemplos do Professor</span>
+              <span>Exemplos Práticos</span>
             </button>
           </div>
+
+          <button type="button" class="feature-tip feature-review-tip" data-tour-step="3" aria-label="Dica: resumo e exemplos práticos" title="Como revisar o tema?">?</button>
 
           <!-- VIEW 1: Desafio (Conteúdo original) -->
           <div id="view-exercise-statement" class="flex flex-col gap-6 w-full">
@@ -591,7 +595,12 @@
                   <span id="exercise-status-text">Status: Em andamento</span>
                 </div>
               </div>
-              <div class="problem-statement text-slate-600 text-sm md:text-base leading-relaxed font-sans" id="problem-statement">
+              <button type="button" id="btn-toggle-statement" class="statement-toggle" aria-controls="problem-statement-content" aria-expanded="true">
+                <span><iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon> Enunciado</span>
+                <span id="statement-toggle-label">Recolher</span>
+              </button>
+              <div id="problem-statement-content">
+              <div class="problem-statement statement-markdown text-slate-700 text-sm md:text-base leading-relaxed font-sans" id="problem-statement">
                 Enunciado do problema será carregado aqui...
               </div>
 
@@ -614,6 +623,7 @@
                   </ul>
                 </div>
               </div>
+              </div><!-- /problem-statement-content -->
             </div>
 
             <!-- Tab Selector Mode -->
@@ -626,7 +636,8 @@
               <div
                 class="mode-tab cursor-pointer text-sm font-bold text-slate-400 border-b-[3px] border-transparent pb-3 -mb-[2px] transition-all hover:text-black"
                 id="tab-desc" data-mode="desc">
-                Descrever ideia
+                Escreva com suas palavras
+                <button type="button" class="feature-tip" data-tour-step="0" aria-label="Dica: descreva sua ideia" title="Como conferir se sua ideia faz sentido?">?</button>
               </div>
             </div>
 
@@ -654,16 +665,18 @@
 
                 <button
                   class="px-5 py-3 rounded-xl border border-slate-200 bg-white text-xs font-bold uppercase tracking-wider text-slate-600 hover:border-black transition-colors"
-                  id="btn-hint-desc">💡 Hint</button>
+                  id="btn-hint-desc">💡 Dica</button>
+                <button type="button" class="feature-tip" data-tour-step="1" aria-label="Dica: dicas graduais" title="Como funcionam as dicas?">?</button>
                 <button
                   class="px-5 py-3 rounded-xl border border-slate-200 bg-white text-xs font-bold uppercase tracking-wider text-slate-600 hover:border-black transition-colors"
-                  id="btn-ask-tutor-desc">👨‍🏫 Pergunte ao professor</button>
+                  id="btn-ask-tutor-desc">👨‍🏫 Professor Socrático</button>
+                <button type="button" class="feature-tip" data-tour-step="2" aria-label="Dica: professor socrático" title="Como usar o professor?">?</button>
               </div>
 
-              <!-- Feedback Dialogue Idea -->
-              <div
-                class="feedback-box bg-sky-50/80 border border-sky-100 rounded-2xl p-5 text-sm leading-relaxed text-sky-800"
-                id="feedback-desc" style="display: none;"></div>
+              <details class="feedback-disclosure" id="feedback-panel-desc" style="display: none;" open>
+                <summary>Feedback sobre sua ideia <span class="feedback-disclosure-action">Recolher / expandir</span></summary>
+                <div class="feedback-box bg-sky-50/80 border border-sky-100 rounded-2xl p-5 text-sm leading-relaxed text-sky-800" id="feedback-desc"></div>
+              </details>
 
               <!-- Socratic Ask Section Idea -->
               <div class="accordion-item border border-sky-200 rounded-2xl overflow-hidden bg-white shadow-sm"
@@ -736,19 +749,21 @@
 
                 <button
                   class="px-5 py-3 rounded-xl border border-slate-200 bg-white text-xs font-bold uppercase tracking-wider text-slate-600 hover:border-black transition-colors"
-                  id="btn-hint-code">💡 Hint</button>
+                  id="btn-hint-code">💡 Dica</button>
+                <button type="button" class="feature-tip" data-tour-step="1" aria-label="Dica: dicas graduais" title="Como funcionam as dicas?">?</button>
                 <button
                   class="px-5 py-3 rounded-xl border border-slate-200 bg-white text-xs font-bold uppercase tracking-wider text-slate-600 hover:border-black transition-colors"
-                  id="btn-ask-tutor-code">👨‍🏫 Pergunte ao professor</button>
+                  id="btn-ask-tutor-code">👨‍🏫 Professor Socrático</button>
+                <button type="button" class="feature-tip" data-tour-step="2" aria-label="Dica: professor socrático" title="Como usar o professor?">?</button>
                 <span class="text-xs text-slate-400 font-mono ml-auto">Dica: use `print()` para ver saídas no console.</span>
               </div>
 
               <div id="code-input-notice" class="code-input-notice" role="note"></div>
 
-              <!-- Feedback Dialogue Code -->
-              <div
-                class="feedback-box bg-red-50/80 border border-red-100 rounded-2xl p-5 text-sm leading-relaxed text-red-800"
-                id="feedback-code" style="display: none;"></div>
+              <details class="feedback-disclosure" id="feedback-panel-code" style="display: none;" open>
+                <summary>Feedback do código <span class="feedback-disclosure-action">Recolher / expandir</span></summary>
+                <div class="feedback-box bg-red-50/80 border border-red-100 rounded-2xl p-5 text-sm leading-relaxed text-red-800" id="feedback-code"></div>
+              </details>
 
               <!-- Socratic Ask Section Code -->
               <div class="accordion-item border border-sky-200 rounded-2xl overflow-hidden bg-white shadow-sm"
@@ -774,10 +789,8 @@
               <!-- Execution Results -->
               <div class="result-container border-t-2 border-dashed border-slate-200 pt-6 mt-2 flex flex-col gap-4"
                 id="execution-results" style="display: none;">
-                <h3 class="text-lg font-bold font-heading text-black flex items-center gap-2">
-                  <iconify-icon icon="solar:programming-bold-duotone" class="text-slate-400"></iconify-icon>
-                  Resultado do código
-                </h3>
+                <details id="execution-feedback-details" class="execution-feedback-disclosure" open>
+                <summary class="text-lg font-bold font-heading text-black"><iconify-icon icon="solar:programming-bold-duotone" class="text-slate-400"></iconify-icon> Resultado do código <span class="feedback-disclosure-action">Recolher / expandir</span></summary>
 
                 <!-- Stdout console -->
                 <div id="console-wrapper" class="space-y-1.5">
@@ -809,6 +822,7 @@
                     class="feedback-box bg-amber-50 border border-amber-100 rounded-2xl p-5 text-sm leading-relaxed text-amber-800"
                     id="test-ai-help" style="display: none;"></div>
                 </div>
+                </details><!-- /execution-feedback-details -->
               </div>
             </div>
 
@@ -903,12 +917,12 @@
             </div>
           </div>
 
-          <!-- VIEW 3: Exemplos do Professor -->
+          <!-- VIEW 3: Exemplos Práticos -->
           <div id="view-exercise-examples" class="hidden flex flex-col gap-6 w-full">
             <div class="bg-white border border-slate-200 p-6 md:p-8 rounded-2xl shadow-sm space-y-4">
               <h2 class="text-xl md:text-2xl font-bold font-heading text-black tracking-tight flex items-center gap-2">
                 <iconify-icon icon="solar:code-file-bold-duotone" class="text-primary"></iconify-icon>
-                Exemplos do Professor
+                Exemplos Práticos
               </h2>
               <div class="text-slate-600 text-sm md:text-base leading-relaxed font-sans" id="exercise-examples-content">
                 <!-- Populado dinamicamente via JS -->
@@ -974,6 +988,7 @@
   <script src="tutor.js"></script>
   <script src="progress-store.js"></script>
   <script src="research-collector.js"></script>
+  <script src="learning-ui.js"></script>
   <script src="app.js"></script>
 </body>
 
