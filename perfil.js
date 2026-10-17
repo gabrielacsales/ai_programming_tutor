@@ -123,6 +123,99 @@
     return card;
   }
 
+
+  // Para o dashboard usamos somente agregações reais dos registros atuais.
+  // Sem eventos históricos de conclusão, seria incorreto desenhar linha de evolução temporal.
+  function summarizeModules(stat, lessonCatalog = curriculum) {
+    return modules.map((section) => {
+      const lessons = lessonCatalog.filter((p) => p.module === section.key);
+      const rows = lessons.map((p) => stat.byExercise.get(p.id)).filter(Boolean);
+      return {
+        ...section,
+        total: lessons.length,
+        completed: rows.filter((row) => row.completed === true).length,
+        hints: rows.reduce((sum, row) => sum + metric(row, "hints_used"), 0),
+        submissions: rows.reduce((sum, row) => sum + metric(row, "code_submissions"), 0)
+      };
+    });
+  }
+
+  function makeChartElement(tag, className, text = null) {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    if (text !== null) element.textContent = String(text);
+    return element;
+  }
+
+  function renderModuleGraph(summary) {
+    const chart = get("chart-modules");
+    chart.replaceChildren();
+    summary.forEach((entry) => {
+      const row = makeChartElement("div", "module-chart-row");
+      const label = makeChartElement("span", "module-chart-label", entry.label);
+      const track = makeChartElement("div", "module-chart-track");
+      const fill = makeChartElement("span", "module-chart-fill");
+      const ratio = entry.total > 0 ? entry.completed / entry.total * 100 : 0;
+      fill.style.width = ratio + "%";
+      track.appendChild(fill);
+      track.setAttribute("role", "img");
+      track.setAttribute("aria-label", entry.label + ": " + entry.completed + " de " + entry.total + " concluídos");
+      const value = makeChartElement("strong", "module-chart-value", entry.completed + "/" + entry.total);
+      row.append(label, track, value);
+      chart.appendChild(row);
+    });
+  }
+
+  function renderActivityGraph(summary) {
+    const chart = get("chart-activity");
+    chart.replaceChildren();
+    const maxCount = Math.max(0, ...summary.map((entry) => Math.max(entry.hints, entry.submissions)));
+    summary.forEach((entry) => {
+      const row = makeChartElement("div", "activity-row");
+      const label = makeChartElement("span", "activity-module-label", entry.label);
+      const bars = makeChartElement("div", "activity-row-bars");
+      const datasets = [
+        { label: "Dicas", count: entry.hints, style: "hint" },
+        { label: "Envios de código", count: entry.submissions, style: "submission" }
+      ];
+      datasets.forEach((dataset) => {
+        const line = makeChartElement("div", "activity-bar-line");
+        const track = makeChartElement("div", "activity-bar-track");
+        const fill = makeChartElement("div", "activity-bar-fill" +
+          (dataset.style === "submission" ? " submission" : ""));
+        fill.style.width = (maxCount > 0 ? dataset.count / maxCount * 100 : 0) + "%";
+        track.setAttribute("role", "img");
+        track.setAttribute("aria-label", entry.label + ", " + dataset.label + ": " + dataset.count);
+        track.appendChild(fill);
+        const value = makeChartElement("span", "activity-bar-value", dataset.count);
+        line.append(track, value);
+        bars.appendChild(line);
+      });
+      row.append(label, bars);
+      chart.appendChild(row);
+    });
+    if (maxCount === 0) {
+      chart.appendChild(makeChartElement("p", "activity-empty",
+        "Ainda não há dicas ou envios registrados nesta versão da trilha."));
+    }
+  }
+
+  function renderCharts(stat) {
+    const percent = Math.max(0, Math.min(100, stat.percentage));
+    const remaining = Math.max(0, stat.total - stat.completed);
+    const donut = get("chart-donut");
+    donut.style.background =
+      "conic-gradient(var(--blue) 0% " + percent + "%, #ececee " + percent + "% 100%)";
+    donut.setAttribute("aria-label", stat.completed + " de " + stat.total +
+      " exercícios concluídos; " + remaining + " restantes.");
+    setText("chart-donut-number", percent + "%");
+    setText("chart-done-count", stat.completed);
+    setText("chart-remaining-count", remaining);
+    const summary = summarizeModules(stat);
+    renderModuleGraph(summary);
+    renderActivityGraph(summary);
+  }
+
   function render(data) {
     const user = data.user;
     const name = String(data.profile?.display_name || user.user_metadata?.display_name || "")
@@ -153,6 +246,7 @@
     get("overall-progressbar").setAttribute("aria-valuemax", String(stat.total));
     get("overall-progressbar").setAttribute("aria-valuenow", String(stat.completed));
     get("overall-fill").style.width = stat.percentage + "%";
+    renderCharts(stat);
 
     const list = get("module-grid");
     list.replaceChildren();
@@ -223,5 +317,5 @@
   });
 
   // Utilitário puro exposto para testes do cálculo, sem divulgar dados pessoais.
-  window.TutorProfileStats = { compileStatistics };
+  window.TutorProfileStats = { compileStatistics, summarizeModules };
 })();
