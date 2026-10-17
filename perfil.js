@@ -5,6 +5,8 @@
   "use strict";
 
   const VERSION = 2;
+  // problems.js declara `const problems` no escopo global lexical, não em window.
+  const curriculum = typeof problems !== "undefined" && Array.isArray(problems) ? problems : [];
   const modules = [
     { key: 1, label: "Módulo 1", topic: "Variáveis e operações" },
     { key: 2, label: "Módulo 2", topic: "Condicionais" },
@@ -14,14 +16,14 @@
     { key: "final", label: "Desafio final", topic: "Integração dos conteúdos" }
   ];
 
-  const byId = new Map((window.problems || []).map((problem) => [problem.id, problem]));
+
 
   function metric(row, name) {
     const num = Number(row?.metrics?.[name] ?? 0);
     return Number.isFinite(num) ? Math.max(0, num) : 0;
   }
 
-  function compileStatistics(rows, lessonCatalog = window.problems || []) {
+  function compileStatistics(rows, lessonCatalog = curriculum) {
     const known = new Set(lessonCatalog.map((p) => p.id));
     const current = (rows || []).filter((row) =>
       known.has(row.exercise_id) && Number(row?.metrics?.curriculum_version) === VERSION
@@ -72,7 +74,7 @@
   }
 
   function buildModuleCard(section, records) {
-    const lessons = (window.problems || []).filter((p) => p.module === section.key);
+    const lessons = (curriculum).filter((p) => p.module === section.key);
     const solved = lessons.filter((p) => records.get(p.id)?.completed === true).length;
     const card = document.createElement("article");
     card.className = "module-card";
@@ -153,7 +155,7 @@
     for (const item of modules) list.appendChild(buildModuleCard(item, stat.byExercise));
 
     const available = Array.isArray(data.access?.unlocked) ? new Set(data.access.unlocked) : null;
-    const next = (window.problems || []).find((p) =>
+    const next = (curriculum).find((p) =>
       !stat.byExercise.get(p.id)?.completed && (!available || available.has(p.id))
     );
     get("continue-link").href = next && available
