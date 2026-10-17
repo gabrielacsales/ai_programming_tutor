@@ -13,8 +13,8 @@ Implementado na branch `feature/supabase-auth-and-database`, em `perfil.html`, `
 - Link **Meu perfil** na página de módulos e na barra lateral de exercícios.
 - Logo idêntica à página `conteudos.html`: `solar:infinity-bold` via Iconify, com o mesmo ícone escuro e interação.
 - Redesign seguindo as referências `design_system5.html` e `design_system11.html` enviadas pela usuária: branco e grafite, bordas zinc, etiquetas JetBrains Mono, títulos grandes, microinterações discretas e azul IA Tutor como cor funcional.
-- **Três gráficos reais sem bibliotecas extras:** rosca de concluídos/restantes, barra horizontal de concluídos por módulo e barras comparativas de dicas/envios de código por módulo. O eixo dos envios/dicas é compartilhado entre os módulos.
-- Os gráficos têm rótulos e contagens acessíveis, inclusive quando um usuário ainda não iniciou a trilha. Não há gráfico de evolução por dia porque a base atual não guarda os eventos históricos necessários.
+- **Três gráficos reais sem bibliotecas extras:** rosca de concluídos/restantes, barras de conclusão por módulo e gráfico de **linha temporal com interações com o tutor por dia nos últimos 14 dias**. O gráfico 03 usa a data de criação das mensagens do aluno.
+- Os gráficos têm rótulos e contagens acessíveis, inclusive quando um usuário ainda não iniciou a trilha. A evolução diária de **mensagens do professor** é possível porque `chat_messages.created_at` registra cada evento. Ainda **não** existe histórico suficiente para reconstruir a evolução diária dos exercícios concluídos.
 - Botão **Sair**, com sessão Supabase.
 
 As consultas filtram a conta autenticada e as tabelas têm RLS. As métricas usam apenas registros com `metrics.curriculum_version=2` e o histórico Gemini com `chat_messages.curriculum_version=2`. Usuários não visualizam dados de terceiros.
@@ -27,7 +27,7 @@ As consultas filtram a conta autenticada e as tabelas têm RLS. As métricas usa
 4. Na conta desenvolvedora, todos os exercícios podem estar liberados, mas só os concluídos devem entrar no contador.
 5. Na conta aluno nova, espere `0 de 16`, `0%`, nenhuma dica e nenhum envio.
 6. Execute um exercício, use uma dica e registre uma pergunta ao tutor; volte ao perfil e recarregue para conferir os números.
-7. Confira os gráficos: o gráfico de rosca deve mostrar exatamente concluídos / 16, as barras de conclusão devem seguir os cinco módulos e o desafio final, e as barras de dica/envio devem corresponder às métricas por módulo (inclusive zero).
+7. Confira os gráficos: o gráfico de rosca deve mostrar exatamente concluídos / 16; as barras de conclusão devem seguir os cinco módulos e o desafio final; o **gráfico 03** deve exibir a contagem diária de mensagens enviadas ao tutor nos últimos 14 dias, incluindo os dias zerados. Ao enviar uma mensagem ao tutor, recarregue o perfil para conferir o crescimento no dia atual.
 8. Verifique que **Continuar aprendendo** leva a um exercício desbloqueado e ainda não concluído.
 9. Saia e entre em outra conta: confira que o primeiro aluno **não** aparece com dados, estatísticas ou e-mail da conta anterior.
 10. Em celular/janela estreita, confira se os cartões se reorganizam sem rolagem horizontal.
@@ -39,7 +39,7 @@ As consultas filtram a conta autenticada e as tabelas têm RLS. As métricas usa
 - **Progresso geral:** concluídos / 16, arredondado para porcentagem inteira.
 - **Dicas consultadas:** soma de `metrics.hints_used` dos exercícios atuais.
 - **Envios de código:** soma de `metrics.code_submissions` (inserido nesta melhoria). **Contagens anteriores não são reconstruídas retroativamente**.
-- **Interações com o tutor:** mensagens de papel `user` na tabela `chat_messages`, versão 2. Inclui perguntas e solicitações de análise/feedback feitas pela interface.
+- **Interações com o tutor:** mensagens de papel `user` na tabela `chat_messages`, versão 2. Inclui perguntas e solicitações de análise/feedback feitas pela interface. O big number mostra o acumulado desta versão; o gráfico 03 usa somente os últimos 14 dias e agrupa `created_at` por data local. O gráfico não mostra respostas da IA e não mede desempenho.
 - **Solicitações bloqueadas:** soma de `metrics.blocked_direct_answer_attempts`.
 - **Reengajamentos após bloqueios:** soma de `metrics.reengagement_after_block`.
 - **Inatividade registrada:** soma de `metrics.idle_time_seconds`, exibida em minutos e segundos; não é tempo total dedicado ao curso.
