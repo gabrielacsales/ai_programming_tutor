@@ -126,7 +126,7 @@ END; $$;
 
 CREATE OR REPLACE FUNCTION public.research_public_info()
 RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=''
-AS $$
+AS $research_info$
 SELECT jsonb_build_object(
  'ready', enrollment_open AND char_length(trim(institution))>=3
    AND char_length(trim(researcher_contact))>=6
@@ -136,11 +136,11 @@ SELECT jsonb_build_object(
  'institution',institution,'contact',researcher_contact,
  'retention',retention_text,'consent',consent_text,'protocol',protocol_reference
 ) FROM public.research_study_settings WHERE id=1;
-$$;
+$research_info$;
 
 CREATE OR REPLACE FUNCTION public.research_my_status()
 RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=''
-AS $$
+AS $research_status$
 SELECT jsonb_build_object(
   'enrolled', EXISTS(SELECT 1 FROM public.research_participants p WHERE p.user_id=(select auth.uid()) AND p.withdrawn_at IS NULL),
   'withdrawn', EXISTS(SELECT 1 FROM public.research_participants p WHERE p.user_id=(select auth.uid()) AND p.withdrawn_at IS NOT NULL),
@@ -149,7 +149,7 @@ SELECT jsonb_build_object(
   'post', EXISTS(SELECT 1 FROM public.research_assessments a WHERE a.user_id=(select auth.uid()) AND a.phase='post'),
   'survey', EXISTS(SELECT 1 FROM public.research_surveys s WHERE s.user_id=(select auth.uid()))
 ) WHERE (select auth.uid()) IS NOT NULL;
-$$;
+$research_status$;
 
 CREATE OR REPLACE FUNCTION public.research_submit_assessment(p_phase text,p_answers jsonb)
 RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER SET search_path=''
