@@ -51,6 +51,17 @@ ZHAI; WIBOWO; LI (2024). *The effects of over-reliance on AI dialogue systems on
 
 **Importante:** mantenha chaves Gemini apenas nos Secrets do Supabase; o progresso `completed` calculado no navegador não é válido como certificação ou medida antifraude sem validação no servidor.
 
+## Modo Pesquisa do TCC
+
+O projeto inclui um módulo opcional de pesquisa com consentimento, pré e pós-teste, questionário, telemetria temporal e dashboard pseudonimizado com exportação CSV. Requer a migração `supabase/research-study.sql` e revisão ética institucional. **O recrutamento está fechado por padrão**, inclusive no banco, e exige contato, termo aprovado, política de retenção e referência institucional antes da abertura.
+
+- Guia de implantação e limites: [SETUP_PESQUISA_TCC.md](SETUP_PESQUISA_TCC.md).
+- Formulário de pesquisa: [pesquisa.html](pesquisa.html).
+- Painel privado da pesquisadora: [painel-pesquisa.html](painel-pesquisa.html).
+- Análise local de escores pré/pós: [scripts/analyze_study.py](scripts/analyze_study.py). O gabarito é entregue em arquivo privado separado, nunca colocado no repositório.
+
+**Limitação essencial:** tentativas de código e eventos do navegador são observacionais; não constituem prova antifraude de execução Python. Os testes A/B são exploratórios e exigem piloto e supervisão acadêmica.
+
 ## Perfil do aluno
 
 A página autenticada [perfil.html](perfil.html) reúne nome, e-mail, ingresso no curso e indicadores reais da conta: exercícios concluídos, percentual, progresso por módulo, dicas, envios de código, interações com o professor e pedidos diretos bloqueados. Utiliza RLS Supabase e somente o **currículo 2**. A contagem de envios de código foi adicionada nesta versão e não recupera tentativas anteriores.
