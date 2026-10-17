@@ -1008,12 +1008,12 @@ setInterval(() => {
 // Init: lê primeiro os dados da conta, depois monta a interface.
 (async function startTutor() {
   // A proteção do banco também é aplicada ao carregar um link direto.
-  if (!await TutorAuth.requireCourseReady()) return;
+  if (!await TutorAuth.requireLogin()) return;
   try {
     await TutorProgress.init();
     await TutorAccess.init();
-    // Consentimento e pré-teste são verificados no Supabase antes de habilitar coleta.
-    if (window.TutorResearch) await window.TutorResearch.init();
+    // Instrumentação da pesquisa permanece desligada no fluxo de estudo.
+    // A coleta só pode ser reativada em implantação acadêmica específica.
   } catch (error) {
     console.error("Erro ao carregar progresso:", error);
     showToast("Falha ao carregar progresso ou permissões. Execute developer-access.sql, se ainda não fez.");
