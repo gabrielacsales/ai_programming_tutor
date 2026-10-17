@@ -37,6 +37,7 @@ class SocraticTutor {
         code,
         exercise: {
           id: ctx.id,
+          curriculum_version: ctx.curriculum_version || 1,
           title: ctx.title,
           statement: ctx.statement || "",
           constraints: ctx.constraints || []
