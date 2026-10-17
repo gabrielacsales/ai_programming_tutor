@@ -1,6 +1,22 @@
 (function() {
 "use strict";
 let state=null,phase=null;
+let officialInfo=null;
+function showOfficialInfo(data){
+ officialInfo=data;
+ const ready=Boolean(data?.ready);
+ $("join-study").disabled=!ready;
+ $("official-terms").hidden=!ready;
+ $("registration-status").textContent=ready
+   ?"Confira cuidadosamente o termo institucional antes de aceitar."
+   :"O recrutamento está fechado. Os dados de contato e o termo institucional ainda precisam ser publicados pela pesquisadora.";
+ if(!ready)return;
+ for(const [id,key] of [["official-institution","institution"],["official-contact","contact"],
+   ["official-protocol","protocol"],["official-retention","retention"],["official-consent-text","consent"]]){
+   $(id).textContent=String(data?.[key]||"");
+ }
+}
+
 const $=id=>document.getElementById(id);
 const client=window.TutorAuth?.client;
 const instruments=window.RESEARCH_INSTRUMENTS;
@@ -88,6 +104,7 @@ document.addEventListener("DOMContentLoaded",async()=>{
    if(!await TutorAuth.requireLogin())return;
    $("consent-form").addEventListener("submit",async evt=>{
      evt.preventDefault();clearError();
+     if(!officialInfo?.ready)return showError("A coleta está fechada ou os termos ainda não foram aprovados.");
      if(!$("adult").checked||!$("consent").checked)return showError("Marque ambas as confirmações para participar.");
      try{await rpc("enroll_in_research",{p_adult:true,p_consent:true,p_version:instruments.version});await refresh();}
      catch(e){showError(e.message)}
@@ -101,6 +118,8 @@ document.addEventListener("DOMContentLoaded",async()=>{
      if(!confirm("Retirar participação e excluir os dados desta área de pesquisa? Essa ação não poderá ser desfeita."))return;
      clearError();try{await rpc("research_withdraw");await refresh()}catch(e){showError(e.message)}
    });
+   try { showOfficialInfo(await rpc("research_public_info")); }
+   catch(e) { showOfficialInfo(null); console.warn("Informações públicas da pesquisa indisponíveis:",e.message); }
    await refresh();
  }catch(e){$("status").textContent="Não foi possível abrir o formulário.";showError(e.message);}
 });
