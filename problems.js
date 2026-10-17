@@ -1,140 +1,127 @@
-// Base de dados de problemas do AI Programming Tutor
+// Currículo 2: progressão introdutória auditada (sem listas antes do módulo 4).
+// Os IDs permanecem estáveis para URLs/histórico; curriculum_version distingue a nova avaliação.
+// Cada tarefa sincroniza enunciado, dicas graduais, teoria, exemplo paralelo e testes.
 const problems = [
   {
     "id": "m1_imc",
     "module": 1,
-    "title": "M\u00f3dulo 1: C\u00e1lculo de IMC",
-    "statement": "Escreva um script que receba os dados por meio da vari\u00e1vel global `entrada` (uma lista contendo o peso em kg e a altura em metros, nessa ordem). Calcule e utilize a fun\u00e7\u00e3o `print()` para exibir o \u00cdndice de Massa Corporal (IMC) arredondado para duas casas decimais.\n\nF\u00f3rmula: IMC = peso / (altura * altura)\n\nExemplo:\nSe `entrada = [70.0, 1.75]`, seu programa deve exibir `22.86`.",
+    "title": "Módulo 1: Dobro de um Número",
+    "statement": "Seu primeiro programa!\n\nA variável `entrada` já contém um número inteiro. Crie uma variável para guardar o dobro desse número e utilize `print()` para mostrar o resultado.\n\nExemplo: se `entrada = 6`, o programa deve exibir `12`.\n\nVocê não precisa criar uma lista, ler dados com `input()` nem definir uma função: a variável `entrada` já está disponível.",
     "function_name": "",
     "tests": [
       {
-        "in": [
-          70.0,
-          1.75
-        ],
-        "out": 22.86
+        "in": 6,
+        "out": 12
       },
       {
-        "in": [
-          85.5,
-          1.8
-        ],
-        "out": 26.39
+        "in": 0,
+        "out": 0
       },
       {
-        "in": [
-          50.0,
-          1.6
-        ],
-        "out": 19.53
+        "in": -4,
+        "out": -8
       },
       {
-        "in": [
-          100.0,
-          2.0
-        ],
-        "out": 25.0
+        "in": 15,
+        "out": 30
       }
     ],
     "hints": [
-      "A lista 'entrada' tem o peso no \u00edndice 0 e a altura no \u00edndice 1.",
-      "Calcule a altura ao quadrado usando 'altura * altura' ou 'altura ** 2'.",
-      "Use a fun\u00e7\u00e3o built-in 'round(valor, 2)' para arredondar para duas casas decimais."
+      "Qual operação transforma um número em seu dobro? Pense no significado de multiplicar por 2.",
+      "O número inicial já está guardado em `entrada`. Você pode armazenar o resultado em outra variável, como `dobro`.",
+      "Para mostrar um valor, escreva `print(nome_da_variavel)`, substituindo pelo nome que escolheu."
     ],
-    "solution": "# Exemplo: Calcular a velocidade m\u00e9dia de uma viagem\n# Considere que 'entrada' traz [distancia_km, tempo_horas]\n\ndistancia = entrada[0]\ntempo = entrada[1]\nvelocidade = distancia / tempo\n\nprint(round(velocidade, 2))",
+    "solution": "# Exemplo do professor (diferente do desafio): calcular o TRIPLO de um número.\nnumero = entrada\ntriplo = numero * 3\nprint(triplo)",
     "constraints": [
-      "Imprima um float arredondado.",
-      "Use apenas vari\u00e1veis e opera\u00e7\u00f5es aritm\u00e9ticas simples."
+      "Use apenas números, variáveis, multiplicação e `print()`.",
+      "Exiba somente o valor do dobro, sem mensagens adicionais."
     ],
-    "theory": "\n          <p class=\"mb-3\">Em Python, os tipos de dados b\u00e1sicos incluem <strong>inteiros (int)</strong> e <strong>n\u00fameros decimais (float)</strong>. Para opera\u00e7\u00f5es matem\u00e1ticas, utilizamos os operadores b\u00e1sicos:</p>\n          <ul class=\"list-disc list-inside space-y-1 mb-3 text-slate-600 font-medium\">\n            <li><code>+</code> para soma</li>\n            <li><code>-</code> para subtra\u00e7\u00e3o</li>\n            <li><code>*</code> para multiplica\u00e7\u00e3o</li>\n            <li><code>/</code> para divis\u00e3o (sempre resulta em float)</li>\n            <li><code>**</code> para exponencia\u00e7\u00e3o (ex: <code>altura ** 2</code>)</li>\n          </ul>\n          <p class=\"mb-3\">Para exibir um valor na tela, utilizamos a fun\u00e7\u00e3o <code>print(resultado)</code>. Para extrair valores de uma lista (como os dados vindos em <code>entrada</code>), usamos o <strong>\u00edndice</strong> num\u00e9rico que come\u00e7a em 0. Portanto, <code>entrada[0]</code> pega o primeiro elemento e <code>entrada[1]</code> o segundo.</p>\n        "
+    "theory": "<p class=\"mb-3\"><strong>Variáveis</strong> guardam informações que o programa pode utilizar. Em Python, usamos <code>=</code> para atribuir um valor: <code>quantidade = 4</code>. O símbolo não significa comparação; é uma atribuição.</p>\n<p class=\"mb-3\">Com números, podemos usar <code>+</code> (somar), <code>-</code> (subtrair) e <code>*</code> (multiplicar). Por exemplo, <code>trio = quantidade * 3</code> cria uma nova variável.</p>\n<p class=\"mb-3\">A função <code>print()</code> exibe um resultado. Aqui, a variável <code>entrada</code> já foi criada pelo ambiente de exercícios; você só precisa usá-la.</p>",
+    "curriculum_version": 2
   },
   {
     "id": "m1_conversor_temp",
     "module": 1,
-    "title": "M\u00f3dulo 1: Conversor de Temperatura",
-    "statement": "Escreva um script que leia a vari\u00e1vel global `entrada` (indicando uma temperatura em graus Celsius) e calcule o valor correspondente em Fahrenheit. Utilize a fun\u00e7\u00e3o `print()` para exibir o resultado arredondado para uma casa decimal.\n\nF\u00f3rmula: F = (C * 9/5) + 32\n\nExemplo:\nSe `entrada = 25.0`, exiba `77.0`.",
+    "title": "Módulo 1: Converter Temperatura",
+    "statement": "A variável `entrada` contém uma temperatura em graus Celsius (um número). Calcule a temperatura em Fahrenheit e mostre o resultado com `print()`.\n\nUse a fórmula matemática: Fahrenheit = Celsius × 9 ÷ 5 + 32.\n\nArredonde para **uma casa decimal** com `round(valor, 1)`.\n\nExemplo: se `entrada = 20`, a saída esperada é `68.0`.\n\nVocê continua trabalhando com **um único número**, sem listas.",
     "function_name": "",
     "tests": [
       {
-        "in": 25.0,
-        "out": 77.0
+        "in": 20,
+        "out": 68
       },
       {
-        "in": 0.0,
-        "out": 32.0
+        "in": 0,
+        "out": 32
       },
       {
-        "in": 100.0,
-        "out": 212.0
+        "in": 37,
+        "out": 98.6
       },
       {
-        "in": -10.0,
-        "out": 14.0
+        "in": -40,
+        "out": -40
       }
     ],
     "hints": [
-      "Multiplique a temperatura em Celsius por 9/5 (que \u00e9 1.8).",
-      "Some 32 ao resultado.",
-      "Use 'print(round(valor, 1))' para imprimir."
+      "Identifique a operação: primeiro multiplique Celsius por 9, depois divida por 5 e, por último, some 32.",
+      "Guarde a temperatura convertida em uma variável antes de mostrá-la; parênteses podem ajudar a visualizar a conta.",
+      "A função `round(numero, 1)` arredonda para uma casa decimal; use `print()` para exibir o resultado."
     ],
-    "solution": "# Exemplo: Convers\u00e3o de Moedas (Reais para D\u00f3lares)\n# A 'entrada' tem o valor em reais\n\ntaxa_cambio = 5.0\ndolares = entrada / taxa_cambio\n\nprint(round(dolares, 1))",
+    "solution": "# Exemplo do professor: converter uma distância de quilômetros para metros.\nquilometros = entrada\nmetros = quilometros * 1000\nprint(round(metros, 1))",
     "constraints": [
-      "Imprima um float arredondado com uma casa decimal."
+      "Considere `entrada` como um único número em Celsius.",
+      "Exiba somente o resultado numérico arredondado a uma casa decimal."
     ],
-    "theory": "\n          <p class=\"mb-3\">As opera\u00e7\u00f5es em Python seguem a <strong>ordem de preced\u00eancia matem\u00e1tica</strong>. Multiplica\u00e7\u00f5es e divis\u00f5es s\u00e3o resolvidas antes de somas e subtra\u00e7\u00f5es.</p>\n          <p class=\"mb-3\">Voc\u00ea pode usar par\u00eanteses <code>()</code> para garantir que uma opera\u00e7\u00e3o seja feita antes da outra, como em <code>(C * 9/5) + 32</code>. Embora neste caso a multiplica\u00e7\u00e3o j\u00e1 acontecesse primeiro, os par\u00eanteses ajudam na legibilidade do c\u00f3digo.</p>\n        "
+    "theory": "<p class=\"mb-3\">Um cálculo pode envolver <strong>várias operações</strong>. Em Python, <code>*</code> multiplica e <code>/</code> divide. A divisão com <code>/</code> produz um número decimal (<code>float</code>).</p>\n<p class=\"mb-3\">Multiplicações e divisões acontecem antes das somas. Os parênteses ajudam a deixar sua intenção clara.</p>\n<p class=\"mb-3\">Use <code>round(valor, 1)</code> para arredondar a uma casa decimal. <code>print()</code> mostra o resultado. O número já está na variável <code>entrada</code>.</p>",
+    "curriculum_version": 2
   },
   {
     "id": "m1_calculo_desconto",
     "module": 1,
-    "title": "M\u00f3dulo 1: C\u00e1lculo de Desconto",
-    "statement": "Escreva um script que leia a vari\u00e1vel `entrada` (uma lista com dois valores: o pre\u00e7o original de um produto e a porcentagem de desconto). Calcule e utilize `print()` para exibir o pre\u00e7o final ap\u00f3s aplicar o desconto (arredondado para duas casas decimais).\n\nExemplo: Se o pre\u00e7o for 100.0 e o desconto 15.0%, o valor descontado \u00e9 15.0, e o pre\u00e7o final \u00e9 85.0.\n\nSe `entrada = [100.0, 15.0]`, o programa deve exibir `85.0`.",
+    "title": "Módulo 1: Desconto de 10%",
+    "statement": "Uma loja aplica **10% de desconto** sobre qualquer produto. A variável `entrada` já contém o preço original (um único número).\n\nCalcule o preço que a pessoa pagará depois do desconto e mostre-o com `print()`, arredondado a **duas casas decimais**.\n\nExemplo: se `entrada = 80.0`, o resultado é `72.0`.\n\nNão é necessário trabalhar com listas ou receber dados por `input()`.",
     "function_name": "",
     "tests": [
       {
-        "in": [
-          100.0,
-          15.0
-        ],
-        "out": 85.0
+        "in": 80,
+        "out": 72
       },
       {
-        "in": [
-          50.0,
-          10.0
-        ],
-        "out": 45.0
+        "in": 100,
+        "out": 90
       },
       {
-        "in": [
-          200.0,
-          25.0
-        ],
-        "out": 150.0
+        "in": 50,
+        "out": 45
       },
       {
-        "in": [
-          99.9,
-          0.0
-        ],
-        "out": 99.9
+        "in": 0,
+        "out": 0
+      },
+      {
+        "in": 49.9,
+        "out": 44.91
       }
     ],
     "hints": [
-      "Acesse entrada[0] e entrada[1].",
-      "Encontre o valor monet\u00e1rio do desconto multiplicando o pre\u00e7o pela porcentagem e dividindo por 100.",
-      "Subtraia esse valor monet\u00e1rio do pre\u00e7o original e fa\u00e7a print."
+      "De cada R$ 100,00, a loja desconta R$ 10,00. Que fração do preço isso representa?",
+      "Você pode calcular o desconto e depois subtraí-lo do preço original, usando variáveis intermediárias.",
+      "Multiplique por `10 / 100` para calcular dez por cento; `round(valor, 2)` arredonda para duas casas."
     ],
-    "solution": "# Exemplo: Calcular o valor da gorjeta em um restaurante\n# Considere que 'entrada' traz [valor_da_conta, porcentagem_gorjeta]\n\nconta = entrada[0]\nporcentagem = entrada[1]\n\nvalor_gorjeta = conta * (porcentagem / 100)\ntotal_a_pagar = conta + valor_gorjeta\n\nprint(round(total_a_pagar, 2))",
+    "solution": "# Exemplo do professor: adicionar taxa de serviço de 5% a um valor.\nvalor = entrada\ntaxa = valor * (5 / 100)\ntotal = valor + taxa\nprint(round(total, 2))",
     "constraints": [
-      "Imprima o valor com precis\u00e3o de duas casas decimais."
+      "O desconto é sempre 10% sobre o número único em `entrada`.",
+      "Imprima somente o preço final, arredondado a duas casas decimais."
     ],
-    "theory": "\n          <p class=\"mb-3\">Criar <strong>vari\u00e1veis com nomes descritivos</strong> \u00e9 uma pr\u00e1tica essencial. Em vez de calcular tudo em uma \u00fanica linha complexa, dividir o racioc\u00ednio em etapas torna seu c\u00f3digo mais f\u00e1cil de ler e depurar.</p>\n          <p class=\"mb-3\">Por exemplo, separar o c\u00e1lculo da porcentagem em <code>valor_desconto</code> antes de calcular o <code>preco_final</code> \u00e9 uma excelente abordagem estrutural para iniciantes.</p>\n        "
+    "theory": "<p class=\"mb-3\">Porcentagem representa uma parte de 100. Para descobrir 10% de um número, multiplicamos esse número por <code>10 / 100</code>.</p>\n<p class=\"mb-3\">Uma solução pode ser construída em <strong>etapas</strong>: guardar o valor original, calcular uma parcela e obter um novo total. Dar nomes significativos às variáveis ajuda a compreender as contas.</p>\n<p class=\"mb-3\">Em operações com dinheiro, é comum usar <code>round(valor, 2)</code> para duas casas decimais. O exercício recebe um <strong>valor único</strong> pela variável <code>entrada</code>.</p>",
+    "curriculum_version": 2
   },
   {
     "id": "m2_maioridade",
     "module": 2,
-    "title": "M\u00f3dulo 2: Verificar Maioridade",
-    "statement": "Escreva um script que leia a vari\u00e1vel global `entrada` indicando a idade de uma pessoa (inteiro). Utilize `print()` para exibir a string `'Maior de idade'` se a idade for 18 ou mais, e `'Menor de idade'` caso contr\u00e1rio.",
+    "title": "Módulo 2: Verificar Maioridade",
+    "statement": "A variável `entrada` contém a idade de uma pessoa (número inteiro). Mostre exatamente `Maior de idade` quando a idade for **18 ou mais**, e `Menor de idade` nos outros casos.\n\nExemplos: `entrada = 18` → `Maior de idade`; `entrada = 17` → `Menor de idade`.\n\nUse uma decisão com `if` e `else`.",
     "function_name": "",
     "tests": [
       {
@@ -146,330 +133,284 @@ const problems = [
         "out": "Menor de idade"
       },
       {
-        "in": 25,
-        "out": "Maior de idade"
-      },
-      {
         "in": 0,
         "out": "Menor de idade"
+      },
+      {
+        "in": 35,
+        "out": "Maior de idade"
       }
     ],
     "hints": [
-      "Use um bloco if-else com a vari\u00e1vel entrada.",
-      "O operador de maior ou igual \u00e9 >="
+      "A condição precisa comparar a idade com 18. Pense no que deve ocorrer quando a idade for exatamente 18.",
+      "O operador `>=` significa 'maior ou igual'; `if` decide qual bloco executar.",
+      "No `else`, trate o caso em que a condição anterior não é verdadeira. Observe os dois-pontos e a indentação."
     ],
-    "solution": "# Exemplo: Verificar se um aluno foi aprovado (nota m\u00ednima 7)\n# Considere que 'entrada' representa a nota do aluno\n\nif entrada >= 7:\n    print('Aprovado')\nelse:\n    print('Reprovado')",
+    "solution": "# Exemplo do professor: verificar acesso a um brinquedo com altura mínima de 120 cm.\nif entrada >= 120:\n    print('Pode entrar')\nelse:\n    print('Altura insuficiente')",
     "constraints": [
-      "Deve exibir exatamente as strings indicadas, respeitando mai\u00fasculas e min\u00fasculas."
+      "Exiba exatamente uma das duas frases do enunciado.",
+      "Considere que 18 anos já representa maioridade."
     ],
-    "theory": "\n          <p class=\"mb-3\">A <strong>L\u00f3gica Condicional</strong> permite que o programa tome decis\u00f5es. Em Python, usamos <code>if</code> e <code>else</code>.</p>\n          <p class=\"mb-3\">Observe a <strong>indenta\u00e7\u00e3o</strong>: os blocos de c\u00f3digo dentro do if e else devem estar recuados (normalmente com 4 espa\u00e7os). Essa \u00e9 a forma que o Python entende onde come\u00e7a e termina o bloco.</p>\n        "
+    "theory": "<p class=\"mb-3\">Programas usam <strong>condicionais</strong> para tomar decisões. A instrução <code>if</code> executa um bloco quando a condição é verdadeira; <code>else</code> cobre a alternativa.</p>\n<p class=\"mb-3\">O operador <code>&gt;=</code> significa 'maior ou igual'. Em <code>if saldo &gt;= 10:</code>, a condição é verdadeira para 10 e valores maiores.</p>\n<p class=\"mb-3\">Os dois-pontos <code>:</code> iniciam um bloco e a indentação (quatro espaços) marca as linhas que pertencem a ele.</p>",
+    "curriculum_version": 2
   },
   {
     "id": "m2_par_impar",
     "module": 2,
-    "title": "M\u00f3dulo 2: Par ou \u00cdmpar",
-    "statement": "Escreva um script que utilize a vari\u00e1vel `entrada` (um n\u00famero inteiro). Use `print()` para exibir `True` se o n\u00famero for par, ou `False` se ele for \u00edmpar.",
+    "title": "Módulo 2: Número Par ou Ímpar",
+    "statement": "A variável `entrada` contém um número inteiro. Mostre exatamente `Par` se o número for divisível por 2; caso contrário, mostre `Impar` (sem acento).\n\nExemplos: `entrada = 8` → `Par`; `entrada = 7` → `Impar`.\n\nUse `if` e `else` com o operador de resto `%`.",
     "function_name": "",
     "tests": [
       {
-        "in": 0,
-        "out": true
-      },
-      {
-        "in": 2,
-        "out": true
-      },
-      {
-        "in": -4,
-        "out": true
+        "in": 8,
+        "out": "Par"
       },
       {
         "in": 7,
-        "out": false
+        "out": "Impar"
       },
       {
-        "in": -3,
-        "out": false
+        "in": 0,
+        "out": "Par"
+      },
+      {
+        "in": -4,
+        "out": "Par"
+      },
+      {
+        "in": -5,
+        "out": "Impar"
       }
     ],
     "hints": [
-      "O operador de m\u00f3dulo (%) te diz o resto de uma divis\u00e3o inteira.",
-      "Um n\u00famero \u00e9 par se o resto da divis\u00e3o dele por 2 for 0."
+      "Um número é par quando a divisão dele por 2 não deixa resto.",
+      "O operador `%` calcula o resto: por exemplo, `7 % 3` resulta em 1.",
+      "Compare o resto com zero usando `==` e mostre a frase correspondente em cada ramo."
     ],
-    "solution": "# Exemplo: Verificar se um n\u00famero \u00e9 m\u00faltiplo de 5\n# O operador % calcula o resto da divis\u00e3o.\n\nprint((entrada % 5) == 0)",
+    "solution": "# Exemplo do professor: mostrar se um número é múltiplo de 3.\nif entrada % 3 == 0:\n    print('Multiplo de 3')\nelse:\n    print('Nao multiplo de 3')",
     "constraints": [
-      "Imprima um tipo booleano (True ou False)."
+      "Exiba somente `Par` ou `Impar`, sem outras palavras.",
+      "Trate zero e números negativos como números inteiros."
     ],
-    "theory": "\n          <p class=\"mb-3\">A divisibilidade e o resto da divis\u00e3o inteira s\u00e3o verificados por meio do operador <strong>m\u00f3dulo</strong>, representado pelo s\u00edmbolo de porcentagem (<code>%</code>) em Python.</p>\n          <p class=\"mb-3\">A express\u00e3o <code>entrada % d</code> calcula o resto da divis\u00e3o de <code>entrada</code> por <code>d</code>. Se <code>entrada % 2 == 0</code>, significa que o n\u00famero n\u00e3o deixa resto ao ser dividido por 2, logo, \u00e9 par.</p>\n        "
+    "theory": "<p class=\"mb-3\">O operador <strong>resto</strong> <code>%</code> informa quanto sobra de uma divisão inteira: <code>10 % 3</code> é 1.</p>\n<p class=\"mb-3\">Podemos usar <code>==</code> para verificar se dois valores são iguais. Atenção: <code>=</code> atribui valores, enquanto <code>==</code> compara.</p>\n<p class=\"mb-3\">Condições simples com <code>if</code> e <code>else</code> classificam dados em dois grupos.</p>",
+    "curriculum_version": 2
   },
   {
     "id": "m2_desconto_categoria",
     "module": 2,
-    "title": "M\u00f3dulo 2: Desconto por Categoria",
-    "statement": "Escreva um script que receba os dados pela vari\u00e1vel `entrada` (uma lista com o pre\u00e7o de um produto e a categoria dele em formato de string). Calcule e utilize `print()` para exibir o pre\u00e7o final seguindo as regras:\n\n- 'eletronico': 10% de desconto.\n- 'vestuario': 20% de desconto.\n- 'alimento': 5% de desconto.\n- Qualquer outra categoria: 0% de desconto.\n\nExemplo:\nPara `entrada = [100.0, 'vestuario']`, exiba `80.0`.",
+    "title": "Módulo 2: Classificação de Pontuação",
+    "statement": "Um jogo atribui uma pontuação inteira de 0 a 100, já armazenada em `entrada`. Mostre exatamente uma classificação:\n\n- Menor que 40: `Iniciante`\n- De 40 até 69: `Intermediario`\n- A partir de 70: `Avancado`\n\nExemplos: `entrada = 25` → `Iniciante`; `entrada = 70` → `Avancado`.\n\nUse `if`, `elif` e `else`. Não há listas neste exercício.",
     "function_name": "",
     "tests": [
       {
-        "in": [
-          100.0,
-          "vestuario"
-        ],
-        "out": 80.0
+        "in": 0,
+        "out": "Iniciante"
       },
       {
-        "in": [
-          200.0,
-          "eletronico"
-        ],
-        "out": 180.0
+        "in": 39,
+        "out": "Iniciante"
       },
       {
-        "in": [
-          50.0,
-          "alimento"
-        ],
-        "out": 47.5
+        "in": 40,
+        "out": "Intermediario"
       },
       {
-        "in": [
-          100.0,
-          "limpeza"
-        ],
-        "out": 100.0
+        "in": 69,
+        "out": "Intermediario"
+      },
+      {
+        "in": 70,
+        "out": "Avancado"
+      },
+      {
+        "in": 100,
+        "out": "Avancado"
       }
     ],
     "hints": [
-      "Extraia o pre\u00e7o e a categoria da lista 'entrada'.",
-      "Use if, elif e else para encadear as condi\u00e7\u00f5es de categoria.",
-      "Aten\u00e7\u00e3o \u00e0 string da categoria ao comparar (ex: == 'eletronico')."
+      "Há três resultados possíveis. Qual faixa deve ser testada primeiro?",
+      "Se a pontuação já não é menor que 40, o próximo teste pode comparar com 70.",
+      "Use `elif` para a segunda condição; `else` trata a faixa restante, sem repetir todas as comparações."
     ],
-    "solution": "# Exemplo: Calcular taxa de imposto baseada no pa\u00eds\n# Considere que 'entrada' traz [valor_produto, pais_origem]\n\nvalor = entrada[0]\npais = entrada[1]\n\nif pais == 'brasil':\n    print(valor * 1.20)  # 20% de imposto\nelif pais == 'eua':\n    print(valor * 1.10)  # 10% de imposto\nelse:\n    print(valor * 1.05)  # 5% de imposto padr\u00e3o",
+    "solution": "# Exemplo do professor: classificar o nível de bateria de um dispositivo.\nif entrada < 20:\n    print('Baixa')\nelif entrada < 80:\n    print('Media')\nelse:\n    print('Alta')",
     "constraints": [
-      "Lide com categorias desconhecidas caindo na condi\u00e7\u00e3o else (sem desconto)."
+      "A entrada é um único inteiro de 0 a 100.",
+      "Use as grafias exatas: `Iniciante`, `Intermediario`, `Avancado`."
     ],
-    "theory": "\n          <p class=\"mb-3\">O <code>elif</code> (abrevia\u00e7\u00e3o de else if) permite encadear m\u00faltiplas verifica\u00e7\u00f5es condicionais excludentes.</p>\n          <p class=\"mb-3\">Quando o Python encontra a primeira condi\u00e7\u00e3o verdadeira em uma cadeia de <code>if-elif</code>, ele executa aquele bloco e ignora todos os outros <code>elif</code> e o <code>else</code> finais.</p>\n        "
+    "theory": "<p class=\"mb-3\">Quando há mais de dois caminhos, podemos usar <strong><code>if</code>, <code>elif</code> e <code>else</code></strong>. As condições são avaliadas de cima para baixo.</p>\n<p class=\"mb-3\">Ao encontrar a primeira condição verdadeira, Python executa aquele bloco e ignora os demais. Por isso, a <strong>ordem dos limites</strong> é importante.</p>\n<p class=\"mb-3\">Uma faixa pode ser reconhecida sem duas comparações: se o primeiro caso já foi descartado, o <code>elif</code> sabe que esse limite inferior ficou para trás.</p>",
+    "curriculum_version": 2
   },
   {
     "id": "m3_contagem",
     "module": 3,
-    "title": "M\u00f3dulo 3: Contagem Regressiva",
-    "statement": "Escreva um script que leia a vari\u00e1vel `entrada` (um n\u00famero inteiro maior que 0) e armazene uma contagem regressiva de `entrada` at\u00e9 1 em uma lista. Ao final, use `print()` para exibir a lista completa.\n\nExemplo:\nPara `entrada = 5`, exiba `[5, 4, 3, 2, 1]`.",
+    "title": "Módulo 3: Contagem Regressiva",
+    "statement": "A variável `entrada` contém um número inteiro **não negativo**. Use um laço `while` para mostrar uma contagem regressiva desse número até 1, com **um número por linha**.\n\nExemplo: se `entrada = 3`, a saída deverá ser:\n`3`\n`2`\n`1`\n\nSe `entrada = 0`, não mostre nada. Não é preciso criar uma lista.",
     "function_name": "",
     "tests": [
       {
-        "in": 5,
-        "out": [
-          5,
-          4,
-          3,
-          2,
-          1
-        ]
-      },
-      {
         "in": 3,
-        "out": [
-          3,
-          2,
-          1
-        ]
+        "out": "3\n2\n1"
       },
       {
         "in": 1,
-        "out": [
-          1
-        ]
+        "out": "1"
+      },
+      {
+        "in": 0,
+        "out": ""
+      },
+      {
+        "in": 5,
+        "out": "5\n4\n3\n2\n1"
       }
     ],
     "hints": [
-      "Use um loop 'while n > 0:' sendo n a vari\u00e1vel entrada.",
-      "Crie uma lista vazia antes do loop.",
-      "Dentro do loop, adicione 'n' \u00e0 lista com o m\u00e9todo '.append(n)'.",
-      "Diminua 'n' em 1 a cada itera\u00e7\u00e3o (n -= 1) para evitar loop infinito."
+      "A repetição deve continuar enquanto o contador for maior que zero.",
+      "Comece com o valor recebido em `entrada`. A cada volta, mostre o número atual.",
+      "Lembre-se de diminuir o contador a cada repetição para o `while` terminar."
     ],
-    "solution": "# Exemplo: Contar para cima (de 1 at\u00e9 o n\u00famero informado na entrada)\nresultado = []\ncontador = 1\n\nwhile contador <= entrada:\n    resultado.append(contador)\n    contador += 1\n\nprint(resultado)",
+    "solution": "# Exemplo do professor: contar para cima de 1 até o limite recebido.\ncontador = 1\nwhile contador <= entrada:\n    print(contador)\n    contador += 1",
     "constraints": [
-      "Imprima uma lista de inteiros."
+      "Mostre um inteiro por linha, do valor inicial até 1.",
+      "Não crie uma lista; utilize `while` e atualize o contador.",
+      "Para entrada zero, a saída deve ficar vazia."
     ],
-    "theory": "\n          <p class=\"mb-3\">O la\u00e7o <strong>while</strong> executa um bloco de c\u00f3digo repetidamente <em>enquanto</em> uma condi\u00e7\u00e3o for verdadeira.</p>\n          <p class=\"mb-3\">\u00c9 fundamental garantir que a condi\u00e7\u00e3o eventualmente se torne falsa, caso contr\u00e1rio o programa entrar\u00e1 em um <strong>loop infinito</strong>. Por isso n\u00e3o podemos esquecer de atualizar a vari\u00e1vel controladora do fluxo (ex: <code>n -= 1</code>) a cada passada no loop.</p>\n        "
+    "theory": "<p class=\"mb-3\">O laço <code>while</code> repete um bloco enquanto uma condição é verdadeira. Ele é útil quando precisamos verificar continuamente se ainda podemos continuar.</p>\n<p class=\"mb-3\">O laço costuma ter três partes: valor inicial, condição e atualização. Sem atualizar o valor, a repetição pode se tornar infinita.</p>\n<p class=\"mb-3\">Cada chamada a <code>print()</code> produz uma nova linha. Não precisamos construir uma lista para exibir uma sequência.</p>",
+    "curriculum_version": 2
   },
   {
     "id": "m3_soma_limite",
     "module": 3,
-    "title": "M\u00f3dulo 3: Soma at\u00e9 o Limite",
-    "statement": "Escreva um script que receba na vari\u00e1vel `entrada` uma lista com um valor inicial e um limite m\u00e1ximo. Voc\u00ea deve somar iterativamente o valor inicial com ele mesmo at\u00e9 que a soma alcance ou ultrapasse o limite estipulado. Use `print()` para exibir quantas somas (itera\u00e7\u00f5es) foram necess\u00e1rias.\n\nExemplo: Para `entrada = [5, 20]`:\nIn\u00edcio: 5\nItera\u00e7\u00e3o 1: 5 + 5 = 10\nItera\u00e7\u00e3o 2: 10 + 5 = 15\nItera\u00e7\u00e3o 3: 15 + 5 = 20 (Alcan\u00e7ou o limite)\nResultado: Exiba `3`.",
+    "title": "Módulo 3: Somar de 1 até N",
+    "statement": "A variável `entrada` contém um inteiro **não negativo**. Some todos os números inteiros de 1 até `entrada`, incluindo o próprio limite, usando um laço `while`. Ao final, mostre **somente a soma** com `print()`.\n\nExemplo: `entrada = 4` → `10`, porque 1 + 2 + 3 + 4 = 10.\n\nSe `entrada = 0`, a resposta é `0`.",
     "function_name": "",
     "tests": [
       {
+        "in": 0,
+        "out": 0
+      },
+      {
+        "in": 1,
+        "out": 1
+      },
+      {
+        "in": 4,
+        "out": 10
+      },
+      {
+        "in": 5,
+        "out": 15
+      },
+      {
+        "in": 10,
+        "out": 55
+      }
+    ],
+    "hints": [
+      "Você precisa de duas variáveis: um número que percorre a sequência e outra que acumula o total.",
+      "O acumulador pode começar em zero, pois ainda não somamos nada.",
+      "A cada volta do `while`, atualize o total e avance para o próximo inteiro. Pare depois de incluir o limite."
+    ],
+    "solution": "# Exemplo do professor: calcular a soma dos números pares até o limite.\ncontador = 2\ntotal = 0\nwhile contador <= entrada:\n    total += contador\n    contador += 2\nprint(total)",
+    "constraints": [
+      "Utilize um laço `while` e um acumulador.",
+      "Exiba apenas o valor da soma.",
+      "A entrada é um único inteiro, não uma lista."
+    ],
+    "theory": "<p class=\"mb-3\">Um <strong>acumulador</strong> guarda um resultado parcial que cresce durante a repetição. Uma soma normalmente começa com zero.</p>\n<p class=\"mb-3\">Um <strong>contador</strong> indica qual passo estamos processando. Podemos usar <code>contador += 1</code> para avançá-lo e <code>total += contador</code> para acrescentar valores.</p>\n<p class=\"mb-3\">Antes de escrever um laço, simule-o no papel para uma entrada pequena: quais valores estão guardados após cada iteração?</p>",
+    "curriculum_version": 2
+  },
+  {
+    "id": "m3_tabuada",
+    "module": 3,
+    "title": "Módulo 3: Tabuada de 1 a 5",
+    "statement": "A variável `entrada` contém um número inteiro. Use o laço `for` e `range()` para mostrar os resultados de multiplicar esse número por **1, 2, 3, 4 e 5**, com **um resultado por linha**.\n\nExemplo: `entrada = 3` deve mostrar:\n`3`\n`6`\n`9`\n`12`\n`15`\n\nNão é necessário montar uma lista.",
+    "function_name": "",
+    "tests": [
+      {
+        "in": 3,
+        "out": "3\n6\n9\n12\n15"
+      },
+      {
+        "in": 1,
+        "out": "1\n2\n3\n4\n5"
+      },
+      {
+        "in": 0,
+        "out": "0\n0\n0\n0\n0"
+      },
+      {
+        "in": -2,
+        "out": "-2\n-4\n-6\n-8\n-10"
+      }
+    ],
+    "hints": [
+      "O laço `for` permite percorrer um conjunto de valores conhecidos.",
+      "Lembre que o último argumento de `range(inicio, fim)` não entra na sequência.",
+      "Em cada volta, multiplique o número recebido pelo valor atual do laço e mostre o produto."
+    ],
+    "solution": "# Exemplo do professor: mostrar o quadrado dos números de 1 a 3.\nfor numero in range(1, 4):\n    print(numero * numero)",
+    "constraints": [
+      "Use `for` e `range()` para percorrer de 1 a 5.",
+      "Mostre cinco resultados, um por linha.",
+      "Não é necessário usar listas."
+    ],
+    "theory": "<p class=\"mb-3\">O laço <strong><code>for</code></strong> percorre uma sequência de valores. Com <code>range(1, 4)</code>, os valores são 1, 2 e 3.</p>\n<p class=\"mb-3\">O limite superior de <code>range()</code> não está incluído. Para repetir uma quantidade conhecida de vezes, essa estrutura costuma ser mais simples que <code>while</code>.</p>\n<p class=\"mb-3\">Você pode calcular e mostrar um resultado em cada volta do <code>for</code>. Cada <code>print()</code> escreve uma linha.</p>",
+    "curriculum_version": 2
+  },
+  {
+    "id": "m4_busca_linear",
+    "module": 4,
+    "title": "Módulo 4: Primeiro Elemento de uma Lista",
+    "statement": "Agora vamos começar a trabalhar com listas e funções.\n\nCrie uma função chamada `m4_primeiro_elemento(lista)` que recebe uma **lista de números** e devolve o **primeiro elemento** usando `return`.\n\nSe a lista estiver vazia, devolva `None` (sem aspas).\n\nExemplos: `m4_primeiro_elemento([7, 9, 2])` → `7`; `m4_primeiro_elemento([])` → `None`.\n\nDesta vez, use `return`, não `print()`.",
+    "function_name": "m4_primeiro_elemento",
+    "tests": [
+      {
         "in": [
-          5,
-          20
+          7,
+          9,
+          2
         ],
-        "out": 3
+        "out": 7
       },
       {
         "in": [
-          2,
-          10
+          4
         ],
         "out": 4
       },
       {
         "in": [
-          10,
-          100
-        ],
-        "out": 9
-      },
-      {
-        "in": [
-          50,
-          40
+          0,
+          -2,
+          8
         ],
         "out": 0
+      },
+      {
+        "in": [],
+        "out": null
       }
     ],
     "hints": [
-      "Extraia o valor e o limite de 'entrada'.",
-      "Mantenha um 'contador' para as itera\u00e7\u00f5es e uma vari\u00e1vel de 'soma_atual'.",
-      "Use 'while soma_atual < limite:'.",
-      "Se o valor inicial j\u00e1 for maior ou igual ao limite, o while nem executar\u00e1, e o print deve resultar em 0."
+      "O primeiro elemento de uma lista está na posição zero.",
+      "Antes de acessar uma posição, pense no que acontece se a lista não tiver elementos.",
+      "Você pode verificar `if not lista:` e usar `return` para devolver um valor; para o caso comum, acesse o índice inicial."
     ],
-    "solution": "# Exemplo: Dobrar um valor enquanto ele for menor ou igual a 100\n# e contar quantas itera\u00e7\u00f5es foram feitas\n\nvalor_atual = entrada\niteracoes = 0\n\nwhile valor_atual <= 100:\n    valor_atual = valor_atual * 2\n    iteracoes += 1\n    \nprint(iteracoes)",
+    "solution": "# Exemplo do professor: retornar o ÚLTIMO item de uma lista.\ndef ultimo_elemento(lista):\n    if not lista:\n        return None\n    return lista[-1]",
     "constraints": [
-      "Imprima o n\u00famero inteiro de itera\u00e7\u00f5es."
+      "A função deve se chamar exatamente `m4_primeiro_elemento`.",
+      "Use `return`, não `print()`.",
+      "Retorne `None` quando a lista estiver vazia."
     ],
-    "theory": "\n          <p class=\"mb-3\">O <strong>while</strong> \u00e9 muito poderoso quando n\u00e3o sabemos exatamente quantas vezes precisamos repetir um bloco de c\u00f3digo, mas sabemos a <em>condi\u00e7\u00e3o de parada</em> (quando a soma atingir o limite).</p>\n          <p class=\"mb-3\">Este padr\u00e3o de usar um acumulador e um contador juntos dentro do la\u00e7o \u00e9 onipresente na programa\u00e7\u00e3o.</p>\n        "
-  },
-  {
-    "id": "m3_tabuada",
-    "module": 3,
-    "title": "M\u00f3dulo 3: Tabuada Completa",
-    "statement": "Escreva um script que use a vari\u00e1vel inteira `entrada` para gerar uma tabuada de 1 at\u00e9 10 para esse n\u00famero. Utilize `print()` para exibir todos os resultados juntos em formato de lista.\n\nExemplo:\nPara `entrada = 3`, o programa exibe `[3, 6, 9, 12, 15, 18, 21, 24, 27, 30]`.",
-    "function_name": "",
-    "tests": [
-      {
-        "in": 3,
-        "out": [
-          3,
-          6,
-          9,
-          12,
-          15,
-          18,
-          21,
-          24,
-          27,
-          30
-        ]
-      },
-      {
-        "in": 5,
-        "out": [
-          5,
-          10,
-          15,
-          20,
-          25,
-          30,
-          35,
-          40,
-          45,
-          50
-        ]
-      },
-      {
-        "in": 1,
-        "out": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9,
-          10
-        ]
-      }
-    ],
-    "hints": [
-      "Para percorrer de 1 a 10, o la\u00e7o 'for' em conjunto com a fun\u00e7\u00e3o 'range()' \u00e9 ideal.",
-      "Use 'for i in range(1, 11):'",
-      "Crie uma lista vazia antes, fa\u00e7a append(entrada * i) e printe no final."
-    ],
-    "solution": "# Exemplo: Criar uma lista com o quadrado dos n\u00fameros de 1 at\u00e9 o valor de 'entrada'\n\nquadrados = []\nfor i in range(1, entrada + 1):\n    quadrados.append(i * i)\n    \nprint(quadrados)",
-    "constraints": [
-      "Utilize um la\u00e7o de repeti\u00e7\u00e3o for."
-    ],
-    "theory": "\n          <p class=\"mb-3\">O la\u00e7o <strong>for</strong> \u00e9 utilizado quando queremos iterar sobre uma sequ\u00eancia conhecida. Em Python, a fun\u00e7\u00e3o <code>range(inicio, fim)</code> gera n\u00fameros inteiros a partir do 'inicio' at\u00e9 'fim - 1'.</p>\n          <p class=\"mb-3\">Por isso <code>range(1, 11)</code> nos entrega de 1 at\u00e9 10. O 'fim' estipulado \u00e9 exclusivo (n\u00e3o \u00e9 inclu\u00eddo).</p>\n        "
-  },
-  {
-    "id": "m4_busca_linear",
-    "module": 4,
-    "title": "M\u00f3dulo 4: Busca em Lista",
-    "statement": "Implemente a fun\u00e7\u00e3o `m4_busca_linear(dados)` que recebe uma lista de dois elementos: uma lista de n\u00fameros e um n\u00famero alvo. A fun\u00e7\u00e3o deve retornar o **\u00edndice** (posi\u00e7\u00e3o) da primeira ocorr\u00eancia do alvo na lista. Se o alvo n\u00e3o estiver na lista, retorne `-1`.\n\nExemplo:\n`m4_busca_linear([[10, 20, 30, 40], 30])` deve retornar `2`.",
-    "function_name": "m4_busca_linear",
-    "tests": [
-      {
-        "in": [
-          [
-            10,
-            20,
-            30,
-            40
-          ],
-          30
-        ],
-        "out": 2
-      },
-      {
-        "in": [
-          [
-            5,
-            2,
-            8,
-            2
-          ],
-          2
-        ],
-        "out": 1
-      },
-      {
-        "in": [
-          [
-            1,
-            3,
-            5
-          ],
-          9
-        ],
-        "out": -1
-      },
-      {
-        "in": [
-          [],
-          5
-        ],
-        "out": -1
-      }
-    ],
-    "hints": [
-      "Use a fun\u00e7\u00e3o 'enumerate(lista)' no for para conseguir tanto a posi\u00e7\u00e3o (\u00edndice) quanto o valor ao iterar: 'for indice, valor in enumerate(lista):'",
-      "Assim que encontrar o alvo, voc\u00ea pode retornar o \u00edndice imediatamente (early return)."
-    ],
-    "solution": "# Exemplo: Fun\u00e7\u00e3o que encontra a posi\u00e7\u00e3o do primeiro n\u00famero negativo da lista\n\ndef encontrar_primeiro_negativo(lista: list) -> int:\n    for indice, numero in enumerate(lista):\n        if numero < 0:\n            return indice  # Retorno antecipado interrompe a busca!\n            \n    return -1",
-    "constraints": [
-      "Retorne o \u00edndice como inteiro ou -1."
-    ],
-    "theory": "\n          <p class=\"mb-3\">A partir deste m\u00f3dulo, utilizamos <strong>Fun\u00e7\u00f5es</strong>. Fun\u00e7\u00f5es s\u00e3o blocos de c\u00f3digo encapsulados que resolvem um problema e <code>retornam</code> uma resposta diretamente para o sistema, em vez de apenas jogar na tela com <code>print</code>.</p>\n          <p class=\"mb-3\">Em algoritmos de busca, o <strong>Early Return</strong> (retorno antecipado) \u00e9 uma pr\u00e1tica onde a fun\u00e7\u00e3o encerra e retorna o resultado no exato momento que encontra o que precisa. O la\u00e7o \u00e9 quebrado automaticamente.</p>\n        "
+    "theory": "<p class=\"mb-3\"><strong>Listas</strong> agrupam valores em uma sequência: <code>numeros = [4, 9, 2]</code>. Os índices começam em zero; <code>numeros[0]</code> vale 4.</p>\n<p class=\"mb-3\"><strong>Funções</strong> recebem dados por parâmetros e podem devolver um resultado. Sua estrutura começa com <code>def nome(parametro):</code>. O conteúdo é indentado.</p>\n<p class=\"mb-3\">Use <code>return</code> para devolver o valor da função. Uma lista vazia (<code>[]</code>) não tem primeiro item; podemos testar <code>if not lista:</code> antes do acesso.</p>\n<p class=\"mb-3\">Neste módulo, o sistema verifica o <strong>retorno da função</strong>; imprimir o resultado não é suficiente.</p>",
+    "curriculum_version": 2
   },
   {
     "id": "m4_contagem_vogais",
     "module": 4,
-    "title": "M\u00f3dulo 4: Contar Vogais",
-    "statement": "Implemente a fun\u00e7\u00e3o `m4_contagem_vogais(texto)` que recebe uma string e retorna a quantidade de vogais (a, e, i, o, u) presentes nela. Ignore a diferen\u00e7a entre mai\u00fasculas e min\u00fasculas.\n\nExemplo:\n`m4_contagem_vogais('Abacaxi')` deve retornar `4`.",
+    "title": "Módulo 4: Contar Vogais de um Texto",
+    "statement": "Implemente a função `m4_contagem_vogais(texto)` que recebe uma **string** e retorna quantas vogais `a, e, i, o, u` existem nela.\n\nMaiúsculas e minúsculas contam igualmente. Neste exercício, considere apenas as cinco vogais sem acento.\n\nExemplo: `m4_contagem_vogais('Abacaxi')` deve retornar `4`.\n\nUse `return`, não `print()`.",
     "function_name": "m4_contagem_vogais",
     "tests": [
       {
@@ -487,31 +428,41 @@ const problems = [
       {
         "in": "bc dfg",
         "out": 0
+      },
+      {
+        "in": "",
+        "out": 0
+      },
+      {
+        "in": "Educação",
+        "out": 4
       }
     ],
     "hints": [
-      "Strings tamb\u00e9m podem ser iteradas como listas: 'for letra in texto:'",
-      "Transforme o texto em min\u00fasculas primeiro para facilitar usando 'texto.lower()'.",
-      "Voc\u00ea pode verificar se a letra est\u00e1 numa string de vogais: 'if letra in \"aeiou\":'."
+      "Você pode percorrer as letras de uma string usando um `for`.",
+      "Crie um contador iniciado em zero e acrescente um quando encontrar uma vogal.",
+      "Para ignorar letras maiúsculas, use `.lower()` no texto. O operador `in` verifica se uma letra pertence à sequência `'aeiou'`."
     ],
-    "solution": "# Exemplo: Fun\u00e7\u00e3o que conta quantas letras MAI\u00daSCULAS existem no texto\n\ndef contar_maiusculas(texto: str) -> int:\n    qtd = 0\n    for letra in texto:\n        if letra.isupper():\n            qtd += 1\n    return qtd",
+    "solution": "# Exemplo do professor: contar algarismos dentro de um texto.\ndef contar_digitos(texto):\n    contador = 0\n    for caractere in texto:\n        if caractere in '0123456789':\n            contador += 1\n    return contador",
     "constraints": [
-      "O retorno deve ser um inteiro."
+      "Retorne um número inteiro com `return`.",
+      "Considere `a, e, i, o, u` sem acentos e ignore diferenças de maiúsculas."
     ],
-    "theory": "\n          <p class=\"mb-3\">No Python, o operador <code>in</code> \u00e9 poderoso. Ele serve para iterar num <code>for</code>, mas em condicionais serve como verificador de pertin\u00eancia.</p>\n          <p class=\"mb-3\">Escrever <code>letra in \"aeiou\"</code> \u00e9 uma forma super elegante de evitar verifica\u00e7\u00f5es longas como <code>letra == 'a' or letra == 'e' or ...</code>.</p>\n        "
+    "theory": "<p class=\"mb-3\">Uma <strong>string</strong> é uma sequência de caracteres. Podemos percorrê-la com <code>for letra in palavra:</code>, observando cada letra por vez.</p>\n<p class=\"mb-3\">Usamos <code>in</code> para verificar a presença de um caractere em um texto: <code>'e' in 'elefante'</code> é verdadeiro.</p>\n<p class=\"mb-3\">O método <code>.lower()</code> transforma letras em minúsculas, permitindo uma comparação única para 'A' e 'a'. Um contador soma ocorrências; uma função devolve o resultado por <code>return</code>.</p>",
+    "curriculum_version": 2
   },
   {
     "id": "m4_status_nota",
     "module": 4,
-    "title": "M\u00f3dulo 4: Lista de Status",
-    "statement": "Implemente a fun\u00e7\u00e3o `m4_status_nota(notas)` que recebe uma lista de notas (floats) e retorna uma NOVA lista de strings contendo o status de cada nota:\n- 'Aprovado' se a nota for >= 7.0\n- 'Recuperacao' se a nota for >= 5.0 e < 7.0\n- 'Reprovado' se a nota for < 5.0\n\nExemplo:\n`m4_status_nota([8.5, 6.0, 4.0])` deve retornar `['Aprovado', 'Recuperacao', 'Reprovado']`.",
+    "title": "Módulo 4: Classificar uma Lista de Notas",
+    "statement": "Crie a função `m4_status_nota(notas)` que recebe uma **lista de números** e devolve uma **nova lista de textos**, com um resultado para cada nota:\n\n- Nota maior ou igual a 7: `Aprovado`\n- Nota de 5 até menos de 7: `Recuperacao`\n- Nota menor que 5: `Reprovado`\n\nExemplo: `m4_status_nota([8.5, 6.0, 4.0])` → `['Aprovado', 'Recuperacao', 'Reprovado']`.\n\nSe a lista de entrada estiver vazia, devolva `[]`.",
     "function_name": "m4_status_nota",
     "tests": [
       {
         "in": [
           8.5,
-          6.0,
-          4.0
+          6,
+          4
         ],
         "out": [
           "Aprovado",
@@ -521,8 +472,8 @@ const problems = [
       },
       {
         "in": [
-          10.0,
-          7.0
+          10,
+          7
         ],
         "out": [
           "Aprovado",
@@ -531,10 +482,16 @@ const problems = [
       },
       {
         "in": [
-          4.9
+          4.9,
+          5,
+          6.99,
+          7
         ],
         "out": [
-          "Reprovado"
+          "Reprovado",
+          "Recuperacao",
+          "Recuperacao",
+          "Aprovado"
         ]
       },
       {
@@ -543,55 +500,66 @@ const problems = [
       }
     ],
     "hints": [
-      "Crie uma lista vazia para os resultados.",
-      "Itere sobre as 'notas'.",
-      "Use if-elif-else para determinar o status de cada nota.",
-      "Fa\u00e7a append da string de status resultante e retorne a lista final."
+      "O resultado deve ter a mesma quantidade de elementos que a lista original.",
+      "Crie uma lista vazia e percorra cada nota com `for`.",
+      "Dentro do laço, teste as faixas em ordem com `if`, `elif` e `else`, e use `.append()` para registrar o status."
     ],
-    "solution": "# Exemplo: Transformar uma lista de temperaturas em categorias clim\u00e1ticas\n\ndef categorizar_temperaturas(temps: list) -> list:\n    categorias = []\n    for t in temps:\n        if t > 30:\n            categorias.append('Quente')\n        elif t >= 15:\n            categorias.append('Agradavel')\n        else:\n            categorias.append('Frio')\n    return categorias",
+    "solution": "# Exemplo do professor: transformar temperaturas em sensações.\ndef sensacoes(temperaturas):\n    saida = []\n    for temp in temperaturas:\n        if temp >= 30:\n            saida.append('Quente')\n        elif temp >= 18:\n            saida.append('Agradavel')\n        else:\n            saida.append('Frio')\n    return saida",
     "constraints": [
-      "Retorne uma lista de strings correspondentes elemento a elemento com a entrada."
+      "Retorne uma nova lista de strings na mesma ordem das notas.",
+      "Use as grafias exatas: `Aprovado`, `Recuperacao`, `Reprovado`."
     ],
-    "theory": "\n          <p class=\"mb-3\">Esta opera\u00e7\u00e3o de iterar sobre uma lista e gerar uma nova lista de mesmo tamanho com valores mapeados baseados numa condi\u00e7\u00e3o \u00e9 extremamente comum na manipula\u00e7\u00e3o de dados.</p>\n          <p class=\"mb-3\">Voc\u00ea est\u00e1 aplicando uma l\u00f3gica de transforma\u00e7\u00e3o aos dados. Mais adiante na sua carreira em Python, aprender\u00e1 um conceito chamado 'List Comprehensions' que far\u00e1 isso em apenas uma linha!</p>\n        "
+    "theory": "<p class=\"mb-3\">O método <code>.append(valor)</code> acrescenta um elemento ao final de uma lista. É útil para criar uma nova sequência a partir de outra.</p>\n<p class=\"mb-3\">Uma <strong>transformação</strong> percorre cada item de entrada e registra um item correspondente no resultado. Um laço <code>for</code> pode combinar o percurso com condições.</p>\n<p class=\"mb-3\">Em regras por faixa, trate os limites com atenção. Depois de construir a nova lista, devolva-a com <code>return</code>.</p>",
+    "curriculum_version": 2
   },
   {
     "id": "m5_extremos",
     "module": 5,
-    "title": "M\u00f3dulo 5: Encontrar Extremos",
-    "statement": "Implemente a fun\u00e7\u00e3o `m5_extremos(lista)` que recebe uma lista de n\u00fameros inteiros positivos e retorna uma nova lista com apenas dois elementos: o Menor e o Maior valor encontrados. Se a lista estiver vazia, retorne `[]`.\n\nExemplo:\n`m5_extremos([15, 3, 9, 21, 6])` deve retornar `[3, 21]`.",
+    "title": "Módulo 5: Menor e Maior Valor",
+    "statement": "Implemente a função `m5_extremos(lista)` que recebe uma lista de números e devolve outra lista contendo o **menor valor** e depois o **maior valor**.\n\nExemplo: `m5_extremos([5, 2, 9, 4])` → `[2, 9]`.\n\nSe a lista estiver vazia, retorne `[]`. A lista também pode conter números negativos.",
     "function_name": "m5_extremos",
     "tests": [
       {
         "in": [
-          15,
-          3,
-          9,
-          21,
-          6
-        ],
-        "out": [
-          3,
-          21
-        ]
-      },
-      {
-        "in": [
-          10,
-          10,
-          10
-        ],
-        "out": [
-          10,
-          10
-        ]
-      },
-      {
-        "in": [
-          5
-        ],
-        "out": [
           5,
-          5
+          2,
+          9,
+          4
+        ],
+        "out": [
+          2,
+          9
+        ]
+      },
+      {
+        "in": [
+          -9,
+          -1,
+          -4
+        ],
+        "out": [
+          -9,
+          -1
+        ]
+      },
+      {
+        "in": [
+          8,
+          8,
+          8
+        ],
+        "out": [
+          8,
+          8
+        ]
+      },
+      {
+        "in": [
+          3
+        ],
+        "out": [
+          3,
+          3
         ]
       },
       {
@@ -600,28 +568,31 @@ const problems = [
       }
     ],
     "hints": [
-      "Trate o caso da lista vazia primeiro: 'if not lista: return []'",
-      "Voc\u00ea pode resolver f\u00e1cil usando as fun\u00e7\u00f5es max(lista) e min(lista).",
-      "O retorno \u00e9 uma lista formatada como [minimo, maximo]."
+      "Primeiro trate a lista vazia; nesse caso, não existe mínimo ou máximo.",
+      "Pense como compararia dois valores para decidir qual é menor e qual é maior.",
+      "Você pode atualizar duas variáveis durante um `for`; Python também oferece `min()` e `max()` quando uma lista não é vazia."
     ],
-    "solution": "# Exemplo: Fun\u00e7\u00e3o que retorna apenas o PRIMEIRO e o \u00daLTIMO elemento de uma lista\n\ndef primeiro_e_ultimo(lista: list) -> list:\n    if not lista:\n        return []\n    return [lista[0], lista[-1]]",
+    "solution": "# Exemplo do professor: retornar a DIFERENÇA entre maior e menor valor.\ndef amplitude(numeros):\n    if not numeros:\n        return 0\n    return max(numeros) - min(numeros)",
     "constraints": [
-      "A ordem no retorno importa (primeiro o menor, depois o maior)."
+      "O resultado deve seguir a ordem `[menor, maior]`.",
+      "Trate lista vazia e listas com um único número.",
+      "Considere números negativos."
     ],
-    "theory": "\n          <p class=\"mb-3\">Em Python puro, procurar o maior e menor n\u00famero n\u00e3o exige que voc\u00ea construa o loop manualmente do zero guardando vari\u00e1veis auxiliares. A linguagem j\u00e1 implementa as fun\u00e7\u00f5es integradas hiperotimizadas <code>min()</code> e <code>max()</code> para cole\u00e7\u00f5es iter\u00e1veis.</p>\n        "
+    "theory": "<p class=\"mb-3\">Ao percorrer uma coleção, podemos procurar <strong>valores extremos</strong>: o maior e o menor. É possível fazer isso com comparações sucessivas, guardando o melhor valor encontrado até cada momento.</p>\n<p class=\"mb-3\">Python também fornece funções integradas <code>min(lista)</code> e <code>max(lista)</code> para coleções não vazias.</p>\n<p class=\"mb-3\">Antes de calcular extremos, é essencial tratar o caso da lista vazia. Se a lista tiver apenas um valor, ele será o menor e o maior ao mesmo tempo.</p>",
+    "curriculum_version": 2
   },
   {
     "id": "m5_filtrar_nomes",
     "module": 5,
-    "title": "M\u00f3dulo 5: Filtrar Nomes",
-    "statement": "Implemente a fun\u00e7\u00e3o `m5_filtrar_nomes(nomes)` que recebe uma lista de strings e retorna uma NOVA lista contendo apenas os nomes que possuem 5 ou mais letras.\n\nExemplo:\n`m5_filtrar_nomes(['Ana', 'Carlos', 'Jo\u00e3o', 'Beatriz'])` deve retornar `['Carlos', 'Beatriz']`.",
+    "title": "Módulo 5: Filtrar Nomes",
+    "statement": "Implemente a função `m5_filtrar_nomes(nomes)` que recebe uma lista de palavras e retorna uma **nova lista** somente com os nomes que têm **pelo menos cinco caracteres**.\n\nMantenha a ordem original. Não altere a lista de entrada.\n\nExemplo: `m5_filtrar_nomes(['Ana', 'Carlos', 'João', 'Beatriz'])` → `['Carlos', 'Beatriz']`.",
     "function_name": "m5_filtrar_nomes",
     "tests": [
       {
         "in": [
           "Ana",
           "Carlos",
-          "Jo\u00e3o",
+          "João",
           "Beatriz"
         ],
         "out": [
@@ -646,64 +617,17 @@ const problems = [
           "Pedro",
           "Maria"
         ]
-      }
-    ],
-    "hints": [
-      "Use o 'for' para percorrer cada nome.",
-      "Utilize a fun\u00e7\u00e3o 'len(nome)' para verificar o tamanho da string.",
-      "Adicione \u00e0 nova lista apenas se o tamanho for >= 5."
-    ],
-    "solution": "# Exemplo: Fun\u00e7\u00e3o que filtra e retorna apenas os N\u00daMEROS PARES de uma lista\n\ndef filtrar_pares(numeros: list) -> list:\n    pares = []\n    for n in numeros:\n        if n % 2 == 0:\n            pares.append(n)\n    return pares",
-    "constraints": [
-      "Deve retornar uma nova lista, deixando a original intocada."
-    ],
-    "theory": "\n          <p class=\"mb-3\">Filtrar cole\u00e7\u00f5es de dados \u00e9 um cl\u00e1ssico de programa\u00e7\u00e3o (Padr\u00e3o de Filtro). Iteramos sobre os dados originais e aplicamos um predicado (fun\u00e7\u00e3o que retorna True ou False). Apenas os dados aprovados passam pelo filtro para a cole\u00e7\u00e3o final.</p>\n        "
-  },
-  {
-    "id": "m5_remover_duplicatas",
-    "module": 5,
-    "title": "M\u00f3dulo 5: Remover Duplicatas",
-    "statement": "Implemente a fun\u00e7\u00e3o `m5_remover_duplicatas(lista)` que recebe uma lista de n\u00fameros e retorna uma nova lista onde todas as duplicatas foram removidas, mas mantendo a ordem original da primeira apari\u00e7\u00e3o dos n\u00fameros.\n\nExemplo:\n`m5_remover_duplicatas([1, 2, 2, 3, 1, 4, 3])` deve retornar `[1, 2, 3, 4]`.",
-    "function_name": "m5_remover_duplicatas",
-    "tests": [
-      {
-        "in": [
-          1,
-          2,
-          2,
-          3,
-          1,
-          4,
-          3
-        ],
-        "out": [
-          1,
-          2,
-          3,
-          4
-        ]
       },
       {
         "in": [
-          5,
-          5,
-          5,
-          5
+          "Alana",
+          "A",
+          "Sofia",
+          "Ana"
         ],
         "out": [
-          5
-        ]
-      },
-      {
-        "in": [
-          1,
-          2,
-          3
-        ],
-        "out": [
-          1,
-          2,
-          3
+          "Alana",
+          "Sofia"
         ]
       },
       {
@@ -712,101 +636,173 @@ const problems = [
       }
     ],
     "hints": [
-      "Crie uma nova lista para os itens \u00fanicos.",
-      "Ao iterar pela lista original, use 'if numero not in unicos:' para adicionar o n\u00famero apenas uma vez."
+      "Pense em como percorrer todos os nomes, sem escolher apenas um deles.",
+      "A função `len(texto)` informa a quantidade de caracteres de uma string.",
+      "Guarde em uma nova lista somente os nomes que passam pelo teste e devolva essa lista."
     ],
-    "solution": "# Exemplo: Juntar duas listas ignorando os itens repetidos!\n\ndef juntar_listas_unicas(lista1: list, lista2: list) -> list:\n    unicos = []\n    for item in lista1 + lista2:\n        if item not in unicos:\n            unicos.append(item)\n    return unicos",
+    "solution": "# Exemplo do professor: filtrar números maiores que 10.\ndef maiores_que_dez(numeros):\n    filtrados = []\n    for numero in numeros:\n        if numero > 10:\n            filtrados.append(numero)\n    return filtrados",
     "constraints": [
-      "A ordem dos itens na lista resultante deve refletir a ordem de apari\u00e7\u00e3o na lista de origem."
+      "Use a quantidade de caracteres, não o número de palavras.",
+      "Retorne uma nova lista preservando a ordem original."
     ],
-    "theory": "\n          <p class=\"mb-3\">A verifica\u00e7\u00e3o de presen\u00e7a <code>not in</code> aplicada sobre listas \u00e9 muito \u00fatil para gerenciar estados acumulados. Contudo, saiba que para listas imensas, essa verifica\u00e7\u00e3o \u00e9 lenta. Programadores Python experientes geralmente usam estruturas de dados chamadas <code>Set</code> (conjuntos) quando a ordem n\u00e3o importa e precisam remover duplicatas com alt\u00edssima efici\u00eancia!</p>\n        "
+    "theory": "<p class=\"mb-3\"><strong>Filtrar</strong> significa selecionar apenas os elementos que cumprem uma condição, preservando a ordem dos selecionados.</p>\n<p class=\"mb-3\">A função <code>len()</code> conta caracteres de uma string e elementos de uma lista. Podemos compará-la com um limite dentro de <code>if</code>.</p>\n<p class=\"mb-3\">O padrão mais comum é criar uma lista de resultados, percorrer os dados com <code>for</code> e adicionar somente os itens desejados com <code>.append()</code>.</p>",
+    "curriculum_version": 2
   },
   {
-    "id": "analisar_turma",
-    "module": "final",
-    "title": "Desafio Final: Analisar Desempenho da Turma",
-    "statement": "Implemente a fun\u00e7\u00e3o `analisar_turma(alunos)` que recebe uma lista de dicion\u00e1rios contendo informa\u00e7\u00f5es de alunos na estrutura:\n`{'nome': 'Ana', 'idade': 20, 'notas': [8, 9, 10]}`.\n\nA fun\u00e7\u00e3o deve processar os dados e retornar uma **lista** contendo exatamente os tr\u00eas valores abaixo nessa exata ordem:\n1. A m\u00e9dia geral da turma (como float, m\u00e9dia aritm\u00e9tica de todas as notas).\n2. A quantidade total de alunos que s\u00e3o maiores de idade (idade >= 18).\n3. Uma lista contendo os nomes dos alunos aprovados (m\u00e9dia >= 7.0).\n\nExemplo:\n`analisar_turma([{'nome': 'Ana', 'idade': 20, 'notas': [8, 9, 10]}, {'nome': 'Bob', 'idade': 16, 'notas': [5, 6, 4]}])` deve retornar:\n`[7.0, 1, ['Ana']]`",
-    "function_name": "analisar_turma",
+    "id": "m5_remover_duplicatas",
+    "module": 5,
+    "title": "Módulo 5: Remover Números Repetidos",
+    "statement": "Implemente a função `m5_remover_duplicatas(lista)` que recebe uma lista de números inteiros e devolve uma nova lista sem repetições, mantendo a **primeira ocorrência** de cada valor na ordem original.\n\nExemplo: `m5_remover_duplicatas([1, 2, 2, 3, 1])` → `[1, 2, 3]`.\n\nSe a entrada for vazia, devolva `[]`.",
+    "function_name": "m5_remover_duplicatas",
     "tests": [
       {
         "in": [
-          {
-            "nome": "Ana",
-            "idade": 20,
-            "notas": [
-              8,
-              9,
-              10
-            ]
-          },
-          {
-            "nome": "Bob",
-            "idade": 16,
-            "notas": [
-              5,
-              6,
-              4
-            ]
-          }
+          1,
+          2,
+          2,
+          3,
+          1
         ],
         "out": [
-          7.0,
           1,
-          [
-            "Ana"
-          ]
+          2,
+          3
         ]
       },
       {
         "in": [
-          {
-            "nome": "Carlos",
-            "idade": 17,
-            "notas": [
-              7,
-              7,
-              7
-            ]
-          },
-          {
-            "nome": "Julia",
-            "idade": 19,
-            "notas": [
-              10,
-              10
-            ]
-          }
+          5,
+          5,
+          5
         ],
         "out": [
-          8.2,
+          5
+        ]
+      },
+      {
+        "in": [
           1,
-          [
-            "Carlos",
-            "Julia"
-          ]
+          2,
+          3
+        ],
+        "out": [
+          1,
+          2,
+          3
+        ]
+      },
+      {
+        "in": [
+          -1,
+          0,
+          -1,
+          0
+        ],
+        "out": [
+          -1,
+          0
+        ]
+      },
+      {
+        "in": [],
+        "out": []
+      }
+    ],
+    "hints": [
+      "Percorra a lista do começo ao fim e construa outra lista para o resultado.",
+      "Antes de adicionar um valor, pergunte se ele já apareceu na sua lista de resultados.",
+      "O operador `not in` verifica se o valor está ausente; use essa condição antes de `.append()`."
+    ],
+    "solution": "# Exemplo do professor: guardar letras distintas de uma palavra, na ordem.\ndef letras_distintas(palavra):\n    resultado = []\n    for letra in palavra:\n        if letra not in resultado:\n            resultado.append(letra)\n    return resultado",
+    "constraints": [
+      "Preserve a ordem da primeira ocorrência.",
+      "Não modifique a lista original.",
+      "A função deve retornar uma nova lista."
+    ],
+    "theory": "<p class=\"mb-3\">Uma <strong>lista sem duplicatas</strong> mantém um único exemplar de cada valor. Se a ordem importa, precisamos lembrar a primeira vez que cada valor apareceu.</p>\n<p class=\"mb-3\">A expressão <code>valor not in valores</code> é verdadeira quando <code>valor</code> não faz parte da coleção.</p>\n<p class=\"mb-3\">Percorrer, verificar e adicionar são três passos de raciocínio que podem ser escritos dentro de um <code>for</code>. Para este nível, uma lista de resultados é suficiente.</p>",
+    "curriculum_version": 2
+  },
+  {
+    "id": "analisar_turma",
+    "module": "final",
+    "title": "Desafio Final: Resumo de Notas da Turma",
+    "statement": "Chegou a hora de combinar o que você aprendeu: variáveis, operações, condicionais, laços, listas e funções.\n\nCrie a função `analisar_turma(notas)` que recebe uma **lista de notas** de 0 a 10. Ela deve devolver uma lista com **dois valores nesta ordem**:\n\n1. A média aritmética das notas, arredondada a uma casa decimal.\n2. A quantidade de notas maiores ou iguais a 7 (aprovados).\n\nExemplo: `analisar_turma([8, 6, 7])` → `[7.0, 2]`.\n\nSe não houver notas (`[]`), devolva `[0.0, 0]`. Não há dicionários ou estruturas ainda não ensinadas.",
+    "function_name": "analisar_turma",
+    "tests": [
+      {
+        "in": [
+          8,
+          6,
+          7
+        ],
+        "out": [
+          7,
+          2
+        ]
+      },
+      {
+        "in": [
+          10,
+          5,
+          9,
+          6
+        ],
+        "out": [
+          7.5,
+          2
+        ]
+      },
+      {
+        "in": [
+          6,
+          6,
+          6
+        ],
+        "out": [
+          6,
+          0
+        ]
+      },
+      {
+        "in": [
+          7
+        ],
+        "out": [
+          7,
+          1
         ]
       },
       {
         "in": [],
         "out": [
-          0.0,
           0,
-          []
+          0
+        ]
+      },
+      {
+        "in": [
+          8.5,
+          6.5
+        ],
+        "out": [
+          7.5,
+          1
         ]
       }
     ],
     "hints": [
-      "Use um loop para percorrer a lista de alunos e obter seus dados usando as chaves de dicion\u00e1rio (ex: aluno['notas']).",
-      "Para a m\u00e9dia de cada aluno, use sum(notas) / len(notas).",
-      "Mantenha um somador e um contador globais para tirar a m\u00e9dia de TODAS as notas juntadas.",
-      "O retorno precisa ser formatado exatamente como [media_geral, total_maiores, lista_aprovados]."
+      "O que deve acontecer se a lista estiver vazia? Trate esse caso antes de dividir valores.",
+      "Você pode percorrer as notas acumulando a soma e contando quantas atingem o limite da aprovação.",
+      "A média é a soma dividida pela quantidade de notas. Lembre-se de arredondar a uma casa e retornar uma lista com os dois valores."
     ],
-    "solution": "# Exemplo: Fun\u00e7\u00e3o que analisa um estoque de produtos e retorna m\u00e9tricas.\n# Ex de entrada: [{'nome': 'Ma\u00e7a', 'preco': 2.5, 'estoque': 10}, ...]\n\ndef analisar_estoque(produtos: list) -> list:\n    if not produtos:\n        return [0.0, 0, []]\n        \n    valor_total_inventario = 0\n    produtos_zerados = 0\n    nomes_caros = []\n    \n    for p in produtos:\n        # C\u00e1lculos de agrega\u00e7\u00e3o geral\n        valor_total_inventario += p['preco'] * p['estoque']\n        \n        # Verifica\u00e7\u00e3o condicional simples\n        if p['estoque'] == 0:\n            produtos_zerados += 1\n            \n        # Filtragem\n        if p['preco'] > 50.0:\n            nomes_caros.append(p['nome'])\n            \n    return [valor_total_inventario, produtos_zerados, nomes_caros]",
+    "solution": "# Exemplo do professor: resumir uma lista de preços com total e quantidade de itens caros.\ndef resumir_precos(precos):\n    total = 0\n    caros = 0\n    for preco in precos:\n        total += preco\n        if preco > 50:\n            caros += 1\n    return [round(total, 1), caros]",
     "constraints": [
-      "O retorno n\u00e3o \u00e9 um dicion\u00e1rio. \u00c9 uma lista com tr\u00eas elementos mistos (float, int, list).",
-      "Arredonde a m\u00e9dia geral da sala para 1 casa decimal."
+      "Retorne `[media, total_aprovados]`, com média arredondada a uma casa.",
+      "Em lista vazia, retorne `[0.0, 0]`.",
+      "Não utilize dicionários: a entrada é apenas uma lista de notas."
     ],
-    "theory": "\n          <p class=\"mb-3\">Este desafio consolida v\u00e1rios conceitos avan\u00e7ados em Python: <strong>dicion\u00e1rios estruturados</strong>, listas aninhadas, itera\u00e7\u00f5es e l\u00f3gica matem\u00e1tica complexa.</p>\n          <p class=\"mb-3\"><strong>Estrutura de Dicion\u00e1rio:</strong> Um dicion\u00e1rio \u00e9 indexado por chaves como strings (ex: <code>aluno['nome']</code> ou <code>aluno['idade']</code>). Voc\u00ea pode obter um valor de forma segura com o m\u00e9todo <code>.get('chave', default)</code>.</p>\n          <p class=\"mb-3\"><strong>C\u00e1lculo Acumulado:</strong> Para computar a m\u00e9dia geral da turma inteira, lembre-se de somar individualmente <i>todas</i> as notas de todos os alunos e dividir pela <i>quantidade total</i> de notas registradas na sala de aula.</p>\n        "
+    "theory": "<p class=\"mb-3\">O desafio final integra conceitos trabalhados na trilha, sem introduzir novas estruturas. Uma <strong>função</strong> recebe uma lista e retorna um resultado.</p>\n<p class=\"mb-3\">A <strong>média aritmética</strong> é a soma dos valores dividida pela quantidade deles. Um acumulador pode somar as notas durante um <code>for</code>; um contador separado pode registrar quantas atendem a uma condição.</p>\n<p class=\"mb-3\">Para evitar divisão por zero, trate <code>if not notas:</code> antes de calcular a média. A lista de retorno deve manter a ordem definida no enunciado e pode conter valores de tipos diferentes.</p>",
+    "curriculum_version": 2
   }
 ];
 
