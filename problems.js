@@ -810,6 +810,100 @@ const problems = [
   }
 ];
 
+// Dois exemplos práticos por exercício: exemplos análogos, não a solução do desafio.
+const complementaryPracticalExamples = {
+  "m1_imc": {
+    "title": "Consumo de combustível",
+    "description": "Treine leitura de posições de uma lista, divisão e arredondamento em um cenário diferente.",
+    "code": "# entrada = [quilometros, litros]\ndistancia, litros = [240, 20]\nconsumo = distancia / litros\nprint(round(consumo, 2))"
+  },
+  "m1_conversor_temp": {
+    "title": "Minutos em segundos",
+    "description": "Aplique uma conversão entre unidades usando uma operação matemática.",
+    "code": "minutos = 2.5\nsegundos = minutos * 60\nprint(round(segundos, 1))"
+  },
+  "m1_calculo_desconto": {
+    "title": "Acrescentar uma taxa",
+    "description": "Observe como calcular porcentagens e aplicar o resultado a um valor original.",
+    "code": "preco = 80.0\ntaxa = 12.5\nacrescimo = preco * (taxa / 100)\nprint(round(preco + acrescimo, 2))"
+  },
+  "m2_maioridade": {
+    "title": "Frete grátis por valor",
+    "description": "Use uma condição e dois caminhos possíveis de execução.",
+    "code": "valor_compra = 160\nif valor_compra >= 150:\n    print(\"Frete grátis\")\nelse:\n    print(\"Frete cobrado\")"
+  },
+  "m2_par_impar": {
+    "title": "Múltiplo de três",
+    "description": "O operador módulo (%) devolve o resto da divisão.",
+    "code": "numero = 21\neh_multiplo_de_tres = numero % 3 == 0\nprint(eh_multiplo_de_tres)"
+  },
+  "m2_desconto_categoria": {
+    "title": "Prazo de entrega por região",
+    "description": "Compare uma string com diferentes opções usando if, elif e else.",
+    "code": "regiao = \"sudeste\"\nif regiao == \"norte\":\n    dias = 8\nelif regiao == \"sudeste\":\n    dias = 3\nelse:\n    dias = 5\nprint(dias)"
+  },
+  "m3_contagem": {
+    "title": "Pares até um limite",
+    "description": "Pratique a atualização de um contador dentro de um while.",
+    "code": "limite = 10\npares = []\ncontador = 2\nwhile contador <= limite:\n    pares.append(contador)\n    contador += 2\nprint(pares)"
+  },
+  "m3_soma_limite": {
+    "title": "Economizar até uma meta",
+    "description": "Combine acumulador, contador e condição de parada em um contexto cotidiano.",
+    "code": "meta = 30\neconomizado = 0\nsemanas = 0\nwhile economizado < meta:\n    economizado += 10\n    semanas += 1\nprint(semanas)"
+  },
+  "m3_tabuada": {
+    "title": "Gerar sequência com for",
+    "description": "Acrescente resultados a uma lista em cada passagem do laço.",
+    "code": "resultados = []\nfor numero in range(1, 6):\n    resultados.append(numero + 2)\nprint(resultados)"
+  },
+  "m4_busca_linear": {
+    "title": "Localizar primeira palavra longa",
+    "description": "Percorra posições e retorne ao encontrar uma condição, com um valor padrão caso não exista.",
+    "code": "def primeira_palavra_longa(palavras):\n    for indice, palavra in enumerate(palavras):\n        if len(palavra) > 6:\n            return indice\n    return -1\n\nprint(primeira_palavra_longa([\"sol\", \"computador\", \"lua\"]))"
+  },
+  "m4_contagem_vogais": {
+    "title": "Contar algarismos em texto",
+    "description": "Percorra caracteres de uma string e acumule ocorrências.",
+    "code": "def contar_digitos(texto):\n    total = 0\n    for caractere in texto:\n        if caractere.isdigit():\n            total += 1\n    return total\n\nprint(contar_digitos(\"Sala 203\"))"
+  },
+  "m4_status_nota": {
+    "title": "Classificar faixas de idade",
+    "description": "Construa uma nova lista a partir de verificações condicionais.",
+    "code": "def classificar_idades(idades):\n    resultados = []\n    for idade in idades:\n        if idade < 12:\n            resultados.append(\"Crianca\")\n        elif idade < 18:\n            resultados.append(\"Adolescente\")\n        else:\n            resultados.append(\"Adulto\")\n    return resultados\n\nprint(classificar_idades([8, 15, 30]))"
+  },
+  "m5_extremos": {
+    "title": "Encontrar apenas o maior",
+    "description": "Observe a varredura de uma lista e a atualização de um valor de referência.",
+    "code": "def maior_temperatura(temperaturas):\n    if not temperaturas:\n        return None\n    maior = temperaturas[0]\n    for temperatura in temperaturas:\n        if temperatura > maior:\n            maior = temperatura\n    return maior\n\nprint(maior_temperatura([21, 28, 23]))"
+  },
+  "m5_filtrar_nomes": {
+    "title": "Filtrar palavras por letra",
+    "description": "Adicione a uma nova lista apenas elementos que atendam a uma condição.",
+    "code": "def palavras_com_a(palavras):\n    selecionadas = []\n    for palavra in palavras:\n        if palavra.lower().startswith(\"a\"):\n            selecionadas.append(palavra)\n    return selecionadas\n\nprint(palavras_com_a([\"Abacate\", \"uva\", \"amora\"]))"
+  },
+  "m5_remover_duplicatas": {
+    "title": "Registrar cidades sem repetir",
+    "description": "Use uma lista auxiliar e verifique a existência de cada item.",
+    "code": "cidades = [\"Recife\", \"Natal\", \"Recife\", \"Belém\"]\nvisitadas = []\nfor cidade in cidades:\n    if cidade not in visitadas:\n        visitadas.append(cidade)\nprint(visitadas)"
+  },
+  "analisar_turma": {
+    "title": "Analisar uma pequena biblioteca",
+    "description": "Pratique percorrer dicionários e combinar contagem, soma e filtragem, sem usar os dados do desafio.",
+    "code": "livros = [\n    {\"titulo\": \"A\", \"paginas\": 120, \"disponivel\": True},\n    {\"titulo\": \"B\", \"paginas\": 180, \"disponivel\": False}\n]\ntotal_paginas = 0\ntitulos_disponiveis = []\nfor livro in livros:\n    total_paginas += livro[\"paginas\"]\n    if livro[\"disponivel\"]:\n        titulos_disponiveis.append(livro[\"titulo\"])\nprint(total_paginas, titulos_disponiveis)"
+  }
+};
+problems.forEach(problem => {
+  const complemento = complementaryPracticalExamples[problem.id];
+  if (!complemento || !problem.solution) {
+    throw new Error("Exemplos práticos incompletos para: " + problem.id);
+  }
+  problem.practicalExamples = [
+    { title: "Exemplo 1 — Conceito relacionado", description: "Observe a aplicação da mesma ideia em outra situação.", code: problem.solution },
+    complemento
+  ];
+});
+
 // Exporta caso seja usado em ambientes node/testes, mas deixa global no navegador
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { problems };
