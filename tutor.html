@@ -448,6 +448,10 @@
 <style>body{visibility:hidden}</style>
 <script>document.addEventListener("DOMContentLoaded",async()=>{if(await TutorAuth.requireLogin()){const header=document.querySelector(".sidebar-header")||document.querySelector("header");if(header){const btn=document.createElement("button");btn.textContent="Sair da conta";btn.type="button";btn.style.cssText="border:1px solid #cbd5e1;border-radius:10px;padding:9px 13px;background:white;color:#334155;font-size:12px;cursor:pointer";btn.addEventListener("click",()=>TutorAuth.logout());header.appendChild(btn);}}});</script>
   <link rel="stylesheet" href="preflight-review.css">
+  <!-- CodeMirror fornece realce Python, indentação e números de linha. -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+  <link rel="stylesheet" href="code-editor.css">
 </head>
 
 <body class="selection:bg-black selection:text-white relative min-h-screen">
@@ -610,13 +614,13 @@
             <div class="mode-selector flex border-b-2 border-slate-100 gap-8 mt-2">
               <div
                 class="mode-tab cursor-pointer text-sm font-bold text-slate-400 border-b-[3px] border-transparent pb-3 -mb-[2px] transition-all hover:text-black"
-                id="tab-desc" data-mode="desc">
-                Descrever ideia
+                id="tab-code" data-mode="code">
+                Escrever código (Python)
               </div>
               <div
                 class="mode-tab cursor-pointer text-sm font-bold text-slate-400 border-b-[3px] border-transparent pb-3 -mb-[2px] transition-all hover:text-black"
-                id="tab-code" data-mode="code">
-                Escrever código (Python)
+                id="tab-desc" data-mode="desc">
+                Descrever ideia
               </div>
             </div>
 
@@ -679,6 +683,15 @@
 
             <!-- TAB 2: Escrever Código -->
             <div class="tab-content flex-col gap-5" id="panel-code">
+              <!-- Ajuda optativa quando o aluno fica parado no código. -->
+              <div id="idea-nudge" class="idea-nudge" hidden role="status">
+                <p class="font-semibold">Quer organizar o raciocínio antes de continuar?</p>
+                <p class="mt-1 mb-3">Descrever sua ideia pode ajudar a encontrar o próximo passo, sem revelar a solução.</p>
+                <div class="flex flex-wrap gap-2">
+                  <button id="idea-nudge-open" type="button">Descrever minha ideia</button>
+                  <button id="idea-nudge-dismiss" type="button">Agora não</button>
+                </div>
+              </div>
               <!-- IDE Window frame -->
               <div class="code-editor-wrapper border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                 <!-- Title bar -->
@@ -695,7 +708,8 @@
                   </div>
                 </div>
                 <textarea id="textarea-code" class="code-textarea w-full p-5 text-sm" rows="12"
-                  placeholder="def minha_funcao(n):&#10;    # Digite seu código Python aqui..."></textarea>
+                  aria-label="Editor de código Python" spellcheck="false"
+                  placeholder="# Digite seu código Python aqui"></textarea>
               </div>
 
               <div class="action-row flex flex-wrap gap-4 items-center">
@@ -722,6 +736,8 @@
                   id="btn-ask-tutor-code">👨‍🏫 Pergunte ao professor</button>
                 <span class="text-xs text-slate-400 font-mono ml-auto">Dica: use `print()` para ver saídas no console.</span>
               </div>
+
+              <div id="code-input-notice" class="code-input-notice" role="note"></div>
 
               <!-- Feedback Dialogue Code -->
               <div
@@ -759,7 +775,7 @@
 
                 <!-- Stdout console -->
                 <div id="console-wrapper" class="space-y-1.5">
-                  <strong class="text-xs font-mono text-slate-500 uppercase tracking-wider">Saída (stdout):</strong>
+                  <strong class="text-xs font-mono text-slate-500 uppercase tracking-wider">Saída do primeiro caso de teste (stdout):</strong>
                   <div
                     class="console-output bg-slate-900 border border-slate-800 text-slate-100 p-4 rounded-xl font-mono text-xs max-h-40 overflow-y-auto"
                     id="stdout-output"></div>
@@ -779,6 +795,7 @@
                 <!-- Test validation wrapper -->
                 <div id="tests-wrapper" class="space-y-3">
                   <strong class="text-xs font-mono text-slate-500 uppercase tracking-wider block">Verificação (testes):</strong>
+                  <div id="test-summary" aria-live="polite"></div>
                   <div class="test-list flex flex-col gap-2.5" id="test-list-container">
                     <!-- Populados via JS -->
                   </div>
@@ -939,6 +956,11 @@
 
   <!-- Revisão interativa antes dos exercícios -->
   <script src="preflight-review.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/runmode/runmode.min.js"></script>
+  <script src="code-editor.js"></script>
 
   <!-- Inclusão das lógicas JS -->
   <script src="problems.js"></script>
