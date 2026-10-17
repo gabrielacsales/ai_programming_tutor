@@ -9,7 +9,7 @@
 
   function safeNext(raw) {
     // Nunca redirecionar para URL externa passada por parâmetro.
-    return /^(conteudos|tutor)\.html(\?exercise=[a-zA-Z0-9_]+)?$/.test(raw || "")
+    return /^(?:(?:conteudos|tutor)\.html(?:\?exercise=[a-zA-Z0-9_]+)?|perfil\.html)$/.test(raw || "")
       ? raw : "conteudos.html";
   }
 
