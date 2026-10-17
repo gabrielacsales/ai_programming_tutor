@@ -4,6 +4,7 @@
 -- 1) Preserva os registros da versão anterior numa tabela restrita.
 -- 2) Faz somente conclusões da versão 2 liberarem próximos exercícios.
 -- Sem excluir registros das tabelas já existentes.
+-- Atualiza as dependências do módulo 3 para contagem -> soma -> tabuada.
 
 begin;
 
@@ -36,6 +37,16 @@ from public.exercise_progress
 where coalesce(metrics ->> 'curriculum_version', '1') <> '2'
 on conflict (user_id, exercise_id) do nothing;
 
+-- As regras de dependência devem corresponder à ordem real dos módulos.
+insert into public.exercise_access_rules (exercise_id, required_exercise_id, is_final) values
+  ('m3_contagem', 'm2_desconto_categoria', false),
+  ('m3_soma_limite', 'm3_contagem', false),
+  ('m3_tabuada', 'm3_soma_limite', false),
+  ('m4_busca_linear', 'm3_tabuada', false)
+on conflict (exercise_id) do update set
+  required_exercise_id = excluded.required_exercise_id,
+  is_final = excluded.is_final;
+
 -- Estudantes concluem cada exercício da nova versão antes de avançar.
 -- Mantém a exceção para desenvolvedora, com autorização exclusivamente no banco.
 create or replace function public.can_access_exercise(p_exercise_id text)
@@ -67,7 +78,7 @@ as $$
             and p.metrics ->> 'curriculum_version' = '2'
             and p.exercise_id in (
               'm1_calculo_desconto', 'm2_desconto_categoria',
-              'm3_soma_limite', 'm4_status_nota', 'm5_remover_duplicatas'
+              'm3_tabuada', 'm4_status_nota', 'm5_remover_duplicatas'
             )
         ) = 5
       )
