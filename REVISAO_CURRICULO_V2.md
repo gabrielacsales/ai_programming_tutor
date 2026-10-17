@@ -68,7 +68,7 @@ Foram conferidos logicamente **76 casos de teste** contra comportamentos de refe
 - O SQL cria `exercise_progress_v1_archive` com RLS para preservar registros da versão anterior.
 - Os dados originais não são apagados pelo script. Quando o aluno trabalha em um exercício revisto, novos salvamentos substituirão a linha ativa antiga; sua cópia permanece no arquivo.
 - Os exercícios já concluídos no currículo anterior **não aparecem como concluídos no currículo novo** e não desbloqueiam conteúdos que mudaram de objetivo.
-- Histórico do tutor em `chat_messages` permanece, mas pode conter discussões sobre os antigos enunciados no mesmo ID. Na coleta formal, será necessário versionar também o histórico por atividade/edição.
+- O histórico do tutor também é versionado: a migração adiciona `chat_messages.curriculum_version` (mensagens anteriores ficam na versão 1). O frontend e o Gemini recuperam apenas conversas da versão corrente, evitando misturar diálogo sobre IMC com diálogo sobre Dobro de um Número.
 
 ## Próximas verificações obrigatórias antes de pesquisa com participantes reais
 
@@ -77,3 +77,13 @@ Foram conferidos logicamente **76 casos de teste** contra comportamentos de refe
 - Auditar anti-plágio e verificação da conclusão no backend: atualmente os testes do Python rodam no navegador e um aluno tecnicamente habilidoso pode falsificar registros `completed`.
 - Revisar acessibilidade, consentimento, retenção e LGPD para coleta acadêmica.
 - Avaliar se o método de intervenção do professor Socrático realmente estimula a autonomia, com exemplos representativos; instruções LLM não garantem conformidade perfeita.
+
+## Implantação coordenada — não pule a ordem
+
+1. **SQL Editor do Supabase:** se ainda não aplicou `supabase/developer-access.sql`, aplique-o primeiro. Depois execute o conteúdo atual de `supabase/curriculum-v2.sql`, que cria o arquivo do progresso anterior, atualiza pré-requisitos e adiciona a versão do histórico de IA.
+2. **Edge Functions → gemini-tutor → Code:** substitua pelo conteúdo atual de `supabase/functions/gemini-tutor/index.ts` e clique em **Deploy updates**. A nova função reconhece `curriculum_version` para ler/gravar o diálogo correto. O segredo Gemini permanece inalterado.
+3. **VS Code:** baixe uma nova cópia da branch, extraia em outra pasta, inicie `python -m http.server 8000` e entre na conta.
+4. Teste o **primeiro exercício** com `entrada = 6` → `12`, saída decimal `77.0` e `77`, saída de laço em várias linhas e função retornando `None`.
+5. Verifique um aluno sem permissão de desenvolvedor e a progressão de módulos no Supabase; teste novamente o histórico do Gemini numa atividade atualizada.
+
+Não é necessário criar novas Secrets nem recriar a função. **Não execute o `supabase/schema.sql` de novo** em um banco já configurado. Não publique para alunos reais antes de validar todas as etapas.
