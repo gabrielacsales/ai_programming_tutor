@@ -21,10 +21,19 @@
 <p><strong>Riscos e direitos:</strong> possíveis desconfortos com questões e risco residual de privacidade; você pode não participar, deixar de responder perguntas abertas ou retirar a participação a qualquer momento sem prejuízo no uso educacional. A retirada exclui os dados vinculados desta área de pesquisa, sem apagar automaticamente sua conta e rascunhos educacionais.</p>
 <p><strong>Retenção, contato e responsável:</strong> estas informações deverão constar no TCLE final aprovado pela instituição antes de abrir a coleta. O presente formulário é um protótipo e <strong>não substitui aprovação ética/TCLE institucional</strong>.</p>
 <div class="warning">A coleta está fechada por padrão no banco. O recrutamento somente deve ser liberado depois de definir contatos, retenção, protocolo, consentimento e eventuais exigências do comitê de ética. Este protótipo aceita apenas participantes com 18 anos ou mais.</div>
+<div id="official-terms" class="panel" hidden>
+<h3>Termo de consentimento da instituição</h3>
+<p><strong>Instituição:</strong> <span id="official-institution"></span></p>
+<p><strong>Contato da pesquisa:</strong> <span id="official-contact"></span></p>
+<p><strong>Referência da revisão ética:</strong> <span id="official-protocol"></span></p>
+<p><strong>Retenção dos dados:</strong> <span id="official-retention"></span></p>
+<p id="official-consent-text" style="white-space:pre-wrap"></p>
+</div>
+<p id="registration-status" class="muted" role="status">Aguardando publicação do termo final da pesquisa.</p>
 <form id="consent-form">
 <label class="check"><input type="checkbox" id="adult" required> Confirmo ter 18 anos ou mais.</label>
 <label class="check"><input type="checkbox" id="consent" required> Li as informações do estudo e concordo voluntariamente com a coleta descrita, conforme o documento institucional definitivo.</label>
-<button class="primary" type="submit">Concordo em participar</button>
+<button class="primary" type="submit" id="join-study" disabled>Concordo em participar</button>
 </form>
 </section>
 <section id="registered-section" class="panel" hidden>
