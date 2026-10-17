@@ -28,8 +28,18 @@ function render(data) {
 async function refresh(){el("admin-status").textContent="Consultando banco de dados...";try{
   render(await rpc("research_dashboard"));
 }catch(err){
-  el("admin-body").hidden=true;el("admin-status").textContent="Acesso não autorizado ou painel indisponível.";
-  alertError(err.message+" Confira se sua conta foi inserida em researcher_accounts no SQL Editor.");
+  el("admin-body").hidden=true;
+  const msg=String(err.message||"");
+  if(/PGRST202|Could not find the function|schema cache/i.test(msg)){
+    el("admin-status").textContent="A estrutura da pesquisa ainda não está instalada neste Supabase.";
+    alertError("O banco não encontrou research_dashboard(). No SQL Editor, execute primeiro supabase/research-study.sql, depois supabase/senac-onboarding.sql. Confirme que o script terminou sem erros. Se a função já existir, execute NOTIFY pgrst, 'reload schema'; e recarregue esta página. Detalhe: "+msg);
+  } else if(/access denied|permission denied|Acesso restrito|42501/i.test(msg)){
+    el("admin-status").textContent="Seu usuário não possui autorização de pesquisadora.";
+    alertError("A conta não está em researcher_accounts. Autorize-a SOMENTE pelo SQL Editor. Detalhe: "+msg);
+  } else {
+    el("admin-status").textContent="Não foi possível consultar o painel.";
+    alertError(msg+" Verifique a configuração do Supabase.");
+  }
 }}
 function safeCell(value) {
  let str=value===null||value===undefined?"":typeof value==="object"?JSON.stringify(value):String(value);
