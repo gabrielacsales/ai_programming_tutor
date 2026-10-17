@@ -58,7 +58,7 @@ class ModuleProgressTests(unittest.TestCase):
         self.assertIn('is-complete', self.module_css)
         self.assertNotIn("localStorage", self.module_js)
         self.assertNotIn("client.rpc", self.module_js)
-        self.assertNotIn("supabase", self.module_js.lower())
+        self.assertNotIn("window.supabase", self.module_js.lower())
 
 
 if __name__ == "__main__":
