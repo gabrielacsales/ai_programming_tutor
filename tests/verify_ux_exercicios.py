@@ -54,9 +54,18 @@ class ExerciseUXTests(unittest.TestCase):
         self.assertEqual(len(re.findall(r'data-tour-step="[0-3]"', self.html)), 6)
         self.assertIn("TutorEditor.start", self.app)
         self.assertIn("TutorAccess.verify", self.app)
-        self.assertIn("TutorAuth.requireCourseReady", self.app)
+        self.assertIn("TutorAuth.requireLogin", self.app)
         self.assertIn('href="learning-ui.css"', self.html)
         self.assertLess(self.html.index('src="learning-ui.js"'), self.html.index('src="app.js"'))
+
+    def test_practical_examples_use_same_python_syntax_theme_as_editor(self):
+        self.assertIn('teacher-code-pre cm-s-material-darker', self.ui)
+        self.assertIn('window.CodeMirror.runMode(', self.ui)
+        self.assertIn('highlightPracticalExamples(exerciseExamplesContent)', self.app)
+        self.assertIn('mode/python/python.min.js', self.html)
+        self.assertIn('addon/runmode/runmode.min.js', self.html)
+        self.assertIn('theme/material-darker.min.css', self.html)
+        self.assertIn('.practical-example pre.teacher-code-pre', self.style)
 
     def test_unique_html_ids(self):
         ids = re.findall(r'\bid="([^"]+)"', self.html)
