@@ -359,7 +359,7 @@ async function loadActiveExercise(challengeId) {
   }
 
   // Preenche Resumos do Tema e Exemplos
-  exerciseSummaryContent.innerHTML = p.theory || `<p class="text-slate-600">${p.statement}</p>`;
+  exerciseSummaryContent.innerHTML = StudyGuide.render(p, problems);
   exerciseExamplesContent.innerHTML = learningUI.renderPracticeExamples(p);
   learningUI.highlightPracticalExamples(exerciseExamplesContent);
 
@@ -411,6 +411,18 @@ async function loadActiveExercise(challengeId) {
   });
   else learningUI.initFeatureTour();
 }
+
+// Ações do material de revisão: navegar até exemplos ou voltar ao desafio.
+exerciseSummaryContent.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-study-tab]");
+  if (!button || !exerciseSummaryContent.contains(button)) return;
+  const destination = button.dataset.studyTab;
+  if (destination !== "examples" && destination !== "statement") return;
+  switchExerciseTab(destination);
+  const tab = destination === "examples" ? tabExerciseExamples : tabExerciseStatement;
+  tab.focus();
+  tab.scrollIntoView({ behavior: "smooth", block: "nearest" });
+});
 
 // Alterna entre abas "Descrever Ideia" e "Código"
 function switchMode(mode) {
