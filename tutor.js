@@ -7,8 +7,10 @@ class SocraticTutor {
 
   // Guardrails locais de verificação de atalhos
   isDirectAnswerRequest(text) {
-    const finalAskRe = /\b(resposta|solu[cç][aã]o|c[oó]digo\s*completo|gabarito)\b/i;
-    return finalAskRe.test(text || "");
+    const explicitRequest = /(?:me\s+(?:d[aáe]|pass(?:a|e)|mostr(?:a|e)|mand(?:a|e)|entreg(?:a|ue))|quero\s+(?:a|o)|qual\s+(?:é\s+)?(?:a|o)).{0,40}(?:gabarito|solu[cç][aã]o|resposta|c[oó]digo)/i;
+    const readySolution = /(?:gabarito|c[oó]digo\s+(?:completo|pronto)|(?:resposta|solu[cç][aã]o)\s+(?:final|pronta|completa))/i;
+    const solveForMe = /(?:resolv[ae]\s+(?:esse|o)\s+exerc[ií]cio\s+(?:para|pra)\s+mim|fa[çc]a\s+(?:esse|o)\s+exerc[ií]cio\s+(?:para|pra)\s+mim)/i;
+    return explicitRequest.test(text || "") || readySolution.test(text || "") || solveForMe.test(text || "");
   }
 
   suggestsReadyLibrary(text) {
