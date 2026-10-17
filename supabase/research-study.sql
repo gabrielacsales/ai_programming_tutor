@@ -166,8 +166,8 @@ BEGIN
   IF v_n <> 8 OR EXISTS (
     SELECT 1 FROM jsonb_each_text(p_answers) AS kv
     WHERE kv.key NOT IN ('q1','q2','q3','q4','q5','q6','q7','q8')
-       OR kv.value NOT IN ('A','B','C','D')
-  ) THEN RAISE EXCEPTION 'Responda às oito questões com A, B, C ou D.'; END IF;
+       OR kv.value NOT IN ('A','B','C','D','E')
+  ) THEN RAISE EXCEPTION 'Responda às oito questões com A, B, C, D ou E (Não sei).'; END IF;
   INSERT INTO public.research_assessments(user_id,phase,answers) VALUES(v_uid,p_phase,p_answers);
   RETURN true;
 EXCEPTION WHEN unique_violation THEN RAISE EXCEPTION 'Este teste já foi enviado e não pode ser repetido.'; END; $$;
@@ -345,6 +345,7 @@ GRANT EXECUTE ON FUNCTION public.research_dashboard() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.research_export(text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.research_save_interview(text,text,text) TO authenticated;
 COMMIT;
+notify pgrst, 'reload schema';
 
 -- Autorize sua conta SOMENTE pelo SQL Editor, depois de executar a migração:
 -- INSERT INTO public.researcher_accounts(user_id)
