@@ -765,42 +765,68 @@ btnSubmitCode.addEventListener("click", async () => {
       errorWrapper.style.display = "none";
       document.getElementById("tests-wrapper").style.display = "block";
 
-      // Renderiza lista de testes
-      testListContainer.innerHTML = "";
-      let allTestsPassed = true;
+      // Cada caso deixa explícita a entrada, o resultado e a saída esperada.
+      // Saídas geradas pelo aluno entram no DOM como texto, nunca como HTML.
+      testListContainer.replaceChildren();
+      const cases = Array.isArray(res.test_results) ? res.test_results : [];
+      const passed = cases.filter(t => t.ok).length;
+      const allTestsPassed = cases.length > 0 && passed === cases.length;
 
-      res.test_results.forEach(t => {
+      const summary = document.getElementById("test-summary");
+      summary.className = "execution-summary " + (allTestsPassed ? "ok" : "partial");
+      summary.textContent = allTestsPassed
+        ? `Todos os ${cases.length} testes passaram. Excelente!`
+        : `${passed} de ${cases.length} testes passaram. Seu código precisa funcionar com entradas diferentes.`;
+
+      cases.forEach(t => {
         const item = document.createElement("div");
-        item.className = `test-item ${t.ok ? 'passed' : 'failed'}`;
-
+        item.className = `test-item ${t.ok ? "passed" : "failed"}`;
         const details = document.createElement("div");
-        details.innerHTML = `<strong>Caso ${escapeHtml(t.id)}:</strong> ${t.error ? 'Exceção gerada' : `Obtido: <code>${escapeHtml(t.result)}</code> | Esperado: <code>${escapeHtml(t.expected)}</code>`}`;
+        details.className = "test-case-text";
 
+        const head = document.createElement("strong");
+        head.textContent = "Caso " + t.id;
+        const entry = document.createElement("div");
+        entry.className = "test-case-input";
+        entry.textContent = "Entrada fornecida: " + (t.input ?? "—");
+
+        const values = document.createElement("div");
+        values.className = "test-case-values";
+        const expected = document.createElement("span");
+        expected.textContent = "Esperado: ";
+        const expectedCode = document.createElement("code");
+        expectedCode.textContent = String(t.expected ?? "");
+        expected.appendChild(expectedCode);
+        const received = document.createElement("span");
+        received.textContent = "Obtido: ";
+        const receivedCode = document.createElement("code");
+        receivedCode.textContent = t.result === null || t.result === undefined
+          ? "(sem retorno)" : String(t.result);
+        received.appendChild(receivedCode);
+        values.append(expected, received);
+        details.append(head, entry, values);
+
+        if (t.error) {
+          const err = document.createElement("div");
+          err.className = "test-case-error";
+          err.textContent = "Erro Python: " + t.error;
+          details.appendChild(err);
+        }
         const badge = document.createElement("span");
-        badge.className = `test-badge ${t.ok ? 'pass' : 'fail'}`;
-        badge.innerText = t.ok ? "PASS" : "FAIL";
-
-        item.appendChild(details);
-        item.appendChild(badge);
+        badge.className = `test-badge ${t.ok ? "pass" : "fail"}`;
+        badge.textContent = t.ok ? "PASSOU" : "REVER";
+        item.append(details, badge);
         testListContainer.appendChild(item);
-
-        if (!t.ok) allTestsPassed = false;
       });
 
-      // Se falhou nos testes, IA dá dicas sobre falha
       if (!allTestsPassed) {
+        // Feedback determinístico, sem uma chamada Gemini automática a cada falha.
+        // A ajuda socrática permanece disponível ao clicar em "Pergunte ao professor".
         testAiHelp.style.display = "block";
         testAiHelp.className = "feedback-box warning";
-        testAiHelp.innerHTML = "<em>Professor analisando as falhas...</em>";
-
-        const testHint = await tutor.ask(
-          "Me ajude a entender por que meus casos de teste falharam e o que verificar no código (sem dar a resposta pronta).",
-          currentOrch.buildContext(),
-          code
-        );
-        testAiHelp.innerHTML = `<strong>Dica do Professor:</strong><br>${escapeHtml(testHint)}`;
-        loadChatHistory(currentOrch.problem.id);
-
+        testAiHelp.textContent = res.input_overwritten && !currentOrch.problem.function_name
+          ? "Atenção: você atribuiu um valor a 'entrada' no próprio código. O avaliador já define essa variável com um valor diferente em cada caso. Remova a linha 'entrada = ...' e use o valor recebido."
+          : "Compare a entrada, o resultado esperado e o obtido em cada caso. Tente localizar qual parte do seu raciocínio não funciona para todos os valores. Se precisar, use Dica ou Pergunte ao professor.";
         currentOrch.state.completed = false;
       } else {
         testAiHelp.style.display = "none";
