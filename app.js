@@ -989,6 +989,8 @@ setInterval(() => {
 
 // Init: lê primeiro os dados da conta, depois monta a interface.
 (async function startTutor() {
+  // A proteção do banco também é aplicada ao carregar um link direto.
+  if (!await TutorAuth.requireCourseReady()) return;
   try {
     await TutorProgress.init();
     await TutorAccess.init();
