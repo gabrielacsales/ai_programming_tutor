@@ -16,6 +16,8 @@ class ChallengeOrchestrator {
     // Métricas comportamentais individuais por exercício
     this.metrics = {
       hints_used: 0,
+      code_submissions: 0, // registrado a partir desta atualização
+      idea_submissions: 0,
       blocked_direct_answer_attempts: 0,
       direct_answer_attempts: 0,
       reengagement_after_block: 0,
@@ -615,6 +617,7 @@ btnSubmitDesc.addEventListener("click", async () => {
 
   try {
     currentOrch.recordAttempt(idea);
+    currentOrch.metrics.idea_submissions = (Number(currentOrch.metrics.idea_submissions) || 0) + 1;
     currentOrch.recordReengagement(); // Considera reengajamento após bloqueios anteriores
 
     const critique = await tutor.critiqueIdea(idea, currentOrch.buildContext());
@@ -750,6 +753,8 @@ btnSubmitCode.addEventListener("click", async () => {
 
   try {
     currentOrch.recordAttempt(code);
+    currentOrch.state.user_code = code;
+    currentOrch.metrics.code_submissions = (Number(currentOrch.metrics.code_submissions) || 0) + 1;
     currentOrch.recordReengagement();
 
     // Roda no Pyodide
