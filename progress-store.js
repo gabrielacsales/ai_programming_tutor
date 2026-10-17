@@ -2,6 +2,11 @@
 // Não confie neste arquivo para certificação: o navegador não é uma fonte confiável de resultados.
 (function () {
   const client = window.TutorAuth?.client;
+  const CURRICULUM_VERSION = 2;
+  // O progresso antigo é arquivado pela migration, não confundido com as novas tarefas.
+  function isCurrentCurriculum(row) {
+    return Number(row?.metrics?.curriculum_version) === CURRICULUM_VERSION;
+  }
   let userId = null;
   let loadPromise = null;
   let records = new Map();
@@ -10,7 +15,7 @@
   function syncLegacyIndicators() {
     // Mantém temporariamente a compatibilidade visual com telas antigas.
     // O banco, e não o localStorage, é a fonte dos dados da conta.
-    const done = [...records.values()].filter(row => row.completed).map(row => row.exercise_id);
+    const done = [...records.values()].filter(row => row.completed && isCurrentCurriculum(row)).map(row => row.exercise_id);
     localStorage.setItem("completed_exercises", JSON.stringify(done));
   }
 
@@ -36,11 +41,12 @@
   }
 
   function get(exerciseId) {
-    return records.get(exerciseId) || null;
+    const row = records.get(exerciseId);
+    return row && isCurrentCurriculum(row) ? row : null;
   }
 
   function getCompletedIds() {
-    return [...records.values()].filter(row => row.completed).map(row => row.exercise_id);
+    return [...records.values()].filter(row => row.completed && isCurrentCurriculum(row)).map(row => row.exercise_id);
   }
 
   function save(exerciseId, changes) {
@@ -57,7 +63,7 @@
         user_code: String(changes.user_code ?? ""),
         user_idea: String(changes.user_idea ?? ""),
         completed: !!changes.completed,
-        metrics: changes.metrics ?? {},
+        metrics: { ...(changes.metrics ?? {}), curriculum_version: CURRICULUM_VERSION },
         updated_at: new Date().toISOString()
       };
       const { data, error } = await client.from("exercise_progress")
