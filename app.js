@@ -398,6 +398,7 @@ async function loadActiveExercise(challengeId) {
   loadChatHistory(challengeId);
   // A revisão aparece ao entrar em qualquer exercício e não interfere
   // no estado do aluno nem nas métricas acadêmicas já instrumentadas.
+  window.TutorResearch?.startExercise(p.id);
   window.TutorResearch?.record(p.id, "exercise_opened");
   if (window.TutorReview) TutorReview.open(p, (quiz) => {
     lastInteractionTime = Date.now(); // não contar o tempo gasto no popup como inatividade
