@@ -56,6 +56,7 @@ Deno.serve(async (req: Request) => {
     const mode = body?.mode;
     const exercise = body?.exercise || {};
     const exerciseId = bounded(exercise.id, 80);
+    const curriculumVersion = exercise.curriculum_version === 2 ? 2 : 1;
     const title = bounded(exercise.title, 140);
     const statement = bounded(exercise.statement, 850);
     const constraints = Array.isArray(exercise.constraints)
@@ -95,6 +96,7 @@ Deno.serve(async (req: Request) => {
         .select("role,content")
         .eq("user_id", userId)
         .eq("exercise_id", exerciseId)
+        .eq("curriculum_version", curriculumVersion)
         .order("id", { ascending: false })
         .limit(8);
       if (historyError) {
@@ -226,8 +228,8 @@ Deno.serve(async (req: Request) => {
     // O histórico é associado exclusivamente ao usuário do token verificado.
     // A RLS impede a gravação em nome de outro aluno.
     const { error: dbError } = await supabase.from("chat_messages").insert([
-      { user_id: userId, exercise_id: exerciseId, role: "user", content: message },
-      { user_id: userId, exercise_id: exerciseId, role: "assistant", content: reply },
+      { user_id: userId, exercise_id: exerciseId, curriculum_version: curriculumVersion, role: "user", content: message },
+      { user_id: userId, exercise_id: exerciseId, curriculum_version: curriculumVersion, role: "assistant", content: reply },
     ]);
     if (dbError) {
       console.error("Failed to write chat history:", dbError.message);
