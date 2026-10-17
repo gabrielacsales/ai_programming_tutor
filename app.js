@@ -339,7 +339,11 @@ async function loadActiveExercise(challengeId) {
 
   // Preenche metadados do exercício
   problemTitle.innerText = p.title;
-  problemStatement.innerText = p.statement;
+  problemStatement.innerHTML = learningUI.renderExerciseStatementMarkdown(p.statement);
+  const statementBody = document.getElementById("problem-statement-content");
+  statementBody.hidden = false;
+  document.getElementById("btn-toggle-statement").setAttribute("aria-expanded", "true");
+  document.getElementById("statement-toggle-label").textContent = "Recolher";
 
   // Preenche Restrições (constraints)
   constraintsList.innerHTML = "";
@@ -356,7 +360,7 @@ async function loadActiveExercise(challengeId) {
 
   // Preenche Resumos do Tema e Exemplos
   exerciseSummaryContent.innerHTML = p.theory || `<p class="text-slate-600">${p.statement}</p>`;
-  TutorEditor.renderExample(p.solution || "");
+  exerciseExamplesContent.innerHTML = learningUI.renderPracticeExamples(p);
 
   const codeNotice = document.getElementById("code-input-notice");
   if (codeNotice) {
@@ -372,8 +376,9 @@ async function loadActiveExercise(challengeId) {
     : `# entrada é definida automaticamente em cada caso de teste. NÃO a redefina.\n# Utilize print() para exibir o resultado.\n\n`));
 
   // Reseta elementos de feedback visual da interface
-  feedbackDesc.style.display = "none";
-  feedbackCode.style.display = "none";
+  learningUI.setFeedbackVisible("desc", false);
+  learningUI.setFeedbackVisible("code", false);
+  document.getElementById("execution-feedback-details").open = true;
   accSocraticDesc.style.display = "none";
   accSocraticCode.style.display = "none";
   inputSocraticDesc.value = "";
@@ -405,7 +410,10 @@ async function loadActiveExercise(challengeId) {
     window.TutorResearch?.record(p.id, quiz?.completed ? "review_completed" : "review_skipped", {
       mistakes: quiz?.mistakes || 0
     });
+    // Guia interativo somente depois que o aluno fecha a revisão inicial.
+    learningUI.initFeatureTour();
   });
+  else learningUI.initFeatureTour();
 }
 
 // Alterna entre abas "Descrever Ideia" e "Código"
@@ -563,6 +571,15 @@ textareaCode.addEventListener("keydown", function (e) {
   }
 });
 
+// Enunciado recolhível (mantém espaço de trabalho e progresso intactos).
+document.getElementById("btn-toggle-statement").addEventListener("click", () => {
+  const content = document.getElementById("problem-statement-content");
+  const expanded = content.hidden;
+  content.hidden = !expanded;
+  document.getElementById("btn-toggle-statement").setAttribute("aria-expanded", String(expanded));
+  document.getElementById("statement-toggle-label").textContent = expanded ? "Recolher" : "Expandir";
+});
+
 // Accordion de Restrições
 if (constraintsExpander) {
   const trigger = constraintsExpander.querySelector(".expander-trigger");
@@ -630,7 +647,7 @@ btnSubmitDesc.addEventListener("click", async () => {
   }
 
   btnSubmitDesc.disabled = true;
-  feedbackDesc.style.display = "block";
+  learningUI.setFeedbackVisible("desc", true);
   feedbackDesc.className = "feedback-box";
   feedbackDesc.innerHTML = "<em>Professor avaliando sua ideia...</em>";
 
@@ -777,7 +794,8 @@ btnSubmitCode.addEventListener("click", async () => {
   btnSubmitCode.disabled = true;
   pyodideSpinner.style.display = "inline-block";
   execResults.style.display = "none";
-  feedbackCode.style.display = "none";
+  learningUI.setFeedbackVisible("code", false);
+  document.getElementById("execution-feedback-details").open = true;
 
   try {
     currentOrch.recordAttempt(code);
@@ -942,7 +960,7 @@ btnSubmitCode.addEventListener("click", async () => {
     }
   } catch (e) {
     console.error(e);
-    feedbackCode.style.display = "block";
+    learningUI.setFeedbackVisible("code", true);
     feedbackCode.innerText = `Erro interno ao rodar o Python: ${e.message}`;
   } finally {
     btnSubmitCode.disabled = false;
