@@ -404,7 +404,8 @@ const problems = [
       "Retorne `None` quando a lista estiver vazia."
     ],
     "theory": "<p class=\"mb-3\"><strong>Listas</strong> agrupam valores em uma sequência: <code>numeros = [4, 9, 2]</code>. Os índices começam em zero; <code>numeros[0]</code> vale 4.</p>\n<p class=\"mb-3\"><strong>Funções</strong> recebem dados por parâmetros e podem devolver um resultado. Sua estrutura começa com <code>def nome(parametro):</code>. O conteúdo é indentado.</p>\n<p class=\"mb-3\">Use <code>return</code> para devolver o valor da função. Uma lista vazia (<code>[]</code>) não tem primeiro item; podemos testar <code>if not lista:</code> antes do acesso.</p>\n<p class=\"mb-3\">Neste módulo, o sistema verifica o <strong>retorno da função</strong>; imprimir o resultado não é suficiente.</p>",
-    "curriculum_version": 2
+    "curriculum_version": 2,
+    "function_parameter": "lista"
   },
   {
     "id": "m4_contagem_vogais",
@@ -449,7 +450,8 @@ const problems = [
       "Considere `a, e, i, o, u` sem acentos e ignore diferenças de maiúsculas."
     ],
     "theory": "<p class=\"mb-3\">Uma <strong>string</strong> é uma sequência de caracteres. Podemos percorrê-la com <code>for letra in palavra:</code>, observando cada letra por vez.</p>\n<p class=\"mb-3\">Usamos <code>in</code> para verificar a presença de um caractere em um texto: <code>'e' in 'elefante'</code> é verdadeiro.</p>\n<p class=\"mb-3\">O método <code>.lower()</code> transforma letras em minúsculas, permitindo uma comparação única para 'A' e 'a'. Um contador soma ocorrências; uma função devolve o resultado por <code>return</code>.</p>",
-    "curriculum_version": 2
+    "curriculum_version": 2,
+    "function_parameter": "texto"
   },
   {
     "id": "m4_status_nota",
@@ -510,7 +512,8 @@ const problems = [
       "Use as grafias exatas: `Aprovado`, `Recuperacao`, `Reprovado`."
     ],
     "theory": "<p class=\"mb-3\">O método <code>.append(valor)</code> acrescenta um elemento ao final de uma lista. É útil para criar uma nova sequência a partir de outra.</p>\n<p class=\"mb-3\">Uma <strong>transformação</strong> percorre cada item de entrada e registra um item correspondente no resultado. Um laço <code>for</code> pode combinar o percurso com condições.</p>\n<p class=\"mb-3\">Em regras por faixa, trate os limites com atenção. Depois de construir a nova lista, devolva-a com <code>return</code>.</p>",
-    "curriculum_version": 2
+    "curriculum_version": 2,
+    "function_parameter": "notas"
   },
   {
     "id": "m5_extremos",
@@ -579,7 +582,8 @@ const problems = [
       "Considere números negativos."
     ],
     "theory": "<p class=\"mb-3\">Ao percorrer uma coleção, podemos procurar <strong>valores extremos</strong>: o maior e o menor. É possível fazer isso com comparações sucessivas, guardando o melhor valor encontrado até cada momento.</p>\n<p class=\"mb-3\">Python também fornece funções integradas <code>min(lista)</code> e <code>max(lista)</code> para coleções não vazias.</p>\n<p class=\"mb-3\">Antes de calcular extremos, é essencial tratar o caso da lista vazia. Se a lista tiver apenas um valor, ele será o menor e o maior ao mesmo tempo.</p>",
-    "curriculum_version": 2
+    "curriculum_version": 2,
+    "function_parameter": "lista"
   },
   {
     "id": "m5_filtrar_nomes",
@@ -646,7 +650,8 @@ const problems = [
       "Retorne uma nova lista preservando a ordem original."
     ],
     "theory": "<p class=\"mb-3\"><strong>Filtrar</strong> significa selecionar apenas os elementos que cumprem uma condição, preservando a ordem dos selecionados.</p>\n<p class=\"mb-3\">A função <code>len()</code> conta caracteres de uma string e elementos de uma lista. Podemos compará-la com um limite dentro de <code>if</code>.</p>\n<p class=\"mb-3\">O padrão mais comum é criar uma lista de resultados, percorrer os dados com <code>for</code> e adicionar somente os itens desejados com <code>.append()</code>.</p>",
-    "curriculum_version": 2
+    "curriculum_version": 2,
+    "function_parameter": "nomes"
   },
   {
     "id": "m5_remover_duplicatas",
@@ -720,7 +725,8 @@ const problems = [
       "A função deve retornar uma nova lista."
     ],
     "theory": "<p class=\"mb-3\">Uma <strong>lista sem duplicatas</strong> mantém um único exemplar de cada valor. Se a ordem importa, precisamos lembrar a primeira vez que cada valor apareceu.</p>\n<p class=\"mb-3\">A expressão <code>valor not in valores</code> é verdadeira quando <code>valor</code> não faz parte da coleção.</p>\n<p class=\"mb-3\">Percorrer, verificar e adicionar são três passos de raciocínio que podem ser escritos dentro de um <code>for</code>. Para este nível, uma lista de resultados é suficiente.</p>",
-    "curriculum_version": 2
+    "curriculum_version": 2,
+    "function_parameter": "lista"
   },
   {
     "id": "analisar_turma",
@@ -802,7 +808,8 @@ const problems = [
       "Não utilize dicionários: a entrada é apenas uma lista de notas."
     ],
     "theory": "<p class=\"mb-3\">O desafio final integra conceitos trabalhados na trilha, sem introduzir novas estruturas. Uma <strong>função</strong> recebe uma lista e retorna um resultado.</p>\n<p class=\"mb-3\">A <strong>média aritmética</strong> é a soma dos valores dividida pela quantidade deles. Um acumulador pode somar as notas durante um <code>for</code>; um contador separado pode registrar quantas atendem a uma condição.</p>\n<p class=\"mb-3\">Para evitar divisão por zero, trate <code>if not notas:</code> antes de calcular a média. A lista de retorno deve manter a ordem definida no enunciado e pode conter valores de tipos diferentes.</p>",
-    "curriculum_version": 2
+    "curriculum_version": 2,
+    "function_parameter": "notas"
   }
 ];
 
