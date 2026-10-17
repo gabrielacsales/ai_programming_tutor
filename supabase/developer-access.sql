@@ -67,6 +67,7 @@ as $$
             where p.user_id = (select auth.uid())
               and p.exercise_id = e.required_exercise_id
               and p.completed = true
+              and p.metrics ->> 'curriculum_version' = '2'
           )
         )
       )
@@ -76,6 +77,7 @@ as $$
           from public.exercise_progress p
           where p.user_id = (select auth.uid())
             and p.completed = true
+            and p.metrics ->> 'curriculum_version' = '2'
             and p.exercise_id in (
               'm1_calculo_desconto', 'm2_desconto_categoria',
               'm3_soma_limite', 'm4_status_nota', 'm5_remover_duplicatas'
