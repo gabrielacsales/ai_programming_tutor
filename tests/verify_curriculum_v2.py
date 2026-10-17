@@ -35,7 +35,7 @@ class CurriculumV2Tests(unittest.TestCase):
         self.assertEqual(len(self.problems), 16)
         self.assertEqual(len(self.by_id), 16)
         self.assertEqual([p["module"] for p in self.problems],
-                         [1]*3 + [2]*3 + [3]*3 + [4]*3 + [5]*3 + [6])
+                         [1]*3 + [2]*3 + [3]*3 + [4]*3 + [5]*3 + ["final"])
 
     def test_every_exercise_has_synchronized_pedagogical_parts(self):
         for p in self.problems:
