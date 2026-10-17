@@ -26,12 +26,18 @@ returns jsonb language sql stable security definer set search_path=''
 as $$
 select jsonb_build_object(
  'affiliation',(select o.affiliation from public.course_onboarding o where o.user_id=(select auth.uid())),
- 'diagnostic_done',coalesce(
-   (select o.diagnostic_completed_at is not null from public.course_onboarding o where o.user_id=(select auth.uid())),false),
+ 'diagnostic_done',(
+  coalesce((select o.diagnostic_completed_at is not null from public.course_onboarding o
+      where o.user_id=(select auth.uid())),false)
+  or exists(select 1 from public.research_assessments a
+     where a.user_id=(select auth.uid()) and a.phase='pre')
+ ),
  'course_ready', exists(
    select 1 from public.course_onboarding o
    where o.user_id=(select auth.uid())
-     and (o.affiliation='other' or o.diagnostic_completed_at is not null)
+     and (o.affiliation='other' or o.diagnostic_completed_at is not null
+       or exists(select 1 from public.research_assessments a
+         where a.user_id=o.user_id and a.phase='pre'))
  ),
  'research_pre_recorded', exists(
    select 1 from public.research_assessments a
@@ -140,7 +146,9 @@ as $$
  and exists(
   select 1 from public.course_onboarding o
   where o.user_id=(select auth.uid())
-    and (o.affiliation='other' or o.diagnostic_completed_at is not null)
+    and (o.affiliation='other' or o.diagnostic_completed_at is not null
+      or exists(select 1 from public.research_assessments a
+        where a.user_id=o.user_id and a.phase='pre'))
  )
  and exists(
   select 1 from public.exercise_access_rules e
