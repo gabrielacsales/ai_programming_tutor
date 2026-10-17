@@ -10,6 +10,13 @@
   let lastError = "";
   const client = window.TutorAuth?.client;
   let pending = Promise.resolve();
+  const exerciseSessions = new Map();
+  function startExercise(exerciseId) {
+    const rand = Math.random().toString(36).slice(2, 13);
+    const token = "s" + Date.now().toString(36) + "_" + rand;
+    exerciseSessions.set(exerciseId, token);
+    return token;
+  }
   async function init() {
     if (started) return allowed;
     if (!client) return false;
@@ -26,12 +33,14 @@
 
   function record(exerciseId, eventType, details = {}) {
     if (!allowed || !client || typeof exerciseId !== "string") return Promise.resolve(false);
+    // Sessão capturada imediatamente, antes da execução assíncrona em fila.
+    const detailsWithSession = { ...details, session_id: exerciseSessions.get(exerciseId) || null };
     // Escritas serializadas evitam perder ordem observacional em chamadas muito rápidas.
     const job = pending.catch(() => false).then(async () => {
       const { data, error } = await client.rpc("research_record_event", {
         p_exercise_id: exerciseId,
         p_event_type: eventType,
-        p_details: details
+        p_details: detailsWithSession
       });
       if (error) {
         if (lastError !== error.message) {
@@ -49,5 +58,5 @@
   function status() { return { enabled: allowed, configured: started }; }
   function stop() { allowed = false; }
 
-  window.TutorResearch = { init, record, stop, status };
+  window.TutorResearch = { init, record, startExercise, stop, status };
 })();
