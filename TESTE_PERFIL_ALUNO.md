@@ -36,6 +36,8 @@ As consultas filtram a conta autenticada e as tabelas têm RLS. As métricas usa
 - **Envios de código:** soma de `metrics.code_submissions` (inserido nesta melhoria). **Contagens anteriores não são reconstruídas retroativamente**.
 - **Interações com o tutor:** mensagens de papel `user` na tabela `chat_messages`, versão 2. Inclui perguntas e solicitações de análise/feedback feitas pela interface.
 - **Solicitações bloqueadas:** soma de `metrics.blocked_direct_answer_attempts`.
+- **Reengajamentos após bloqueios:** soma de `metrics.reengagement_after_block`.
+- **Inatividade registrada:** soma de `metrics.idle_time_seconds`, exibida em minutos e segundos; não é tempo total dedicado ao curso.
 - **Última atividade:** data do registro `exercise_progress.updated_at` mais recente na versão 2.
 
 ## Observações de segurança e avaliação
