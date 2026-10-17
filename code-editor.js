@@ -3,6 +3,7 @@
 (function () {
   "use strict";
   let instance = null;
+  let suppressChange = false;
   const textarea = document.getElementById("textarea-code");
   const exampleContainer = document.getElementById("exercise-examples-content");
 
@@ -30,6 +31,7 @@
         }
       });
       instance.on("change", () => {
+        if (suppressChange) return;
         instance.save(); // sincroniza valor com textarea original
         if (typeof onChange === "function") onChange(getValue());
       });
@@ -44,9 +46,14 @@
   function setValue(value) {
     const next = String(value ?? "");
     if (instance) {
-      instance.setValue(next);
-      instance.save();
-      instance.clearHistory();
+      suppressChange = true;
+      try {
+        instance.setValue(next);
+        instance.save();
+        instance.clearHistory();
+      } finally {
+        suppressChange = false;
+      }
     } else if (textarea) {
       textarea.value = next;
     }
