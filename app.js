@@ -234,7 +234,13 @@ function loadActiveExercise(challengeId) {
 
   // Preenche metadados do exercício
   problemTitle.innerText = p.title;
-  problemStatement.innerText = p.statement;
+  problemStatement.innerHTML = learningUI.renderExerciseStatementMarkdown(p.statement);
+  // O próximo exercício deve começar com o enunciado visível.
+  const statementBody = document.getElementById("problem-statement-content");
+  statementBody.hidden = false;
+  const statementButton = document.getElementById("btn-toggle-statement");
+  statementButton.setAttribute("aria-expanded", "true");
+  document.getElementById("statement-toggle-label").innerText = "Recolher";
 
   // Preenche Restrições (constraints)
   constraintsList.innerHTML = "";
@@ -251,17 +257,15 @@ function loadActiveExercise(challengeId) {
 
   // Preenche Resumos do Tema e Exemplos
   exerciseSummaryContent.innerHTML = p.theory || `<p class="text-slate-600">${p.statement}</p>`;
-  exerciseExamplesContent.innerHTML = p.solution ?
-    `<strong class="block mb-2 text-slate-700">Exemplo de implementação (Solução do Professor):</strong><pre class="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-xs overflow-x-auto whitespace-pre-wrap">${p.solution}</pre>` :
-    "Este exercício não possui exemplos de solução.";
+  exerciseExamplesContent.innerHTML = learningUI.renderPracticeExamples(p);
 
   // Restaura o estado da aba
   textareaDesc.value = currentOrch.state.user_idea;
   textareaCode.value = currentOrch.state.user_code || (p.function_name ? `def ${p.function_name}(n):\n    # Escreva sua lógica aqui\n    pass` : `# Os dados do teste estarão na variável 'entrada'\n# Use print() para exibir o resultado final\n\n`);
 
   // Reseta elementos de feedback visual da interface
-  feedbackDesc.style.display = "none";
-  feedbackCode.style.display = "none";
+  learningUI.setFeedbackVisible("desc", false);
+  learningUI.setFeedbackVisible("code", false);
   accSocraticDesc.style.display = "none";
   accSocraticCode.style.display = "none";
   inputSocraticDesc.value = "";
@@ -412,6 +416,16 @@ textareaCode.addEventListener("keydown", function (e) {
   }
 });
 
+// Enunciado pode ser recolhido sem esconder editor ou status.
+const btnToggleStatement = document.getElementById("btn-toggle-statement");
+btnToggleStatement.addEventListener("click", () => {
+  const content = document.getElementById("problem-statement-content");
+  const shouldExpand = content.hidden;
+  content.hidden = !shouldExpand;
+  btnToggleStatement.setAttribute("aria-expanded", String(shouldExpand));
+  document.getElementById("statement-toggle-label").innerText = shouldExpand ? "Recolher" : "Expandir";
+});
+
 // Accordion de Restrições
 if (constraintsExpander) {
   const trigger = constraintsExpander.querySelector(".expander-trigger");
@@ -465,7 +479,7 @@ btnSubmitDesc.addEventListener("click", async () => {
   }
 
   btnSubmitDesc.disabled = true;
-  feedbackDesc.style.display = "block";
+  learningUI.setFeedbackVisible("desc", true);
   feedbackDesc.className = "feedback-box";
   feedbackDesc.innerHTML = "<em>Professor avaliando sua ideia...</em>";
 
@@ -575,7 +589,8 @@ btnSubmitCode.addEventListener("click", async () => {
   btnSubmitCode.disabled = true;
   pyodideSpinner.style.display = "inline-block";
   execResults.style.display = "none";
-  feedbackCode.style.display = "none";
+  learningUI.setFeedbackVisible("code", false);
+  document.getElementById("execution-feedback-details").open = true;
 
   try {
     currentOrch.recordAttempt(code);
@@ -689,7 +704,7 @@ btnSubmitCode.addEventListener("click", async () => {
     }
   } catch (e) {
     console.error(e);
-    feedbackCode.style.display = "block";
+    learningUI.setFeedbackVisible("code", true);
     feedbackCode.innerText = `Erro interno ao rodar o Python: ${e.message}`;
   } finally {
     btnSubmitCode.disabled = false;
@@ -728,6 +743,9 @@ if (exerciseParam && problems.some(p => p.id === exerciseParam)) {
 } else if (problems.length > 0) {
   loadActiveExercise(problems[0].id);
 }
+
+// Ajuda contextual: visita guiada inicial, pontos de ajuda e botão "Como usar".
+learningUI.initFeatureTour();
 
 // Inicializa o Pyodide em background
 runner.init().catch(() => { });
