@@ -7,7 +7,9 @@
   <meta name="description" content="Seu progresso pessoal de aprendizagem em Python no IA Tutor.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Mesmo componente Iconify usado na logo de conteudos.html -->
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <link rel="stylesheet" href="perfil.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
@@ -19,7 +21,10 @@
 <body>
   <div class="page-shell">
     <header class="site-header">
-      <a class="brand" href="conteudos.html" aria-label="IA Tutor — Voltar aos módulos"><span class="brand-icon">∞</span><span>IA Tutor</span></a>
+      <a class="brand" href="conteudos.html" aria-label="IA Tutor — Voltar aos módulos">
+        <span class="brand-icon"><iconify-icon icon="solar:infinity-bold" aria-hidden="true"></iconify-icon></span>
+        <span class="brand-name">IA Tutor</span>
+      </a>
       <nav aria-label="Navegação principal" class="header-links">
         <a href="conteudos.html">Módulos</a>
         <a href="perfil.html" aria-current="page">Meu perfil</a>
@@ -33,7 +38,7 @@
           <div class="profile-identity">
             <div id="avatar-initials" class="avatar" aria-hidden="true">AL</div>
             <div class="profile-copy">
-              <p class="eyebrow">SUA JORNADA EM PYTHON</p>
+              <p class="eyebrow">PAINEL DE APRENDIZAGEM / PYTHON</p>
               <div class="name-row">
                 <h1 id="profile-heading">Meu perfil</h1>
                 <span id="role-label" class="role-label" hidden></span>
@@ -49,7 +54,7 @@
         </section>
 
         <section class="overview" aria-labelledby="stats-heading">
-          <div class="section-heading"><div><p class="eyebrow">PAINEL DO ALUNO</p><h2 id="stats-heading">Minhas estatísticas</h2></div><span class="curriculum-tag">Trilha atual · Versão 2</span></div>
+          <div class="section-heading"><div><p class="eyebrow">PAINEL DO ALUNO / BIG NUMBERS</p><h2 id="stats-heading">Em números</h2></div><span class="curriculum-tag">Trilha atual · Versão 2</span></div>
           <div class="stats-grid">
             <article class="stat-card"><span class="stat-icon" aria-hidden="true">✓</span><p class="stat-label">Exercícios concluídos</p><p id="stat-completed" class="stat-value">—</p><p class="stat-foot">De 16 atividades</p></article>
             <article class="stat-card"><span class="stat-icon" aria-hidden="true">↗</span><p class="stat-label">Progresso geral</p><p id="stat-percent" class="stat-value">—</p><p class="stat-foot">Trilha de Python</p></article>
@@ -62,13 +67,54 @@
           </div>
         </section>
 
+        <section class="charts-section" aria-labelledby="charts-heading">
+          <div class="section-heading">
+            <div><p class="eyebrow">VISUALIZAÇÃO DE DADOS / 01</p><h2 id="charts-heading">Visão analítica</h2></div>
+            <p class="section-aside">Dados reais da sua jornada, sem estimativas de evolução histórica.</p>
+          </div>
+          <div class="charts-grid">
+            <article class="chart-panel chart-panel-donut">
+              <div class="chart-heading">
+                <div><span class="chart-overline">01 / CONCLUSÃO</span><h3>Progresso da trilha</h3></div>
+                <span class="chart-unit">TOTAL · 16</span>
+              </div>
+              <div class="donut-layout">
+                <div id="chart-donut" class="donut-chart" role="img" aria-label="Distribuição de exercícios concluídos e pendentes">
+                  <div class="donut-hole"><strong id="chart-donut-number">0%</strong><span>concluído</span></div>
+                </div>
+                <div class="donut-legend">
+                  <div><span class="legend-dot done"></span><span>Concluídos</span><strong id="chart-done-count">0</strong></div>
+                  <div><span class="legend-dot remaining"></span><span>Restantes</span><strong id="chart-remaining-count">16</strong></div>
+                  <p class="chart-note">Desbloquear exercícios não equivale a concluí-los.</p>
+                </div>
+              </div>
+            </article>
+            <article class="chart-panel">
+              <div class="chart-heading">
+                <div><span class="chart-overline">02 / MÓDULOS</span><h3>Conclusões por módulo</h3></div>
+                <span class="chart-unit">EXERCÍCIOS</span>
+              </div>
+              <div id="chart-modules" class="module-chart" role="group" aria-label="Número de atividades concluídas em cada módulo"></div>
+              <p class="chart-note">Cada barra utiliza o total de atividades do próprio módulo.</p>
+            </article>
+          </div>
+          <article class="chart-panel chart-panel-wide">
+            <div class="chart-heading">
+              <div><span class="chart-overline">03 / INTERAÇÃO</span><h3>Atividade por módulo</h3><p class="chart-description">Compare quantas dicas foram utilizadas e quantos códigos foram enviados em cada etapa.</p></div>
+              <div class="chart-series-legend"><span><i class="series-dot hint"></i> Dicas</span><span><i class="series-dot submission"></i> Envios de código</span></div>
+            </div>
+            <div id="chart-activity" class="activity-chart" role="group" aria-label="Comparação entre dicas utilizadas e envios de código por módulo"></div>
+            <p class="chart-note">Os envios começaram a ser contabilizados recentemente e não incluem registros anteriores ao início dessa coleta. As barras usam uma escala comum entre módulos.</p>
+          </article>
+        </section>
+
         <section class="modules-section" aria-labelledby="modules-heading">
-          <div class="section-heading"><div><p class="eyebrow">EVOLUÇÃO POR ASSUNTO</p><h2 id="modules-heading">Progresso por módulo</h2></div></div>
+          <div class="section-heading"><div><p class="eyebrow">DETALHAMENTO / 04</p><h2 id="modules-heading">Progresso por módulo</h2></div></div>
           <div class="module-grid" id="module-grid"></div>
         </section>
 
         <section class="learning-section" aria-labelledby="learning-heading">
-          <div class="section-heading"><div><p class="eyebrow">COMPORTAMENTO DE APRENDIZAGEM</p><h2 id="learning-heading">Como você está estudando</h2></div></div>
+          <div class="section-heading"><div><p class="eyebrow">INDICADORES DE ESTUDO / 05</p><h2 id="learning-heading">Como você está estudando</h2></div></div>
           <div class="stats-grid learning-grid">
             <article class="stat-card"><p class="stat-label">Dicas consultadas</p><p id="stat-hints" class="stat-value">—</p></article>
             <article class="stat-card"><p class="stat-label">Envios de código registrados</p><p id="stat-submissions" class="stat-value">—</p></article>
