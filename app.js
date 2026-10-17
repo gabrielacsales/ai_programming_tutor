@@ -499,6 +499,19 @@ selectExercise.addEventListener("change", (e) => {
 tabCode.parentNode.insertBefore(tabCode, tabDesc);
 panelCode.parentNode.insertBefore(panelCode, panelDesc);
 
+// Ajuda opcional após 90s sem interação, nunca troca de aba sozinha.
+const ideaNudgeElement = document.getElementById("idea-nudge");
+document.getElementById("idea-nudge-open")?.addEventListener("click", () => {
+  if (ideaNudgeElement) ideaNudgeElement.hidden = true;
+  lastInteractionTime = Date.now();
+  switchMode("desc");
+  textareaDesc.focus();
+});
+document.getElementById("idea-nudge-dismiss")?.addEventListener("click", () => {
+  if (ideaNudgeElement) ideaNudgeElement.hidden = true;
+  lastInteractionTime = Date.now();
+});
+
 // Alternância de Abas
 tabDesc.addEventListener("click", () => switchMode("desc"));
 tabCode.addEventListener("click", () => switchMode("code"));
@@ -908,6 +921,18 @@ setInterval(() => {
       if (currentOrch.metrics.idle_time_seconds % 20 === 0) scheduleProgressSave();
     }
   }
+  const dialogActive = Boolean(document.querySelector(".tutor-review-dialog[open]"));
+  if (
+    currentOrch && !currentOrch.state.completed &&
+    currentOrch.state.mode === "codigo" &&
+    !dialogActive &&
+    ideaNudgeElement?.hidden &&
+    !ideaNudgesShown.has(currentOrch.problem.id) &&
+    Date.now() - lastInteractionTime >= 90000
+  ) {
+    ideaNudgesShown.add(currentOrch.problem.id);
+    ideaNudgeElement.hidden = false; // convite discreto, não troca de aba
+  }
 }, 1000);
 
 // Init: lê primeiro os dados da conta, depois monta a interface.
@@ -920,6 +945,16 @@ setInterval(() => {
     showToast("Falha ao carregar progresso ou permissões. Execute developer-access.sql, se ainda não fez.");
     return;
   }
+  // Por usuário e por navegador: somente a primeira abertura recomenda começar
+  // pela ideia. Depois, o fluxo normal abre direto no editor Python.
+  const authInfo = await TutorAuth.client.auth.getUser();
+  const signedInId = authInfo.data?.user?.id;
+  if (signedInId) {
+    const firstVisitKey = "tutor_first_visit_intro_" + signedInId;
+    showIdeaOnFirstVisit = localStorage.getItem(firstVisitKey) !== "1";
+    if (showIdeaOnFirstVisit) localStorage.setItem(firstVisitKey, "1");
+  }
+
   populateExercises();
   if (TutorAccess.isDeveloper()) {
     const badge = document.createElement("div");
