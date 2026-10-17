@@ -190,6 +190,149 @@ BEGIN
   THEN RETURN false; END IF;
   -- Whitelist de valores NÃO sensíveis. Nunca armazenar código-fonte, chat ou texto livre aqui.
   v_safe=jsonb_build_object(
+    'session_id', CASE WHEN jsonb_typeof(p_details->'session_id')='string'
+      AND char_length(p_details->>'session_id') BETWEEN 8 AND 60
+      AND (p_details->>'session_id') ~ '^[a-zA-Z0-9_-]+ CASE WHEN jsonb_typeof(p_details->'passed')='number'
+      THEN least(100,greatest(0, (p_details->>'passed')::int)) ELSE NULL END,
+    'total', CASE WHEN jsonb_typeof(p_details->'total')='number'
+      THEN least(100,greatest(0, (p_details->>'total')::int)) ELSE NULL END,
+    'success', CASE WHEN jsonb_typeof(p_details->'success')='boolean'
+      THEN (p_details->>'success')::boolean ELSE NULL END,
+    'idle_seconds', CASE WHEN jsonb_typeof(p_details->'idle_seconds')='number'
+      THEN least(300,greatest(0,(p_details->>'idle_seconds')::int)) ELSE NULL END,
+    'mistakes', CASE WHEN jsonb_typeof(p_details->'mistakes')='number'
+      THEN least(100,greatest(0,(p_details->>'mistakes')::int)) ELSE NULL END
+  );
+  INSERT INTO public.research_events(user_id,exercise_id,event_type,details)
+  VALUES(v_uid,p_exercise_id,p_event_type,v_safe);
+  RETURN true;
+END; $$;
+
+CREATE OR REPLACE FUNCTION public.research_withdraw()
+RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER SET search_path=''
+AS $$
+DECLARE v_uid uuid:=auth.uid();
+BEGIN
+  IF v_uid IS NULL THEN RAISE EXCEPTION 'Sessão ausente.'; END IF;
+  -- Exclui da pesquisa os eventos, instrumentos e anotações vinculados;
+  -- o serviço educacional (login, rascunhos) continua separado.
+  DELETE FROM public.research_interview_notes WHERE participant_user_id=v_uid;
+  DELETE FROM public.research_events WHERE user_id=v_uid;
+  DELETE FROM public.research_assessments WHERE user_id=v_uid;
+  DELETE FROM public.research_surveys WHERE user_id=v_uid;
+  UPDATE public.research_participants SET withdrawn_at=now(),withdrawal_requested_at=now()
+    WHERE user_id=v_uid AND withdrawn_at IS NULL;
+  RETURN true;
+END; $$;
+
+-- Função de administração: agrega dados e retorna código pseudônimo, jamais email/nome.
+CREATE OR REPLACE FUNCTION public.research_dashboard()
+RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=''
+AS $$
+DECLARE v_data jsonb;
+BEGIN
+  IF NOT public.is_researcher() THEN RAISE EXCEPTION 'Acesso restrito à pesquisadora.'; END IF;
+  SELECT coalesce(jsonb_agg(row_to_json(t) ORDER BY t.code),'[]'::jsonb) INTO v_data
+  FROM (
+    SELECT p.participant_code AS code, p.consented_at,
+      (SELECT min(a.submitted_at) FROM public.research_assessments a WHERE a.user_id=p.user_id AND a.phase='pre') AS pre_at,
+      (SELECT min(a.submitted_at) FROM public.research_assessments a WHERE a.user_id=p.user_id AND a.phase='post') AS post_at,
+      (SELECT min(s.submitted_at) FROM public.research_surveys s WHERE s.user_id=p.user_id) AS survey_at,
+      (SELECT count(*) FROM public.research_events e WHERE e.user_id=p.user_id) AS events,
+      (SELECT count(*) FROM public.research_events e WHERE e.user_id=p.user_id AND e.event_type='code_submitted') AS code_submissions,
+      (SELECT count(*) FROM public.research_events e WHERE e.user_id=p.user_id AND e.event_type='hint_viewed') AS hints,
+      (SELECT count(*) FROM public.research_events e WHERE e.user_id=p.user_id AND e.event_type='tutor_question') AS tutor_questions,
+      (SELECT count(*) FROM public.research_events e WHERE e.user_id=p.user_id AND e.event_type='test_result'
+          AND (e.details->>'success')::boolean IS TRUE) AS successful_tests,
+      (SELECT count(distinct e.exercise_id) FROM public.research_events e WHERE e.user_id=p.user_id AND e.event_type='exercise_completed') AS completed_exercises,
+      (SELECT count(distinct (e.recorded_at AT TIME ZONE 'America/Sao_Paulo')::date)
+        FROM public.research_events e WHERE e.user_id=p.user_id) AS active_days
+    FROM public.research_participants p WHERE p.withdrawn_at IS NULL
+    ORDER BY p.consented_at
+  ) t;
+  RETURN jsonb_build_object('participants',coalesce(v_data,'[]'::jsonb),'exported_at',now());
+END; $$;
+
+CREATE OR REPLACE FUNCTION public.research_export(p_kind text)
+RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=''
+AS $$
+DECLARE v_result jsonb;
+BEGIN
+  IF NOT public.is_researcher() THEN RAISE EXCEPTION 'Acesso restrito à pesquisadora.'; END IF;
+  IF p_kind='assessments' THEN
+    SELECT coalesce(jsonb_agg(jsonb_build_object('code',p.participant_code,'phase',a.phase,
+      'submitted_at',a.submitted_at,'answers',a.answers) ORDER BY p.participant_code,a.phase),'[]'::jsonb)
+    INTO v_result FROM public.research_assessments a JOIN public.research_participants p
+    ON p.user_id=a.user_id WHERE p.withdrawn_at IS NULL;
+  ELSIF p_kind='surveys' THEN
+    SELECT coalesce(jsonb_agg(jsonb_build_object('code',p.participant_code,
+      'submitted_at',s.submitted_at,'responses',s.responses) ORDER BY p.participant_code),'[]'::jsonb)
+    INTO v_result FROM public.research_surveys s JOIN public.research_participants p
+    ON p.user_id=s.user_id WHERE p.withdrawn_at IS NULL;
+  ELSIF p_kind='events' THEN
+    SELECT coalesce(jsonb_agg(jsonb_build_object('code',p.participant_code,'exercise_id',e.exercise_id,
+      'event_type',e.event_type,'recorded_at',e.recorded_at,'details',e.details) ORDER BY p.participant_code,e.recorded_at),'[]'::jsonb)
+    INTO v_result FROM public.research_events e JOIN public.research_participants p
+    ON p.user_id=e.user_id WHERE p.withdrawn_at IS NULL;
+  ELSIF p_kind='interviews' THEN
+    SELECT coalesce(jsonb_agg(jsonb_build_object('code',p.participant_code,'theme',i.theme_code,
+      'excerpt',i.excerpt,'recorded_at',i.recorded_at) ORDER BY p.participant_code,i.recorded_at),'[]'::jsonb)
+    INTO v_result FROM public.research_interview_notes i JOIN public.research_participants p
+    ON p.user_id=i.participant_user_id WHERE p.withdrawn_at IS NULL;
+  ELSE RAISE EXCEPTION 'Tipo de exportação inválido.'; END IF;
+  RETURN coalesce(v_result,'[]'::jsonb);
+END; $$;
+
+CREATE OR REPLACE FUNCTION public.research_save_interview(p_code text,p_theme text,p_excerpt text)
+RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER SET search_path=''
+AS $$
+DECLARE v_uid uuid;
+BEGIN
+  IF NOT public.is_researcher() THEN RAISE EXCEPTION 'Acesso restrito à pesquisadora.'; END IF;
+  IF p_theme NOT IN ('autonomia','feedback','clareza','dificuldade','confianca','dependencia','usabilidade','outro')
+     OR char_length(trim(coalesce(p_excerpt,'')))<5 OR char_length(p_excerpt)>1500
+  THEN RAISE EXCEPTION 'Tema ou trecho inválidos.'; END IF;
+  SELECT user_id INTO v_uid FROM public.research_participants WHERE participant_code=p_code AND withdrawn_at IS NULL;
+  IF v_uid IS NULL THEN RAISE EXCEPTION 'Participante não encontrado.'; END IF;
+  INSERT INTO public.research_interview_notes(participant_user_id,researcher_user_id,theme_code,excerpt)
+  VALUES(v_uid,auth.uid(),p_theme,trim(p_excerpt));
+  RETURN true;
+END; $$;
+
+-- APENAS RPCs explicitamente autorizadas.
+DO $do$ DECLARE f record;
+BEGIN
+  FOR f IN SELECT p.oid::regprocedure AS signature FROM pg_proc p
+   JOIN pg_namespace n ON p.pronamespace=n.oid WHERE n.nspname='public'
+   AND p.proname IN ('enroll_in_research','research_my_status','research_submit_assessment',
+    'research_submit_survey','research_record_event','research_withdraw','research_dashboard',
+    'research_export','research_save_interview')
+  LOOP EXECUTE format('REVOKE ALL ON FUNCTION %s FROM PUBLIC, anon, authenticated',f.signature); END LOOP;
+END $do$;
+GRANT EXECUTE ON FUNCTION public.enroll_in_research(boolean,boolean,text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.research_my_status() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.research_submit_assessment(text,jsonb) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.research_submit_survey(jsonb) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.research_record_event(text,text,jsonb) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.research_withdraw() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.research_dashboard() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.research_export(text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.research_save_interview(text,text,text) TO authenticated;
+COMMIT;
+
+-- Autorize sua conta SOMENTE pelo SQL Editor, depois de executar a migração:
+-- INSERT INTO public.researcher_accounts(user_id)
+-- SELECT id FROM auth.users WHERE lower(email)=lower('SEU_EMAIL_AQUI')
+-- ON CONFLICT(user_id) DO NOTHING;
+--
+-- NÃO envie emails nem credenciais ao chat/GitHub. A conta researcher é
+-- DIFERENTE da autorização developer para liberar exercícios.
+
+-- Depois da aprovação ética e dos testes: desbloqueie SOMENTE no SQL Editor:
+-- UPDATE public.research_study_settings SET enrollment_open=true,updated_at=now() WHERE id=1;
+-- Para interromper novos cadastros: UPDATE public.research_study_settings SET enrollment_open=false,updated_at=now() WHERE id=1;
+
+      THEN p_details->>'session_id' ELSE NULL END,
     'passed', CASE WHEN jsonb_typeof(p_details->'passed')='number'
       THEN least(100,greatest(0, (p_details->>'passed')::int)) ELSE NULL END,
     'total', CASE WHEN jsonb_typeof(p_details->'total')='number'
