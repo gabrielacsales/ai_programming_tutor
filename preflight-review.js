@@ -9,17 +9,17 @@
     m1_calculo_desconto: { prompt: "Monte uma soma entre dois números.", parts: ["resultado", "=", "8", "+", "4"], note: "O operador + representa a soma." },
     m2_maioridade: { prompt: "Monte uma condição que verifica se a nota é maior que 5.", parts: ["if", "nota", ">", "5", ":"], note: "O if verifica uma condição e termina com dois-pontos." },
     m2_par_impar: { prompt: "Guarde o resto da divisão de 9 por 4.", parts: ["resto", "=", "9", "%", "4"], note: "O operador % calcula o resto de uma divisão." },
-    m2_desconto_categoria: { prompt: "Compare uma cor com a palavra 'azul'.", parts: ["if", "cor", "==", "'azul'", ":"], note: "Usamos == para comparar e = para atribuir." },
+    m2_desconto_categoria: { prompt: "Monte uma condição para verificar pontos maiores que 10.", parts: ["if", "pontos", ">", "10", ":"], note: "Condições numéricas ajudam a classificar intervalos de valores." },
     m3_contagem: { prompt: "Reduza o valor de uma variável em uma unidade.", parts: ["contador", "-=", "1"], note: "O operador -= subtrai e atualiza a variável." },
     m3_soma_limite: { prompt: "Adicione cinco a um acumulador.", parts: ["total", "+=", "5"], note: "O operador += adiciona e atualiza a variável." },
     m3_tabuada: { prompt: "Crie um laço que percorra os números de 0 a 2.", parts: ["for", "i", "in", "range(3)", ":"], note: "range(3) gera os valores 0, 1 e 2." },
-    m4_busca_linear: { prompt: "Acesse o primeiro elemento da lista.", parts: ["primeiro", "=", "lista", "[", "0", "]"], note: "O primeiro índice de uma lista em Python é zero." },
+    m4_busca_linear: { prompt: "Crie uma lista com dois números.", parts: ["valores", "=", "[", "3", ",", "6", "]"], note: "Uma lista guarda vários valores entre colchetes." },
     m4_contagem_vogais: { prompt: "Percorra as letras de uma palavra.", parts: ["for", "letra", "in", "palavra", ":"], note: "O for pode percorrer cada caractere de uma string." },
-    m4_status_nota: { prompt: "Declare uma função chamada avaliar, com um parâmetro nota.", parts: ["def", "avaliar", "(", "nota", ")", ":"], note: "Definimos funções com def, parênteses e dois-pontos." },
+    m4_status_nota: { prompt: "Crie uma lista vazia de resultados.", parts: ["resultado", "=", "[", "]"], note: "Uma lista vazia pode receber elementos com append." },
     m5_extremos: { prompt: "Crie uma lista com dois números.", parts: ["valores", "=", "[", "3", ",", "9", "]"], note: "Listas usam colchetes e elementos separados por vírgula." },
     m5_filtrar_nomes: { prompt: "Percorra os nomes de uma lista.", parts: ["for", "nome", "in", "nomes", ":"], note: "O for percorre os elementos de uma coleção." },
     m5_remover_duplicatas: { prompt: "Crie uma lista com dois itens.", parts: ["itens", "=", "[", "1", ",", "2", "]"], note: "Uma lista Python pode conter vários valores." },
-    analisar_turma: { prompt: "Crie um dicionário com o nome de uma pessoa.", parts: ["pessoa", "=", "{", "'nome'", ":", "'Ana'", "}"], note: "Dicionários usam chaves e pares de chave e valor separados por dois-pontos." }
+    analisar_turma: { prompt: "Guarde uma pequena lista de notas.", parts: ["notas", "=", "[", "7", ",", "8", "]"], note: "O desafio final combina listas, condições, laços e cálculos." }
   };
   const fallback = { prompt: "Guarde o número 20 em uma variável.", parts: ["idade", "=", "20"], note: "O operador = atribui um valor." };
   let dialog = null;
