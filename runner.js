@@ -52,6 +52,8 @@ import io
 import json
 import builtins
 import traceback
+import ast
+import math
 
 stdout_buffer = io.StringIO()
 sys.stdout = stdout_buffer
@@ -70,7 +72,7 @@ tests = json.loads(tests_json_to_test)
 func_name = function_name_to_test
 
 # Modo Função vs Modo Script
-is_function_mode = bool(func_name) and (f"def {func_name}" in user_code_to_run)
+is_function_mode = bool(func_name)
 
 if is_function_mode:
     # MODO FUNÇÃO (Módulo 4+)
@@ -125,10 +127,25 @@ else:
             
             # Captura a saída do print
             out_str = stdout_buffer.getvalue().strip()
-            # Converte expected para string para comparar com texto impresso
+            # Compare tipos/valores, não apenas texto. Evita penalizar '77' vs '77.0'
+            # e permite listas, números negativos e booleanos exibidos corretamente.
+            # Para enunciados de texto, preservamos a comparação literal.
             expected_str = str(expected)
-            
-            ok = (out_str == expected_str)
+            if isinstance(expected, str):
+                ok = (out_str == expected)
+            else:
+                try:
+                    parsed = ast.literal_eval(out_str)
+                    if isinstance(expected, bool):
+                        ok = type(parsed) is bool and parsed == expected
+                    elif isinstance(expected, (int, float)) and not isinstance(parsed, bool):
+                        ok = isinstance(parsed, (int, float)) and math.isclose(
+                            float(parsed), float(expected), rel_tol=1e-9, abs_tol=1e-9
+                        )
+                    else:
+                        ok = parsed == expected
+                except (SyntaxError, ValueError, TypeError, MemoryError):
+                    ok = False
             test_results.append({
                 "id": i,
                 "ok": bool(ok),
