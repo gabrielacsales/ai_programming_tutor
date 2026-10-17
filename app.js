@@ -672,6 +672,26 @@ btnSendSocraticCode.addEventListener("click", async () => {
   }
 });
 
+// Envio por Enter, nas duas abas, usando exatamente a mesma ação do botão.
+// Mantém o botão funcionando e não duplica pedidos durante uma chamada pendente.
+[
+  [inputSocraticDesc, btnSendSocraticDesc],
+  [inputSocraticCode, btnSendSocraticCode]
+].forEach(([input, button]) => {
+  input.addEventListener("keydown", (event) => {
+    if (
+      event.key !== "Enter" ||
+      event.isComposing ||
+      event.keyCode === 229 ||
+      event.repeat
+    ) return;
+    event.preventDefault();
+    if (!button.disabled && input.value.trim()) {
+      button.click();
+    }
+  });
+});
+
 // 6. Registrar e Testar Código Python (Pyodide)
 btnSubmitCode.addEventListener("click", async () => {
   lastInteractionTime = Date.now();
