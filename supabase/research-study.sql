@@ -10,6 +10,17 @@ CREATE TABLE IF NOT EXISTS public.researcher_accounts (
 ALTER TABLE public.researcher_accounts ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.researcher_accounts FROM anon, authenticated;
 
+CREATE TABLE IF NOT EXISTS public.research_study_settings (
+  id int PRIMARY KEY CHECK (id=1),
+  enrollment_open boolean NOT NULL DEFAULT false,
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+INSERT INTO public.research_study_settings (id,enrollment_open)
+VALUES (1,false) ON CONFLICT(id) DO NOTHING;
+ALTER TABLE public.research_study_settings ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.research_study_settings FROM anon,authenticated;
+-- O recrutamento só começa quando a pesquisadora liberar manualmente no SQL Editor.
+
 CREATE TABLE IF NOT EXISTS public.research_participants (
   user_id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   participant_code text UNIQUE NOT NULL DEFAULT upper(substr(replace(gen_random_uuid()::text,'-',''),1,10)),
@@ -92,6 +103,8 @@ BEGIN
   IF v_uid IS NULL THEN RAISE EXCEPTION 'Faça login para participar.'; END IF;
   IF p_adult IS DISTINCT FROM true OR p_consent IS DISTINCT FROM true OR p_version <> 'tcc-v1'
   THEN RAISE EXCEPTION 'Confirmação de maioridade, consentimento e versão vigente são obrigatórios.'; END IF;
+  IF NOT EXISTS (SELECT 1 FROM public.research_study_settings WHERE id=1 AND enrollment_open=true)
+  THEN RAISE EXCEPTION 'O período oficial de coleta ainda não foi aberto.'; END IF;
   IF EXISTS(SELECT 1 FROM public.research_participants WHERE user_id=v_uid AND withdrawn_at IS NOT NULL)
   THEN RAISE EXCEPTION 'Participação retirada: fale com a pesquisadora antes de nova inclusão.'; END IF;
   INSERT INTO public.research_participants(user_id,adult_confirmed,consent_version)
@@ -312,3 +325,7 @@ COMMIT;
 --
 -- NÃO envie emails nem credenciais ao chat/GitHub. A conta researcher é
 -- DIFERENTE da autorização developer para liberar exercícios.
+
+-- Depois da aprovação ética e dos testes: desbloqueie SOMENTE no SQL Editor:
+-- UPDATE public.research_study_settings SET enrollment_open=true,updated_at=now() WHERE id=1;
+-- Para interromper novos cadastros: UPDATE public.research_study_settings SET enrollment_open=false,updated_at=now() WHERE id=1;
