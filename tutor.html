@@ -673,10 +673,10 @@
                 <button type="button" class="feature-tip" data-tour-step="2" aria-label="Dica: professor socrático" title="Como usar o professor?">?</button>
               </div>
 
-              <!-- Feedback Dialogue Idea -->
-              <div
-                class="feedback-box bg-sky-50/80 border border-sky-100 rounded-2xl p-5 text-sm leading-relaxed text-sky-800"
-                id="feedback-desc" style="display: none;"></div>
+              <details class="feedback-disclosure" id="feedback-panel-desc" style="display: none;" open>
+                <summary>Feedback sobre sua ideia <span class="feedback-disclosure-action">Recolher / expandir</span></summary>
+                <div class="feedback-box bg-sky-50/80 border border-sky-100 rounded-2xl p-5 text-sm leading-relaxed text-sky-800" id="feedback-desc"></div>
+              </details>
 
               <!-- Socratic Ask Section Idea -->
               <div class="accordion-item border border-sky-200 rounded-2xl overflow-hidden bg-white shadow-sm"
@@ -760,10 +760,10 @@
 
               <div id="code-input-notice" class="code-input-notice" role="note"></div>
 
-              <!-- Feedback Dialogue Code -->
-              <div
-                class="feedback-box bg-red-50/80 border border-red-100 rounded-2xl p-5 text-sm leading-relaxed text-red-800"
-                id="feedback-code" style="display: none;"></div>
+              <details class="feedback-disclosure" id="feedback-panel-code" style="display: none;" open>
+                <summary>Feedback do código <span class="feedback-disclosure-action">Recolher / expandir</span></summary>
+                <div class="feedback-box bg-red-50/80 border border-red-100 rounded-2xl p-5 text-sm leading-relaxed text-red-800" id="feedback-code"></div>
+              </details>
 
               <!-- Socratic Ask Section Code -->
               <div class="accordion-item border border-sky-200 rounded-2xl overflow-hidden bg-white shadow-sm"
@@ -789,10 +789,8 @@
               <!-- Execution Results -->
               <div class="result-container border-t-2 border-dashed border-slate-200 pt-6 mt-2 flex flex-col gap-4"
                 id="execution-results" style="display: none;">
-                <h3 class="text-lg font-bold font-heading text-black flex items-center gap-2">
-                  <iconify-icon icon="solar:programming-bold-duotone" class="text-slate-400"></iconify-icon>
-                  Resultado do código
-                </h3>
+                <details id="execution-feedback-details" class="execution-feedback-disclosure" open>
+                <summary class="text-lg font-bold font-heading text-black"><iconify-icon icon="solar:programming-bold-duotone" class="text-slate-400"></iconify-icon> Resultado do código <span class="feedback-disclosure-action">Recolher / expandir</span></summary>
 
                 <!-- Stdout console -->
                 <div id="console-wrapper" class="space-y-1.5">
@@ -824,6 +822,7 @@
                     class="feedback-box bg-amber-50 border border-amber-100 rounded-2xl p-5 text-sm leading-relaxed text-amber-800"
                     id="test-ai-help" style="display: none;"></div>
                 </div>
+                </details><!-- /execution-feedback-details -->
               </div>
             </div>
 
