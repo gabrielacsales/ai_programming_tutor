@@ -11,6 +11,10 @@ Implementado na branch `feature/supabase-auth-and-database`, em `perfil.html`, `
 - Indicadores: dicas utilizadas, envios de código, interações registradas com o tutor e solicitações diretas bloqueadas.
 - Botão **Continuar aprendendo** leva ao primeiro desafio incompleto **já liberado** para aquela conta, quando a consulta de acesso está disponível.
 - Link **Meu perfil** na página de módulos e na barra lateral de exercícios.
+- Logo idêntica à página `conteudos.html`: `solar:infinity-bold` via Iconify, com o mesmo ícone escuro e interação.
+- Redesign seguindo as referências `design_system5.html` e `design_system11.html` enviadas pela usuária: branco e grafite, bordas zinc, etiquetas JetBrains Mono, títulos grandes, microinterações discretas e azul IA Tutor como cor funcional.
+- **Três gráficos reais sem bibliotecas extras:** rosca de concluídos/restantes, barra horizontal de concluídos por módulo e barras comparativas de dicas/envios de código por módulo. O eixo dos envios/dicas é compartilhado entre os módulos.
+- Os gráficos têm rótulos e contagens acessíveis, inclusive quando um usuário ainda não iniciou a trilha. Não há gráfico de evolução por dia porque a base atual não guarda os eventos históricos necessários.
 - Botão **Sair**, com sessão Supabase.
 
 As consultas filtram a conta autenticada e as tabelas têm RLS. As métricas usam apenas registros com `metrics.curriculum_version=2` e o histórico Gemini com `chat_messages.curriculum_version=2`. Usuários não visualizam dados de terceiros.
@@ -23,9 +27,10 @@ As consultas filtram a conta autenticada e as tabelas têm RLS. As métricas usa
 4. Na conta desenvolvedora, todos os exercícios podem estar liberados, mas só os concluídos devem entrar no contador.
 5. Na conta aluno nova, espere `0 de 16`, `0%`, nenhuma dica e nenhum envio.
 6. Execute um exercício, use uma dica e registre uma pergunta ao tutor; volte ao perfil e recarregue para conferir os números.
-7. Verifique que **Continuar aprendendo** leva a um exercício desbloqueado e ainda não concluído.
-8. Saia e entre em outra conta: confira que o primeiro aluno **não** aparece com dados, estatísticas ou e-mail da conta anterior.
-9. Em celular/janela estreita, confira se os cartões se reorganizam sem rolagem horizontal.
+7. Confira os gráficos: o gráfico de rosca deve mostrar exatamente concluídos / 16, as barras de conclusão devem seguir os cinco módulos e o desafio final, e as barras de dica/envio devem corresponder às métricas por módulo (inclusive zero).
+8. Verifique que **Continuar aprendendo** leva a um exercício desbloqueado e ainda não concluído.
+9. Saia e entre em outra conta: confira que o primeiro aluno **não** aparece com dados, estatísticas ou e-mail da conta anterior.
+10. Em celular/janela estreita, confira se os cartões se reorganizam sem rolagem horizontal.
 
 ## Definições das métricas
 
