@@ -52,7 +52,7 @@ function addQuestion(container,q,index) {
  const legend=make("legend","Questão "+(index+1)+": "+q.prompt);legend.style.fontWeight="700";fieldset.append(legend);
  fieldset.append(make("p",q.skill,"skill"));
  if(q.code){const pre=make("pre");const code=make("code",q.code);pre.append(code);fieldset.append(pre);}
- for(const [letter,label] of Object.entries(q.options)){
+ for(const [letter,label] of Object.entries({...q.options,E:"Não sei"})){
    const wrap=make("label",undefined,"option"),input=document.createElement("input");
    input.type="radio";input.name=q.id;input.value=letter;input.required=true;
    wrap.append(input,document.createTextNode(letter+". "+label));fieldset.append(wrap);
@@ -64,7 +64,7 @@ function showInstrument(name) {
  const title=name==="pre"?"Pré-teste de lógica de programação":name==="post"?"Pós-teste de lógica de programação":"Questionário de percepção";
  $("instrument-tag").textContent=name==="survey"?"PERCEPÇÃO / 08 ITENS":"AVALIAÇÃO / 08 QUESTÕES";
  $("instrument-heading").textContent=title;
- $("instrument-intro").textContent=name==="survey"?"Nas primeiras seis afirmações, indique de 1 (discordo totalmente) a 5 (concordo totalmente). Duas questões abertas são opcionais.":"Responda às oito questões de interpretação de código Python. Sem consultar o tutor ou executar os trechos durante a avaliação. Este instrumento serve à pesquisa e não afeta seu acesso aos módulos.";
+ $("instrument-intro").textContent=name==="survey"?"Nas primeiras seis afirmações, indique de 1 (discordo totalmente) a 5 (concordo totalmente). Duas questões abertas são opcionais.":"Responda com sinceridade, somente o que souber. Se não souber, marque Não sei; não é preciso adivinhar. Não consulte o tutor, execute códigos ou procure respostas durante o teste. O resultado ajuda a comparar o nível inicial e final.";
  $("questions").replaceChildren();
  if(name==="survey"){
    instruments.survey.forEach((q,i)=>{
