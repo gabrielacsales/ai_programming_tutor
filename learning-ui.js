@@ -99,9 +99,24 @@
           '<div class="practical-example-number">Exemplo ' + (index + 1) + ' de ' + examples.length + "</div>" +
           "<h3>" + escapeHTML(example.title) + "</h3>" +
           "<p>" + escapeHTML(example.description) + "</p>" +
-          '<pre><code>' + escapeHTML(example.code) + "</code></pre>" +
+          '<pre class="teacher-code-pre cm-s-material-darker"><code>' + escapeHTML(example.code) + "</code></pre>" +
           "</article>";
       }).join("");
+  }
+
+  // Usa o mesmo tema e parser Python do CodeMirror utilizado no editor do aluno.
+  // A função runMode apenas colore o texto, sem criar editores ou executar código.
+  function highlightPracticalExamples(container) {
+    if (!container || !window.CodeMirror || typeof window.CodeMirror.runMode !== "function") {
+      return; // Mantém o código legível e escapado se o CDN estiver indisponível.
+    }
+    container.querySelectorAll(".practical-example pre code").forEach(function (codeElement) {
+      window.CodeMirror.runMode(
+        codeElement.textContent,
+        { name: "python", version: 3, singleLineStringErrors: false },
+        codeElement
+      );
+    });
   }
 
   function setFeedbackVisible(kind, visible) {
@@ -248,6 +263,7 @@
   window.learningUI = {
     renderExerciseStatementMarkdown: renderExerciseStatementMarkdown,
     renderPracticeExamples: renderPracticeExamples,
+    highlightPracticalExamples: highlightPracticalExamples,
     setFeedbackVisible: setFeedbackVisible,
     initFeatureTour: initFeatureTour
   };
