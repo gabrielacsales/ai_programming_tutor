@@ -55,14 +55,14 @@ class CurriculumV2Tests(unittest.TestCase):
 
     def test_no_list_inputs_before_first_list_lesson(self):
         for p in self.problems:
-            if p["module"] <= 3:
+            if isinstance(p["module"], int) and p["module"] <= 3:
                 with self.subTest(id=p["id"]):
                     self.assertEqual(p["function_name"], "")
                     self.assertTrue(all(not isinstance(t["in"], (list, dict)) for t in p["tests"]))
 
     def test_functions_use_explicit_parameters(self):
         for p in self.problems:
-            if p["module"] >= 4:
+            if p["module"] == "final" or (isinstance(p["module"], int) and p["module"] >= 4):
                 with self.subTest(id=p["id"]):
                     self.assertTrue(p["function_name"])
                     self.assertTrue(p["function_parameter"])
