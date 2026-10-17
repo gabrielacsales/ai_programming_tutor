@@ -29,9 +29,9 @@ insert into public.exercise_access_rules (exercise_id, required_exercise_id, is_
 ('m2_par_impar', 'm2_maioridade', false),
 ('m2_desconto_categoria', 'm2_par_impar', false),
 ('m3_contagem', 'm2_desconto_categoria', false),
-('m3_tabuada', 'm3_contagem', false),
-('m3_soma_limite', 'm3_tabuada', false),
-('m4_busca_linear', 'm3_soma_limite', false),
+('m3_soma_limite', 'm3_contagem', false),
+('m3_tabuada', 'm3_soma_limite', false),
+('m4_busca_linear', 'm3_tabuada', false),
 ('m4_contagem_vogais', 'm4_busca_linear', false),
 ('m4_status_nota', 'm4_contagem_vogais', false),
 ('m5_extremos', 'm4_status_nota', false),
@@ -80,7 +80,7 @@ as $$
             and p.metrics ->> 'curriculum_version' = '2'
             and p.exercise_id in (
               'm1_calculo_desconto', 'm2_desconto_categoria',
-              'm3_soma_limite', 'm4_status_nota', 'm5_remover_duplicatas'
+              'm3_tabuada', 'm4_status_nota', 'm5_remover_duplicatas'
             )
         ) = 5
       )
