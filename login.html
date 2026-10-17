@@ -31,7 +31,7 @@ a{color:#0877ad}.error{color:#b42318}.success{color:#067647}#message{min-height:
     <option value="yes">Sim, estudo no Senac</option>
     <option value="no">Não estudo no Senac</option>
   </select>
-  <p style="margin:7px 0 0;font-size:12px">Alunos do Senac fazem um breve pré-teste inicial antes dos exercícios. A participação na pesquisa acadêmica é opcional.</p>
+  <p style="margin:7px 0 0;font-size:12px">Identificação opcional para uso futuro. Esta informação não exige pré-teste nem bloqueia os exercícios.</p>
 </div>
 <button id="submit" type="submit">Entrar</button>
 </form><p id="message" role="status" aria-live="polite"></p>
@@ -70,7 +70,7 @@ result=await client.auth.signUp({email,password:pass,options:{data:{
   senac_student:senacChoice.value==="yes"
 },emailRedirectTo:location.origin+"/login.html"}});
 if(result.error)throw result.error;
-if(result.data.session)location.replace("inicio-senac.html");
+if(result.data.session)location.replace(next);
 else show("success","Cadastro enviado. Confira seu e-mail para confirmar a conta.");
 }else if(mode==="reset"){
 result=await client.auth.resetPasswordForEmail(email,{redirectTo:location.origin+"/reset-password.html"});
@@ -79,13 +79,16 @@ show("success","Se o endereço estiver cadastrado, você receberá um e-mail par
 }else{
 result=await client.auth.signInWithPassword({email,password:pass});
 if(result.error)throw result.error;
-// Identificação auto-declarada no login: só registra se ainda não definida.
-// A primeira classificação fica no banco, não pode ser trocada pelo navegador.
+// Apenas atualiza a autodeclaração do perfil Auth quando a pessoa escolhe uma opção.
+// É informação opcional: nenhuma RPC ou diagnóstico é necessário para acessar o curso.
 if(senacChoice.value==="yes"||senacChoice.value==="no"){
-  const check=await client.rpc("senac_my_onboarding");
-  if(!check.error&&!check.data?.affiliation){
-    const up=await client.rpc("senac_set_affiliation",{p_is_senac:senacChoice.value==="yes"});
-    if(up.error)console.warn("Identificação será concluída na tela inicial:",up.error.message);
+  try {
+    const updated=await client.auth.updateUser({
+      data:{senac_student:senacChoice.value==="yes"}
+    });
+    if(updated.error)console.warn("A identificação Senac não foi salva:",updated.error.message);
+  } catch(error) {
+    console.warn("A identificação Senac não foi salva:",error);
   }
 }
 location.replace(next);
