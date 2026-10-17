@@ -18,6 +18,8 @@ class ExerciseUXTests(unittest.TestCase):
         cls.app = (ROOT / "app.js").read_text(encoding="utf-8")
         cls.html = (ROOT / "tutor.html").read_text(encoding="utf-8")
         cls.style = (ROOT / "learning-ui.css").read_text(encoding="utf-8")
+        cls.guide = (ROOT / "study-guide.js").read_text(encoding="utf-8")
+        cls.guide_css = (ROOT / "study-guide.css").read_text(encoding="utf-8")
         source = cls.problems_source
         cls.problems = json.JSONDecoder().raw_decode(
             source.split("const problems = ", 1)[1].lstrip()
@@ -66,6 +68,32 @@ class ExerciseUXTests(unittest.TestCase):
         self.assertIn('addon/runmode/runmode.min.js', self.html)
         self.assertIn('theme/material-darker.min.css', self.html)
         self.assertIn('.practical-example pre.teacher-code-pre', self.style)
+
+    def test_study_guides_are_complete_for_the_curriculum(self):
+        # As 16 aulas devem ter título, objetivo, subtítulos, palavras-chave,
+        # recado de revisão e uma pergunta para o próprio aluno refletir.
+        keys = re.findall(r"(?m)^    ([a-z0-9_]+): \\{", self.guide)
+        self.assertEqual(len(keys), 16)
+        self.assertEqual(set(keys), {p["id"] for p in self.problems})
+        for field in ("title:", "objective:", "headings:", "keywords:", "remember:", "question:"):
+            self.assertGreaterEqual(self.guide.count(field), 16)
+        self.assertIn("getConceptParagraphs(problem?.theory)", self.guide)
+        self.assertNotIn("problem.solution", self.guide)
+
+    def test_study_guide_view_and_navigation(self):
+        self.assertIn("StudyGuide.render(p, problems)", self.app)
+        self.assertIn('href="study-guide.css"', self.html)
+        self.assertIn('src="study-guide.js"', self.html)
+        self.assertLess(self.html.index('src="problems.js"'),
+                        self.html.index('src="study-guide.js"'))
+        self.assertLess(self.html.index('src="study-guide.js"'),
+                        self.html.index('src="app.js"'))
+        self.assertIn('data-study-tab="examples"', self.guide)
+        self.assertIn('data-study-tab="statement"', self.guide)
+        self.assertIn('exerciseSummaryContent.addEventListener("click"', self.app)
+        self.assertIn(".study-guide-copy strong", self.guide_css)
+        self.assertIn(".study-guide-copy code", self.guide_css)
+        self.assertIn("@media(max-width:460px)", self.guide_css)
 
     def test_unique_html_ids(self):
         ids = re.findall(r'\bid="([^"]+)"', self.html)
