@@ -51,6 +51,12 @@ ZHAI; WIBOWO; LI (2024). *The effects of over-reliance on AI dialogue systems on
 
 **Importante:** mantenha chaves Gemini apenas nos Secrets do Supabase; o progresso `completed` calculado no navegador não é válido como certificação ou medida antifraude sem validação no servidor.
 
+## Perfil do aluno
+
+A página autenticada [perfil.html](perfil.html) reúne nome, e-mail, ingresso no curso e indicadores reais da conta: exercícios concluídos, percentual, progresso por módulo, dicas, envios de código, interações com o professor e pedidos diretos bloqueados. Utiliza RLS Supabase e somente o **currículo 2**. A contagem de envios de código foi adicionada nesta versão e não recupera tentativas anteriores.
+
+Acesse **Meu perfil** na página de módulos ou no exercício. Veja [TESTE_PERFIL_ALUNO.md](TESTE_PERFIL_ALUNO.md) para o roteiro de validação e as definições das estatísticas. Não é necessário executar SQL adicional se as migrations anteriores já foram aplicadas.
+
 ## Editor e avaliação do código
 
 O editor Python (CodeMirror) destaca palavras-chave, mostra números de linha e auxilia na indentação; o Pyodide executa de verdade cada entrada de teste **no navegador**. Nos scripts dos módulos 1–3, a variável `entrada` já é fornecida: **não a redefina com `entrada = 6`**. A tela mostra entrada, resultado esperado e obtido para cada teste. A aba **Código** é o fluxo normal; na primeira visita neste navegador, a aba **Ideia** aparece como orientação inicial e depois torna-se apoio opcional (inclusive após 90 segundos sem interação).
