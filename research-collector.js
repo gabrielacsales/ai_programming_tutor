@@ -33,8 +33,19 @@
 
   function record(exerciseId, eventType, details = {}) {
     if (!allowed || !client || typeof exerciseId !== "string") return Promise.resolve(false);
-    // Sessão capturada imediatamente, antes da execução assíncrona em fila.
-    const detailsWithSession = { ...details, session_id: exerciseSessions.get(exerciseId) || null };
+    // Nunca transportar código do aluno, mensagens do tutor ou outros dados
+    // fora da whitelist — nem mesmo antes da limpeza complementar feita no SQL.
+    const permitted = ["passed", "total", "success", "idle_seconds", "mistakes"];
+    const detailsWithSession = { session_id: exerciseSessions.get(exerciseId) || null };
+    for (const key of permitted) {
+      if (!Object.prototype.hasOwnProperty.call(details, key)) continue;
+      const value = details[key];
+      if (typeof value === "number" && Number.isFinite(value)) {
+        detailsWithSession[key] = Math.max(0, Math.min(300, Math.round(value)));
+      } else if (key === "success" && typeof value === "boolean") {
+        detailsWithSession[key] = value;
+      }
+    }
     // Escritas serializadas evitam perder ordem observacional em chamadas muito rápidas.
     const job = pending.catch(() => false).then(async () => {
       const { data, error } = await client.rpc("research_record_event", {
