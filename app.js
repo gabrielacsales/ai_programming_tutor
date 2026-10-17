@@ -957,10 +957,14 @@ btnSubmitCode.addEventListener("click", async () => {
 
 // Loop periódico para contar o Tempo de Inatividade (IT)
 setInterval(() => {
-  if (currentOrch && !currentOrch.state.completed && screenApp.classList.contains("active")) {
+  // Inatividade é um indício operacional (não mede tempo total de estudo).
+  // Não contabilizar abas ocultas nem o tempo gasto na revisão em blocos.
+  const reviewOpen = Boolean(document.querySelector(".tutor-review-dialog[open]"));
+  if (currentOrch && !currentOrch.state.completed && screenApp.classList.contains("active") &&
+      !document.hidden && !reviewOpen) {
     const elapsedSinceInteraction = Date.now() - lastInteractionTime;
-    // Se o aluno está sem interagir por mais de 5 segundos, incrementa o tempo de inatividade
-    if (elapsedSinceInteraction > 5000) {
+    // Após 60s sem clique, digitação ou rolagem, incrementa tempo inativo observado.
+    if (elapsedSinceInteraction > 60000) {
       currentOrch.metrics.idle_time_seconds += 1;
       updateUIState();
       if (currentOrch.metrics.idle_time_seconds % 20 === 0) {
