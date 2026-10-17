@@ -913,6 +913,9 @@
       const initFlashlight = () => {
         const cards = document.querySelectorAll('.flashlight-card');
         cards.forEach(card => {
+          // Evita acumular listeners quando o popup e outros elementos mudam o DOM.
+          if (card.dataset.flashlightReady === 'true') return;
+          card.dataset.flashlightReady = 'true';
           card.addEventListener('mousemove', (e) => {
             const rect = card.getBoundingClientRect();
             const x = e.clientX - rect.left;
