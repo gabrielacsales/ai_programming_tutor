@@ -166,38 +166,138 @@
     });
   }
 
-  function renderActivityGraph(summary) {
-    const chart = get("chart-activity");
-    chart.replaceChildren();
-    const maxCount = Math.max(0, ...summary.map((entry) => Math.max(entry.hints, entry.submissions)));
-    summary.forEach((entry) => {
-      const row = makeChartElement("div", "activity-row");
-      const label = makeChartElement("span", "activity-module-label", entry.label);
-      const bars = makeChartElement("div", "activity-row-bars");
-      const datasets = [
-        { label: "Dicas", count: entry.hints, style: "hint" },
-        { label: "Envios de código", count: entry.submissions, style: "submission" }
-      ];
-      datasets.forEach((dataset) => {
-        const line = makeChartElement("div", "activity-bar-line");
-        const track = makeChartElement("div", "activity-bar-track");
-        const fill = makeChartElement("div", "activity-bar-fill" +
-          (dataset.style === "submission" ? " submission" : ""));
-        fill.style.width = (maxCount > 0 ? dataset.count / maxCount * 100 : 0) + "%";
-        track.setAttribute("role", "img");
-        track.setAttribute("aria-label", entry.label + ", " + dataset.label + ": " + dataset.count);
-        track.appendChild(fill);
-        const value = makeChartElement("span", "activity-bar-value", dataset.count);
-        line.append(track, value);
-        bars.appendChild(line);
-      });
-      row.append(label, bars);
-      chart.appendChild(row);
-    });
-    if (maxCount === 0) {
-      chart.appendChild(makeChartElement("p", "activity-empty",
-        "Ainda não há dicas ou envios registrados nesta versão da trilha."));
+  function localDayKey(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return y + "-" + m + "-" + d;
+  }
+
+  // Os timestamps são eventos reais de chat_messages, não snapshots de progresso.
+  // Agrupamos pelo dia LOCAL do aluno para corresponder ao calendário que ele vê.
+  function summarizeTutorTimeline(messages, today = new Date()) {
+    const days = [];
+    const start = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 13);
+    const counts = new Map();
+    for (const message of messages || []) {
+      const when = new Date(message.created_at);
+      if (!Number.isFinite(when.getTime()) || when < start || when > today) continue;
+      const key = localDayKey(when);
+      counts.set(key, (counts.get(key) || 0) + 1);
     }
+    for (let i = 0; i < 14; i++) {
+      const date = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+      const key = localDayKey(date);
+      days.push({
+        key, date,
+        label: date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
+        count: counts.get(key) || 0
+      });
+    }
+    return days;
+  }
+
+  // Paginação explícita: não perder eventos se a conta tiver mais de 1000 mensagens.
+  async function fetchTutorTimeline(client, userId, today = new Date()) {
+    const from = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 13);
+    const pageSize = 500;
+    const all = [];
+    let offset = 0;
+    while (true) {
+      const { data, error } = await client.from("chat_messages")
+        .select("id,created_at")
+        .eq("user_id", userId)
+        .eq("role", "user")
+        .eq("curriculum_version", VERSION)
+        .gte("created_at", from.toISOString())
+        .lte("created_at", today.toISOString())
+        .order("created_at", { ascending: true })
+        .order("id", { ascending: true })
+        .range(offset, offset + pageSize - 1);
+      if (error) throw new Error("Linha do tempo: " + error.message);
+      all.push(...(data || []));
+      if (!data || data.length < pageSize) break;
+      offset += pageSize;
+    }
+    return all;
+  }
+
+  function svgNode(tag, attributes = {}, text = null) {
+    const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (const [name, value] of Object.entries(attributes)) {
+      node.setAttribute(name, String(value));
+    }
+    if (text !== null) node.textContent = String(text);
+    return node;
+  }
+
+  function renderTutorTimeline(messages, today = new Date()) {
+    const days = summarizeTutorTimeline(messages, today);
+    const total = days.reduce((sum, day) => sum + day.count, 0);
+    const chart = get("chart-timeline");
+    chart.replaceChildren();
+    setText("chart-timeline-total", total + (total === 1 ? " interação" : " interações"));
+    get("chart-timeline-empty").hidden = total !== 0;
+    chart.setAttribute("aria-label", "Mensagens ao tutor nos últimos 14 dias: " +
+      days.map(d => d.label + ", " + d.count).join("; "));
+
+    const width = 940, height = 265;
+    const margin = { left: 46, right: 18, top: 16, bottom: 40 };
+    const bottom = height - margin.bottom;
+    const plotHeight = bottom - margin.top;
+    const plotWidth = width - margin.left - margin.right;
+    const highest = Math.max(0, ...days.map(day => day.count));
+    const yMax = Math.max(2, Math.ceil(highest / 2) * 2);
+    const x = i => margin.left + plotWidth * i / (days.length - 1);
+    const y = count => bottom - plotHeight * count / yMax;
+
+    const svg = svgNode("svg", {
+      viewBox: "0 0 " + width + " " + height,
+      preserveAspectRatio: "xMidYMid meet",
+      class: "timeline-svg",
+      "aria-hidden": "true"
+    });
+
+    [0, yMax / 2, yMax].forEach(tick => {
+      const yy = y(tick);
+      svg.appendChild(svgNode("line", {
+        x1: margin.left, x2: width - margin.right, y1: yy, y2: yy,
+        class: "timeline-grid-line"
+      }));
+      svg.appendChild(svgNode("text", {
+        x: margin.left - 10, y: yy + 4, "text-anchor": "end",
+        class: "timeline-axis-label"
+      }, tick));
+    });
+
+    const points = days.map((day, i) => [x(i), y(day.count)]);
+    const polyline = points.map(([xx, yy], i) =>
+      (i === 0 ? "M" : "L") + xx.toFixed(2) + " " + yy.toFixed(2)).join(" ");
+    const shade = polyline +
+      " L" + x(days.length - 1).toFixed(2) + " " + bottom +
+      " L" + x(0).toFixed(2) + " " + bottom + " Z";
+
+    svg.appendChild(svgNode("path", { d: shade, class: "timeline-area" }));
+    svg.appendChild(svgNode("path", { d: polyline, class: "timeline-line" }));
+
+    days.forEach((day, i) => {
+      if (i % 3 === 0 || i === days.length - 1) {
+        svg.appendChild(svgNode("text", {
+          x: x(i), y: height - 12, "text-anchor": "middle",
+          class: "timeline-axis-label"
+        }, day.label));
+      }
+      const dot = svgNode("circle", {
+        cx: x(i), cy: y(day.count), r: day.count ? 4.8 : 3.1,
+        class: day.count ? "timeline-dot active" : "timeline-dot"
+      });
+      dot.appendChild(svgNode("title", {}, day.label + ": " + day.count +
+        (day.count === 1 ? " mensagem" : " mensagens")));
+      svg.appendChild(dot);
+    });
+
+    chart.appendChild(svg);
+    return days;
   }
 
   function renderCharts(stat) {
@@ -213,7 +313,7 @@
     setText("chart-remaining-count", remaining);
     const summary = summarizeModules(stat);
     renderModuleGraph(summary);
-    renderActivityGraph(summary);
+
   }
 
   function render(data) {
@@ -247,6 +347,7 @@
     get("overall-progressbar").setAttribute("aria-valuenow", String(stat.completed));
     get("overall-fill").style.width = stat.percentage + "%";
     renderCharts(stat);
+    renderTutorTimeline(data.timelineMessages || [], data.timelineNow || new Date());
 
     const list = get("module-grid");
     list.replaceChildren();
@@ -292,9 +393,15 @@
     // A leitura do papel é adicional; falhas dela não expõem dados de outra conta.
     if (roleResult.error) console.warn("Não foi possível consultar o nível de acesso:", roleResult.error.message);
 
+    // O big number continua abrangendo todas as mensagens da versão atual.
+    // Somente o gráfico 03 recebe os eventos datados dos últimos 14 dias.
+    const timelineNow = new Date();
+    const timelineMessages = await fetchTutorTimeline(client, user.id, timelineNow);
+
     render({
       user, profile: profileResult.data, progress: progressResult.data || [],
-      messages: messagesResult.count ?? 0, access: roleResult.error ? null : roleResult.data
+      messages: messagesResult.count ?? 0, access: roleResult.error ? null : roleResult.data,
+      timelineMessages, timelineNow
     });
   }
 
@@ -317,5 +424,5 @@
   });
 
   // Utilitário puro exposto para testes do cálculo, sem divulgar dados pessoais.
-  window.TutorProfileStats = { compileStatistics, summarizeModules };
+  window.TutorProfileStats = { compileStatistics, summarizeModules, summarizeTutorTimeline, renderTutorTimeline };
 })();
