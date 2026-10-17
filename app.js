@@ -7,7 +7,7 @@ class ChallengeOrchestrator {
     this.state = {
       attempts: [],
       hints_given: [],
-      mode: "descricao",
+      mode: "codigo",
       user_code: "",
       user_idea: "",
       completed: false
@@ -97,6 +97,8 @@ const tutor = new SocraticTutor();
 // Estado geral da aplicação
 let currentOrch = null;
 const sessionMap = new Map(); // Guarda instâncias do Orchestrator por Challenge ID
+let showIdeaOnFirstVisit = false; // Uma vez por conta neste navegador.
+const ideaNudgesShown = new Set();
 let lastInteractionTime = Date.now();
 
 // Evita gravações no banco a cada tecla pressionada.
@@ -352,13 +354,20 @@ async function loadActiveExercise(challengeId) {
 
   // Preenche Resumos do Tema e Exemplos
   exerciseSummaryContent.innerHTML = p.theory || `<p class="text-slate-600">${p.statement}</p>`;
-  exerciseExamplesContent.innerHTML = p.solution ?
-    `<strong class="block mb-2 text-slate-700">Exemplo de implementação (Solução do Professor):</strong><pre class="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-xs overflow-x-auto whitespace-pre-wrap">${p.solution}</pre>` :
-    "Este exercício não possui exemplos de solução.";
+  TutorEditor.renderExample(p.solution || "");
+
+  const codeNotice = document.getElementById("code-input-notice");
+  if (codeNotice) {
+    codeNotice.textContent = p.function_name
+      ? "Este exercício recebe o valor pelo parâmetro da função. Não altere o nome da função e use return (não print) para devolver o resultado."
+      : "O ambiente já fornece a variável entrada e muda seu valor em cada teste. NÃO escreva entrada = 6 (ou outro valor fixo): use apenas entrada para calcular o resultado.";
+  }
 
   // Restaura o estado da aba
   textareaDesc.value = currentOrch.state.user_idea;
-  textareaCode.value = currentOrch.state.user_code || (p.function_name ? `def ${p.function_name}(${p.function_parameter || 'dados'}):\n    # Escreva sua lógica aqui\n    pass` : `# O valor do teste já está disponível na variável 'entrada'\n# Utilize print() para exibir o resultado final\n\n`);
+  TutorEditor.setValue(currentOrch.state.user_code || (p.function_name
+    ? `def ${p.function_name}(${p.function_parameter || 'dados'}):\n    # Escreva sua lógica aqui\n    pass`
+    : `# entrada é definida automaticamente em cada caso de teste. NÃO a redefina.\n# Utilize print() para exibir o resultado.\n\n`));
 
   // Reseta elementos de feedback visual da interface
   feedbackDesc.style.display = "none";
@@ -371,12 +380,14 @@ async function loadActiveExercise(challengeId) {
   replySocraticCode.innerText = "";
   execResults.style.display = "none";
 
-  // Sincroniza abas
-  if (currentOrch.state.mode === "descricao") {
-    switchMode("desc");
-  } else {
-    switchMode("code");
-  }
+  // O código é o fluxo principal. A primeira visita oferece uma única
+  // oportunidade inicial de descrever a ideia, sem obrigar nas demais sessões.
+  const mode = showIdeaOnFirstVisit ? "desc" : "code";
+  showIdeaOnFirstVisit = false;
+  switchMode(mode);
+  const ideaNudge = document.getElementById("idea-nudge");
+  if (ideaNudge) ideaNudge.hidden = true;
+  lastInteractionTime = Date.now();
 
   // Reseta para a aba "Desafio"
   switchExerciseTab("statement");
@@ -385,7 +396,9 @@ async function loadActiveExercise(challengeId) {
   loadChatHistory(challengeId);
   // A revisão aparece ao entrar em qualquer exercício e não interfere
   // no estado do aluno nem nas métricas acadêmicas já instrumentadas.
-  if (window.TutorReview) TutorReview.open(p);
+  if (window.TutorReview) TutorReview.open(p, () => {
+    lastInteractionTime = Date.now(); // não contar o tempo gasto no popup como inatividade
+  });
 }
 
 // Alterna entre abas "Descrever Ideia" e "Código"
@@ -402,6 +415,7 @@ function switchMode(mode) {
     panelCode.classList.add("active");
     panelDesc.classList.remove("active");
     if (currentOrch) currentOrch.state.mode = "codigo";
+    TutorEditor.refresh();
   }
 }
 
@@ -481,6 +495,10 @@ selectExercise.addEventListener("change", (e) => {
   loadActiveExercise(e.target.value);
 });
 
+// Ordenação no DOM: código antes de ideia, inclusive para navegação por teclado.
+tabCode.parentNode.insertBefore(tabCode, tabDesc);
+panelCode.parentNode.insertBefore(panelCode, panelDesc);
+
 // Alternância de Abas
 tabDesc.addEventListener("click", () => switchMode("desc"));
 tabCode.addEventListener("click", () => switchMode("code"));
@@ -494,6 +512,13 @@ textareaDesc.addEventListener("input", (e) => {
 
 textareaCode.addEventListener("input", (e) => {
   if (currentOrch) currentOrch.state.user_code = e.target.value;
+  scheduleProgressSave();
+  lastInteractionTime = Date.now();
+});
+
+// Realce/indentação CodeMirror: sincroniza o textarea escondido com o rascunho.
+TutorEditor.start((value) => {
+  if (currentOrch) currentOrch.state.user_code = value;
   scheduleProgressSave();
   lastInteractionTime = Date.now();
 });
@@ -697,7 +722,7 @@ btnSendSocraticCode.addEventListener("click", async () => {
 // 6. Registrar e Testar Código Python (Pyodide)
 btnSubmitCode.addEventListener("click", async () => {
   lastInteractionTime = Date.now();
-  const code = textareaCode.value;
+  const code = TutorEditor.getValue();
 
   if (code.trim().length < 3) {
     showToast("Escreva seu código antes de submeter.");
@@ -717,9 +742,11 @@ btnSubmitCode.addEventListener("click", async () => {
     // Roda no Pyodide
     const res = await runner.run(code, currentOrch.problem.function_name, currentOrch.problem.tests);
 
-    // Renderiza resultados de saída
+    // A saída do console pertence somente ao primeiro caso de teste.
     execResults.style.display = "flex";
-    stdoutOutput.innerText = res.stdout.trim() || "(saída vazia)";
+    stdoutOutput.innerText = currentOrch.problem.function_name
+      ? "A função devolve valores com return. Veja o resultado de cada caso abaixo."
+      : (res.stdout || "(sem saída no primeiro teste)");
 
     // Tratamento de Erros de Execução/Compilação
     if (res.error) {
