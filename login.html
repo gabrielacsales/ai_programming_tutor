@@ -5,7 +5,7 @@
 :root{font-family:Inter,system-ui,Arial,sans-serif;color:#101828;background:#f5f8fc}*{box-sizing:border-box}
 main{max-width:460px;margin:8vh auto;padding:36px;background:white;border:1px solid #e2e8f0;border-radius:22px;box-shadow:0 12px 40px #152d4b12}
 h1{margin:0 0 8px;font-size:28px}p{color:#667085;line-height:1.5}
-label{display:block;margin:16px 0 6px;font-weight:600;font-size:14px}input{display:block;width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:13px;font:inherit}
+label{display:block;margin:16px 0 6px;font-weight:600;font-size:14px}input,select{display:block;width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:13px;font:inherit;background:#fff}
 button{border:0;border-radius:10px;background:#1cb0f6;color:white;cursor:pointer;padding:13px;font:inherit;font-weight:700;width:100%;margin-top:20px}
 button:disabled{opacity:.65}nav{display:flex;gap:8px;margin:0 0 22px}nav button{margin:0;background:#eff7fd;color:#344054}nav button[aria-pressed=true]{background:#1cb0f6;color:white}
 a{color:#0877ad}.error{color:#b42318}.success{color:#067647}#message{min-height:24px;font-size:14px}
@@ -24,6 +24,15 @@ a{color:#0877ad}.error{color:#b42318}.success{color:#067647}#message{min-height:
 <div id="name-block" hidden><label for="name">Nome</label><input id="name" autocomplete="name"></div>
 <label for="email">E-mail</label><input id="email" type="email" autocomplete="email" required>
 <div id="password-block"><label for="password">Senha</label><input id="password" type="password" minlength="6" autocomplete="current-password" required></div>
+<div id="senac-block">
+  <label for="senac-choice">Você é estudante do Senac?</label>
+  <select id="senac-choice">
+    <option value="">Vou informar depois (somente ao entrar)</option>
+    <option value="yes">Sim, estudo no Senac</option>
+    <option value="no">Não estudo no Senac</option>
+  </select>
+  <p style="margin:7px 0 0;font-size:12px">Alunos do Senac fazem um breve pré-teste inicial antes dos exercícios. A participação na pesquisa acadêmica é opcional.</p>
+</div>
 <button id="submit" type="submit">Entrar</button>
 </form><p id="message" role="status" aria-live="polite"></p>
 </main><script>
@@ -34,11 +43,14 @@ const message=document.getElementById("message");
 const submit=document.getElementById("submit");
 const nameBlock=document.getElementById("name-block"), passwordBlock=document.getElementById("password-block");
 const password=document.getElementById("password");
+const senacBlock=document.getElementById("senac-block"),senacChoice=document.getElementById("senac-choice");
 let mode="login";
 function show(type,text){message.className=type;message.textContent=text}
 function switchMode(next){
 mode=next;
 nameBlock.hidden=next!=="signup";passwordBlock.hidden=next==="reset";
+senacBlock.hidden=next==="reset";senacChoice.required=next==="signup";
+senacChoice.options[0].textContent=next==="signup"?"Selecione uma opção":"Já informei ou prefiro decidir depois";
 password.required=next!=="reset";password.autocomplete=next==="signup"?"new-password":"current-password";
 submit.textContent={login:"Entrar",signup:"Criar conta",reset:"Enviar e-mail"}[next];
 document.querySelectorAll("[data-mode]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===mode)));
@@ -53,9 +65,12 @@ try{
 const email=document.getElementById("email").value.trim(), pass=password.value;
 let result;
 if(mode==="signup"){
-result=await client.auth.signUp({email,password:pass,options:{data:{display_name:document.getElementById("name").value.trim()},emailRedirectTo:location.origin+"/login.html"}});
+result=await client.auth.signUp({email,password:pass,options:{data:{
+  display_name:document.getElementById("name").value.trim(),
+  senac_student:senacChoice.value==="yes"
+},emailRedirectTo:location.origin+"/login.html"}});
 if(result.error)throw result.error;
-if(result.data.session)location.replace(next);
+if(result.data.session)location.replace("inicio-senac.html");
 else show("success","Cadastro enviado. Confira seu e-mail para confirmar a conta.");
 }else if(mode==="reset"){
 result=await client.auth.resetPasswordForEmail(email,{redirectTo:location.origin+"/reset-password.html"});
@@ -64,6 +79,15 @@ show("success","Se o endereço estiver cadastrado, você receberá um e-mail par
 }else{
 result=await client.auth.signInWithPassword({email,password:pass});
 if(result.error)throw result.error;
+// Identificação auto-declarada no login: só registra se ainda não definida.
+// A primeira classificação fica no banco, não pode ser trocada pelo navegador.
+if(senacChoice.value==="yes"||senacChoice.value==="no"){
+  const check=await client.rpc("senac_my_onboarding");
+  if(!check.error&&!check.data?.affiliation){
+    const up=await client.rpc("senac_set_affiliation",{p_is_senac:senacChoice.value==="yes"});
+    if(up.error)console.warn("Identificação será concluída na tela inicial:",up.error.message);
+  }
+}
 location.replace(next);
 }
 }catch(e){show("error",e.message||"Não foi possível concluir a solicitação.");}
