@@ -403,13 +403,8 @@ async function loadActiveExercise(challengeId) {
   loadChatHistory(challengeId);
   // A revisão aparece ao entrar em qualquer exercício e não interfere
   // no estado do aluno nem nas métricas acadêmicas já instrumentadas.
-  window.TutorResearch?.startExercise(p.id);
-  window.TutorResearch?.record(p.id, "exercise_opened");
-  if (window.TutorReview) TutorReview.open(p, (quiz) => {
+  if (window.TutorReview) TutorReview.open(p, () => {
     lastInteractionTime = Date.now(); // não contar o tempo gasto no popup como inatividade
-    window.TutorResearch?.record(p.id, quiz?.completed ? "review_completed" : "review_skipped", {
-      mistakes: quiz?.mistakes || 0
-    });
     // Guia interativo somente depois que o aluno fecha a revisão inicial.
     learningUI.initFeatureTour();
   });
@@ -653,7 +648,6 @@ btnSubmitDesc.addEventListener("click", async () => {
 
   try {
     currentOrch.recordAttempt(idea);
-    window.TutorResearch?.record(currentOrch.problem.id, "idea_submitted");
     currentOrch.metrics.idea_submissions = (Number(currentOrch.metrics.idea_submissions) || 0) + 1;
     currentOrch.recordReengagement(); // Considera reengajamento após bloqueios anteriores
 
@@ -675,11 +669,7 @@ btnSubmitDesc.addEventListener("click", async () => {
   btn.addEventListener("click", () => {
     lastInteractionTime = Date.now();
     if (!currentOrch) return;
-    const beforeHintCount = currentOrch.metrics.hints_used;
     const hint = currentOrch.requestHint();
-    if (currentOrch.metrics.hints_used > beforeHintCount) {
-      window.TutorResearch?.record(currentOrch.problem.id, "hint_viewed");
-    }
     showToast(`💡 Dica: ${hint}`);
     updateUIState();
     scheduleProgressSave();
@@ -706,8 +696,6 @@ btnSendSocraticDesc.addEventListener("click", async () => {
 
   const isDirect = tutor.isDirectAnswerRequest(q);
   currentOrch.recordDirectAnswerAttempt(isDirect);
-  window.TutorResearch?.record(currentOrch.problem.id, "tutor_question");
-  if (isDirect) window.TutorResearch?.record(currentOrch.problem.id, "tutor_blocked_request");
 
   try {
     const reply = await tutor.ask(q, currentOrch.buildContext(), "");
@@ -739,8 +727,6 @@ btnSendSocraticCode.addEventListener("click", async () => {
 
   const isDirect = tutor.isDirectAnswerRequest(q);
   currentOrch.recordDirectAnswerAttempt(isDirect);
-  window.TutorResearch?.record(currentOrch.problem.id, "tutor_question");
-  if (isDirect) window.TutorResearch?.record(currentOrch.problem.id, "tutor_blocked_request");
 
   try {
     const reply = await tutor.ask(q, currentOrch.buildContext(), code);
@@ -799,22 +785,12 @@ btnSubmitCode.addEventListener("click", async () => {
 
   try {
     currentOrch.recordAttempt(code);
-    window.TutorResearch?.record(currentOrch.problem.id, "code_submitted");
     currentOrch.state.user_code = code;
     currentOrch.metrics.code_submissions = (Number(currentOrch.metrics.code_submissions) || 0) + 1;
     currentOrch.recordReengagement();
 
     // Roda no Pyodide
     const res = await runner.run(code, currentOrch.problem.function_name, currentOrch.problem.tests);
-
-    // Evidências sobre os testes (auto-relato do navegador, não validação server-side).
-    const testCases = Array.isArray(res.test_results) ? res.test_results : [];
-    const passedTests = testCases.filter(t => t.ok).length;
-    window.TutorResearch?.record(currentOrch.problem.id, "test_result", {
-      passed: passedTests,
-      total: testCases.length,
-      success: testCases.length > 0 && passedTests === testCases.length && !res.error
-    });
 
     // A saída do console pertence somente ao primeiro caso de teste.
     execResults.style.display = "flex";
@@ -904,9 +880,7 @@ btnSubmitCode.addEventListener("click", async () => {
         currentOrch.state.completed = false;
       } else {
         testAiHelp.style.display = "none";
-        const newlyCompleted = !currentOrch.state.completed;
         currentOrch.state.completed = true;
-        if (newlyCompleted) window.TutorResearch?.record(currentOrch.problem.id, "exercise_completed");
 
         // Salva antes de exibir o botão Próximo Desafio, evitando perder
         // a conclusão caso o aluno navegue imediatamente para outra página.
@@ -987,7 +961,6 @@ setInterval(() => {
       updateUIState();
       if (currentOrch.metrics.idle_time_seconds % 20 === 0) {
         scheduleProgressSave();
-        window.TutorResearch?.record(currentOrch.problem.id, "idle_interval", { idle_seconds: 20 });
       }
     }
   }
