@@ -568,6 +568,20 @@ if (constraintsExpander) {
   }
 }
 
+// Salva as últimas alterações antes de sair do exercício para ver estatísticas.
+document.getElementById("nav-student-profile")?.addEventListener("click", async (event) => {
+  if (!currentOrch) return;
+  event.preventDefault();
+  const button = event.currentTarget;
+  button.style.pointerEvents = "none";
+  const id = currentOrch.problem.id;
+  clearTimeout(progressSaveTimers.get(id));
+  progressSaveTimers.delete(id);
+  currentOrch.state.user_code = TutorEditor.getValue();
+  await persistExercise(currentOrch);
+  window.location.href = "perfil.html";
+});
+
 // Event Listeners para Controle da Sidebar Retrátil
 if (sidebarHandle) {
   sidebarHandle.addEventListener("click", () => {
