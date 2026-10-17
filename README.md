@@ -51,6 +51,12 @@ ZHAI; WIBOWO; LI (2024). *The effects of over-reliance on AI dialogue systems on
 
 **Importante:** mantenha chaves Gemini apenas nos Secrets do Supabase; o progresso `completed` calculado no navegador não é válido como certificação ou medida antifraude sem validação no servidor.
 
+## Entrada dos estudantes do Senac
+
+No cadastro/login, a pessoa pode declarar se estuda no Senac. Para a trilha do Senac, **um diagnóstico inicial de oito questões é necessário antes dos exercícios**, mas pode ser feito em uma visita posterior. A participação científica no TCC é **voluntária e separada**: consentimento não é exigido para estudar. O servidor confere a conclusão do diagnóstico nas permissões dos exercícios.
+
+Migração extra: `supabase/senac-onboarding.sql`, após `supabase/research-study.sql`. Consulte [TESTE_FLUXO_SENAC.md](TESTE_FLUXO_SENAC.md) para passos detalhados e correção do erro PGRST202 do painel da pesquisadora.
+
 ## Modo Pesquisa do TCC
 
 O projeto inclui um módulo opcional de pesquisa com consentimento, pré e pós-teste, questionário, telemetria temporal e dashboard pseudonimizado com exportação CSV. Requer a migração `supabase/research-study.sql` e revisão ética institucional. **O recrutamento está fechado por padrão**, inclusive no banco, e exige contato, termo aprovado, política de retenção e referência institucional antes da abertura.
