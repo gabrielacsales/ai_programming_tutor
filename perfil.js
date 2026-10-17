@@ -50,6 +50,8 @@
       hints: current.reduce((sum, row) => sum + metric(row, "hints_used"), 0),
       submissions: current.reduce((sum, row) => sum + metric(row, "code_submissions"), 0),
       blocked: current.reduce((sum, row) => sum + metric(row, "blocked_direct_answer_attempts"), 0),
+      reengagement: current.reduce((sum, row) => sum + metric(row, "reengagement_after_block"), 0),
+      idleSeconds: current.reduce((sum, row) => sum + metric(row, "idle_time_seconds"), 0),
       lastDate,
       byExercise
     };
@@ -146,6 +148,8 @@
     setText("stat-submissions", stat.submissions);
     setText("stat-tutor", data.messages ?? 0);
     setText("stat-blocked", stat.blocked);
+    setText("stat-reengagement", stat.reengagement);
+    setText("stat-idle", Math.floor(stat.idleSeconds / 60) + " min " + Math.round(stat.idleSeconds % 60) + " s");
     get("overall-progressbar").setAttribute("aria-valuemax", String(stat.total));
     get("overall-progressbar").setAttribute("aria-valuenow", String(stat.completed));
     get("overall-fill").style.width = stat.percentage + "%";
