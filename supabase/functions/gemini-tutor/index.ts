@@ -21,7 +21,10 @@ function bounded(value: unknown, limit: number) {
 }
 
 function isDirectAnswerRequest(value: string) {
-  return /\b(resposta|solu[cç][aã]o|c[oó]digo\s*completo|gabarito)\b/i.test(value);
+  const explicitRequest = /(?:me\s+(?:d[aáe]|pass(?:a|e)|mostr(?:a|e)|mand(?:a|e)|entreg(?:a|ue))|quero\s+(?:a|o)|qual\s+(?:é\s+)?(?:a|o)).{0,40}(?:gabarito|solu[cç][aã]o|resposta|c[oó]digo)/i;
+  const readySolution = /(?:gabarito|c[oó]digo\s+(?:completo|pronto)|(?:resposta|solu[cç][aã]o)\s+(?:final|pronta|completa))/i;
+  const solveForMe = /(?:resolv[ae]\s+(?:esse|o)\s+exerc[ií]cio\s+(?:para|pra)\s+mim|fa[çc]a\s+(?:esse|o)\s+exerc[ií]cio\s+(?:para|pra)\s+mim)/i;
+  return explicitRequest.test(value) || readySolution.test(value) || solveForMe.test(value);
 }
 
 function suggestsReadyLibrary(value: string) {
