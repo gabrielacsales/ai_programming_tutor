@@ -1,0 +1,53 @@
+/* Editor Python e exemplos em destaque, sem alterar a execução no Pyodide */
+.code-editor-wrapper, .teacher-code-window { background: #0b101d; }
+.CodeMirror {
+  height: 330px; min-height: 240px; font-size: 14px;
+  line-height: 1.75; font-family: "JetBrains Mono", ui-monospace, monospace;
+  background: #0b101d; color: #e2e8f0;
+}
+.CodeMirror-scroll { min-height: 240px; }
+.CodeMirror-gutters { background: #0f172a !important; border-right: 1px solid #1e293b !important; }
+.CodeMirror-linenumber { color: #64748b !important; }
+.CodeMirror-cursor { border-left: 2px solid #38bdf8 !important; }
+.CodeMirror-focused .CodeMirror-selected { background: rgba(56, 189, 248, .23) !important; }
+.CodeMirror-activeline-background { background: rgba(148, 163, 184, .075); }
+.code-editor-wrapper .CodeMirror { border-radius: 0 0 14px 14px; }
+.teacher-code-window {
+  border: 1px solid #243045; border-radius: 14px; overflow: hidden;
+  box-shadow: 0 12px 25px rgba(15, 23, 42, .1);
+}
+.teacher-code-title {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #0c111d; border-bottom: 1px solid #273248;
+  color: #94a3b8; padding: 10px 14px; font-size: 11px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+.teacher-code-dots { display: flex; gap: 5px; }
+.teacher-code-dots i { width: 9px; height: 9px; border-radius: 50%; display: block; background: #f87171; }
+.teacher-code-dots i:nth-child(2) { background: #fbbf24; }
+.teacher-code-dots i:nth-child(3) { background: #4ade80; }
+.teacher-code-pre {
+  padding: 18px 20px; margin: 0; white-space: pre; overflow-x: auto;
+  color: #e2e8f0; background: #0b101d; font-size: 13px; line-height: 1.8;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+.code-input-notice {
+  margin-top: 12px; padding: 12px 14px; border: 1px solid #bae6fd;
+  background: #f0f9ff; color: #075985; border-radius: 12px;
+  font: 500 12px/1.65 Inter, system-ui, sans-serif;
+}
+.execution-summary { border-radius: 12px; padding: 12px 16px; margin: 0 0 12px; font-size: 13px; font-weight: 650; }
+.execution-summary.ok { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.execution-summary.partial { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+.test-item .test-case-text { min-width: 0; flex: 1; display: grid; gap: 7px; }
+.test-case-input { font-size: 12px; color: #64748b; font-weight: 500; }
+.test-case-values { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; font-size: 12px; }
+.test-case-values code { font-family: "JetBrains Mono", monospace; word-break: break-word; white-space: pre-wrap; }
+.test-case-error { color: #b91c1c; font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.idea-nudge {
+  border-radius: 14px; border: 1px solid #bae6fd; background: #f0f9ff;
+  padding: 14px 16px; color: #0c4a6e; font-size: 13px;
+}
+.idea-nudge button { border: 1px solid #7dd3fc; border-radius: 9px; padding: 8px 12px; font-weight: 700; }
+.idea-nudge button:hover { background: #e0f2fe; }
+@media (max-width: 600px) { .CodeMirror { font-size: 12px; } .teacher-code-pre { padding: 14px; font-size: 11px; } }
