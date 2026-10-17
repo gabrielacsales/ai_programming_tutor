@@ -861,7 +861,9 @@ setInterval(() => {
   } else if (problems.length > 0) {
     loadActiveExercise(problems[0].id);
   }
-  runner.init().catch(() => {});
+  // Não inicializar Pyodide enquanto o popup de revisão estiver aberto.
+  // A inicialização pesada podia bloquear os primeiros cliques no quiz.
+  // CodeRunner.run() já carrega o interpretador sob demanda quando necessário.
 })();
 
 // A chave Gemini é exclusiva da Supabase Edge Function.
