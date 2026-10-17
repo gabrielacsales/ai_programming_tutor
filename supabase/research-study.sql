@@ -213,21 +213,33 @@ BEGIN
     OR char_length(p_exercise_id)>80 OR NOT EXISTS(
       SELECT 1 FROM public.exercise_access_rules WHERE exercise_id=p_exercise_id)
   THEN RETURN false; END IF;
-  -- Whitelist de valores NÃO sensíveis. Nunca armazenar código-fonte, chat ou texto livre aqui.
-  v_safe=jsonb_build_object(
-    'session_id', CASE WHEN jsonb_typeof(p_details->'session_id')='string'
-      AND char_length(p_details->>'session_id') BETWEEN 8 AND 60
-      AND (p_details->>'session_id') ~ '^[a-zA-Z0-9_-]+ CASE WHEN jsonb_typeof(p_details->'passed')='number'
-      THEN least(100,greatest(0, (p_details->>'passed')::int)) ELSE NULL END,
-    'total', CASE WHEN jsonb_typeof(p_details->'total')='number'
-      THEN least(100,greatest(0, (p_details->>'total')::int)) ELSE NULL END,
-    'success', CASE WHEN jsonb_typeof(p_details->'success')='boolean'
+  -- Lista explícita: preserva somente metadados quantitativos.
+  -- Nenhum trecho de código, texto livre ou conversa entra em research_events.
+  v_safe = jsonb_strip_nulls(jsonb_build_object(
+    'session_id', CASE
+      WHEN jsonb_typeof(p_details->'session_id') = 'string'
+        AND (p_details->>'session_id') ~ '^[A-Za-z0-9_-]{8,60}$'
+      THEN p_details->>'session_id' ELSE NULL END,
+    'passed', CASE
+      WHEN jsonb_typeof(p_details->'passed') = 'number'
+      THEN least(100, greatest(0, (p_details->>'passed')::numeric))::int
+      ELSE NULL END,
+    'total', CASE
+      WHEN jsonb_typeof(p_details->'total') = 'number'
+      THEN least(100, greatest(0, (p_details->>'total')::numeric))::int
+      ELSE NULL END,
+    'success', CASE
+      WHEN jsonb_typeof(p_details->'success') = 'boolean'
       THEN (p_details->>'success')::boolean ELSE NULL END,
-    'idle_seconds', CASE WHEN jsonb_typeof(p_details->'idle_seconds')='number'
-      THEN least(300,greatest(0,(p_details->>'idle_seconds')::int)) ELSE NULL END,
-    'mistakes', CASE WHEN jsonb_typeof(p_details->'mistakes')='number'
-      THEN least(100,greatest(0,(p_details->>'mistakes')::int)) ELSE NULL END
-  );
+    'idle_seconds', CASE
+      WHEN jsonb_typeof(p_details->'idle_seconds') = 'number'
+      THEN least(300, greatest(0, (p_details->>'idle_seconds')::numeric))::int
+      ELSE NULL END,
+    'mistakes', CASE
+      WHEN jsonb_typeof(p_details->'mistakes') = 'number'
+      THEN least(100, greatest(0, (p_details->>'mistakes')::numeric))::int
+      ELSE NULL END
+  ));
   INSERT INTO public.research_events(user_id,exercise_id,event_type,details)
   VALUES(v_uid,p_exercise_id,p_event_type,v_safe);
   RETURN true;
