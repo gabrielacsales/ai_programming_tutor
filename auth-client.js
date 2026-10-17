@@ -4,7 +4,15 @@
   const configured = /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(config.url || "") &&
     typeof config.publishableKey === "string" && config.publishableKey.trim().length > 0;
   const client = configured && window.supabase?.createClient
-    ? window.supabase.createClient(config.url, config.publishableKey)
+    ? window.supabase.createClient(config.url, config.publishableKey, {
+        auth: {
+          // A sessão persiste no navegador e o token é renovado automaticamente.
+          // Não requer site em produção; depende do mesmo domínio/origem e armazenamento.
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true
+        }
+      })
     : null;
 
   function safeNext(raw) {
