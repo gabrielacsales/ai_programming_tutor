@@ -72,7 +72,7 @@ class ExerciseUXTests(unittest.TestCase):
     def test_study_guides_are_complete_for_the_curriculum(self):
         # As 16 aulas devem ter título, objetivo, subtítulos, palavras-chave,
         # recado de revisão e uma pergunta para o próprio aluno refletir.
-        keys = re.findall(r"(?m)^    ([a-z0-9_]+): \\{", self.guide)
+        keys = re.findall(r"(?m)^    ([a-z0-9_]+): \{", self.guide)
         self.assertEqual(len(keys), 16)
         self.assertEqual(set(keys), {p["id"] for p in self.problems})
         for field in ("title:", "objective:", "headings:", "keywords:", "remember:", "question:"):
