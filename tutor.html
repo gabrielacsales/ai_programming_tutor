@@ -453,6 +453,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
   <link rel="stylesheet" href="code-editor.css">
   <link rel="stylesheet" href="learning-ui.css" />
+  <link rel="stylesheet" href="study-guide.css" />
 </head>
 
 <body class="selection:bg-black selection:text-white relative min-h-screen">
@@ -904,16 +905,10 @@
             </div>
           </div>
 
-          <!-- VIEW 2: Resumo do Tema -->
-          <div id="view-exercise-summary" class="hidden flex flex-col gap-6 w-full">
-            <div class="bg-white border border-slate-200 p-6 md:p-8 rounded-2xl shadow-sm space-y-4">
-              <h2 class="text-xl md:text-2xl font-bold font-heading text-black tracking-tight flex items-center gap-2">
-                <iconify-icon icon="solar:document-text-bold-duotone" class="text-primary"></iconify-icon>
-                Resumo do Tema
-              </h2>
-              <div class="text-slate-600 text-sm md:text-base leading-relaxed space-y-4 font-sans" id="exercise-summary-content">
-                <!-- Populado dinamicamente via JS -->
-              </div>
+          <!-- VIEW 2: Resumo do Tema — apostila visual por exercício -->
+          <div id="view-exercise-summary" class="hidden flex flex-col w-full">
+            <div id="exercise-summary-content" class="w-full">
+              <!-- Caderno de estudo carregado dinamicamente pelo study-guide.js -->
             </div>
           </div>
 
@@ -989,6 +984,7 @@
   <script src="progress-store.js"></script>
   <!-- Pesquisa desacoplada: research-collector.js não carrega no fluxo de estudo. -->
   <script src="learning-ui.js"></script>
+  <script src="study-guide.js"></script>
   <script src="app.js"></script>
 </body>
 
