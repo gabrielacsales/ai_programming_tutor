@@ -55,7 +55,7 @@ ATENÇÃO: implementado apenas na branch de testes; NENHUMA migração foi execu
 - O Python ainda roda no navegador (Pyodide). Alunos experientes podem falsificar resultados/autodeclarar eventos. O registro de eventos usa horário de servidor e acesso autenticado, mas NÃO torna o avaliador de código antifraude. Supervisione pré/pós e considere avaliação independente se a validade exigir.
 - Falhas de rede podem provocar perda de eventos, pois a fila de envio é em memória. Teste qualidade dos dados e prefira conexão estável.
 - Pseudonimização não equivale a anonimização: respostas abertas e trechos de entrevistas exigem revisão manual.
-- TRIB exibe rótulo “Taxa de Resiliência” na UI, mas mede proporção de solicitações detectadas como pedidos diretos, NÃO resiliência psicológica; descreva sua definição operacional antes de analisar. IPT = dicas; RER = reengajamentos após bloqueio / bloqueios; IT = segundos estimados sem interação (>5 segundos), não tempo total de estudo.
+- PDR (antigo TRIB) foi renomeado na UI: representa proporção de solicitações detectadas como pedidos diretos, NÃO resiliência psicológica; descreva sua definição operacional antes de analisar. IPT = dicas; RER = reengajamentos após bloqueio / bloqueios; IT = segundos estimados de inatividade em aba visível (>60 segundos, fora do popup da revisão), não tempo total de estudo.
 - Para gravação de entrevistas, obtenha consentimento específico e defina armazenamento separado.
 
 ## Fontes institucionais úteis
