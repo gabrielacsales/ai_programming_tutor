@@ -100,11 +100,16 @@
           </div>
           <article class="chart-panel chart-panel-wide">
             <div class="chart-heading">
-              <div><span class="chart-overline">03 / INTERAÇÃO</span><h3>Atividade por módulo</h3><p class="chart-description">Compare quantas dicas foram utilizadas e quantos códigos foram enviados em cada etapa.</p></div>
-              <div class="chart-series-legend"><span><i class="series-dot hint"></i> Dicas</span><span><i class="series-dot submission"></i> Envios de código</span></div>
+              <div>
+                <span class="chart-overline">03 / INTERAÇÃO AO LONGO DO TEMPO</span>
+                <h3>Conversas com o professor</h3>
+                <p class="chart-description">Quantidade de mensagens enviadas ao tutor por dia, nos últimos 14 dias.</p>
+              </div>
+              <div class="timeline-period">ÚLTIMOS 14 DIAS <strong id="chart-timeline-total">0 interações</strong></div>
             </div>
-            <div id="chart-activity" class="activity-chart" role="group" aria-label="Comparação entre dicas utilizadas e envios de código por módulo"></div>
-            <p class="chart-note">Os envios começaram a ser contabilizados recentemente e não incluem registros anteriores ao início dessa coleta. As barras usam uma escala comum entre módulos.</p>
+            <div id="chart-timeline" class="timeline-chart" role="img" aria-label="Evolução diária das interações com o professor socrático nos últimos 14 dias"></div>
+            <p id="chart-timeline-empty" class="chart-empty" hidden>Ainda não houve interações com o professor socrático nesse período.</p>
+            <p class="chart-note">Fonte: mensagens da sua conta registradas em `chat_messages` na versão atual do currículo. O gráfico conta mensagens enviadas ao tutor, inclusive solicitações de análise; não mede acertos ou desempenho.</p>
           </article>
         </section>
 
