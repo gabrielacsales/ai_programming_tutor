@@ -10,7 +10,15 @@ async function rpc(name,params={}){const {data,error:err}=await client.rpc(name,
 function label(tag,value){const el=document.createElement(tag);el.textContent=String(value);return el;}
 async function initialize(){
  status=await rpc("senac_my_onboarding");
- if(!status||!status.affiliation){show("identify-step");return;}
+ // Respeita a escolha já declarada no cadastro, após a confirmação por e-mail.
+ if(!status?.affiliation){
+   const {data:auth}=await client.auth.getUser();
+   const fromSignup=auth?.user?.user_metadata?.senac_student;
+   if(typeof fromSignup==="boolean"){
+     status=await rpc("senac_set_affiliation",{p_is_senac:fromSignup});
+   }
+ }
+ if(!status?.affiliation){show("identify-step");return;}
  if(status.affiliation==="other"||status.diagnostic_done){show("ready-step");return;}
  try{info=await rpc("research_public_info");}catch(e){console.warn("Pesquisa opcional indisponível:",e.message);info=null;}
  try{researchStatus=await rpc("research_my_status");}catch(e){researchStatus=null;}
@@ -26,7 +34,7 @@ async function initialize(){
 }
 function renderQuestions(){
  const box=$("diagnostic-questions");box.replaceChildren();
- RESEARCH_INSTRUMENTS.pre.forEach((q,i)=>{
+ window.RESEARCH_INSTRUMENTS.pre.forEach((q,i)=>{
    const field=document.createElement("fieldset");field.className="question";field.style.border="none";
    const legend=label("legend",(i+1)+". "+q.prompt);legend.style.fontWeight="700";field.appendChild(legend);
    if(q.code){const pre=document.createElement("pre");pre.appendChild(label("code",q.code));field.appendChild(pre);}
