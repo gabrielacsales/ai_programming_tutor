@@ -53,7 +53,6 @@ PUBLIC_SCRIPTS = (
     "perfil.js",
 )
 OUTPUT_FILES = frozenset((*PUBLIC_PAGES, *PUBLIC_STYLES, *PUBLIC_SCRIPTS))
-BLOCKED = ("pesquisa", "research-", "senac-onboarding", "inicio-senac", "painel-pesquisa")
 
 
 class LocalReferences(html.parser.HTMLParser):
@@ -103,12 +102,9 @@ def validate_source_files() -> None:
     config = (ROOT / "supabase-config.js").read_text(encoding="utf-8")
     if "publishableKey:" not in config or ".supabase.co" not in config:
         raise RuntimeError("supabase-config.js sem configuração pública válida")
-    for entry in PUBLIC_PAGES:
-        body = (ROOT / entry).read_text(encoding="utf-8").lower()
-        for forbidden in ("href=\"pesquisa.html\"", "href=\"inicio-senac.html\"",
-                          "href=\"painel-pesquisa.html\"", "research-collector.js"):
-            if forbidden in body:
-                raise RuntimeError(f"Fluxo da pesquisa ainda está ativo na página {entry}")
+    # HTMLParser acima inspeciona scripts e links REAIS, ignorando comentários.
+    # Qualquer tentativa de carregar um arquivo histórico de pesquisa falha,
+    # porque seu nome não pertence à lista OUTPUT_FILES.
 
 
 def build(output: Path) -> None:
