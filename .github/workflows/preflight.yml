@@ -1,0 +1,31 @@
+name: IA Tutor - validação e build seguro
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obter projeto
+        uses: actions/checkout@v4
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Testes estáticos do protótipo
+        run: python -m unittest discover -s tests -p 'verify_*.py' -v
+      - name: Gerar somente os arquivos públicos
+        run: python scripts/build_site.py
+      - name: Armazenar pacote para inspeção
+        uses: actions/upload-artifact@v4
+        with:
+          name: iatutor-dist
+          path: dist/
+          if-no-files-found: error
