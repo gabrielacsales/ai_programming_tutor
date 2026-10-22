@@ -47,26 +47,36 @@ ZHAI; WIBOWO; LI (2024). *The effects of over-reliance on AI dialogue systems on
 4. **Antes do novo frontend:** execute [migração do currículo 2](supabase/curriculum-v2.sql) no Supabase SQL Editor (após [developer-access.sql](supabase/developer-access.sql), se ainda não executou), preservando progresso e histórico antigo.
 5. Atualize a Edge Function `gemini-tutor` com o conteúdo **atual** da branch, para separar os históricos por versão.
 6. Baixe a branch atualizada e teste em `http://localhost:8000/login.html`.
-7. Publicação do frontend no Cloudflare Pages e conexão do domínio somente após validar os fluxos.
+7. Gerar o pacote público com `python scripts/build_site.py`, validar a URL de homologação no Cloudflare Pages e conectar o domínio após aprovação técnica.
 
 **Importante:** mantenha chaves Gemini apenas nos Secrets do Supabase; o progresso `completed` calculado no navegador não é válido como certificação ou medida antifraude sem validação no servidor.
 
-## Entrada dos estudantes do Senac
+## Situação do TCC II e fluxo de acesso
 
-No cadastro/login, a pessoa pode declarar se estuda no Senac. Para a trilha do Senac, **um diagnóstico inicial de oito questões é necessário antes dos exercícios**, mas pode ser feito em uma visita posterior. A participação científica no TCC é **voluntária e separada**: consentimento não é exigido para estudar. O servidor confere a conclusão do diagnóstico nas permissões dos exercícios.
+O TCC II concentra-se no **desenvolvimento e na validação técnica/funcional da plataforma**. Não há pré-teste, pós-teste ou participação de estudantes em pesquisa vinculados ao fluxo de acesso ao curso.
 
-Migração extra: `supabase/senac-onboarding.sql`, após `supabase/research-study.sql`. Consulte [TESTE_FLUXO_SENAC.md](TESTE_FLUXO_SENAC.md) para passos detalhados e correção do erro PGRST202 do painel da pesquisadora.
+O cadastro pode manter a pergunta opcional sobre vínculo com o Senac, mas **essa identificação não libera, bloqueia ou exige pesquisa**. Alunos autenticados seguem o currículo e suas regras normais de progressão.
 
-## Modo Pesquisa do TCC
+Os arquivos de pesquisa anteriores (`pesquisa.html`, `inicio-senac.html`, `painel-pesquisa.html`, scripts e migrações) permanecem versionados apenas para histórico: **não fazem parte do build de publicação** e não devem ser reativados sem novo protocolo, revisão institucional e escopo de pesquisa.
 
-O projeto inclui um módulo opcional de pesquisa com consentimento, pré e pós-teste, questionário, telemetria temporal e dashboard pseudonimizado com exportação CSV. Requer a migração `supabase/research-study.sql` e revisão ética institucional. **O recrutamento está fechado por padrão**, inclusive no banco, e exige contato, termo aprovado, política de retenção e referência institucional antes da abertura.
+## Build para publicação segura
 
-- Guia de implantação e limites: [SETUP_PESQUISA_TCC.md](SETUP_PESQUISA_TCC.md).
-- Formulário de pesquisa: [pesquisa.html](pesquisa.html).
-- Painel privado da pesquisadora: [painel-pesquisa.html](painel-pesquisa.html).
-- Análise local de escores pré/pós: [scripts/analyze_study.py](scripts/analyze_study.py). O gabarito é entregue em arquivo privado separado, nunca colocado no repositório.
+Rode `python scripts/build_site.py` na raiz. O comando valida dependências locais e cria `dist/` contendo apenas HTML, JS e CSS necessários ao site, com cabeçalhos HTTP básicos.
 
-**Limitação essencial:** tentativas de código e eventos do navegador são observacionais; não constituem prova antifraude de execução Python. Os testes A/B são exploratórios e exigem piloto e supervisão acadêmica.
+Nunca configure o Cloudflare Pages para publicar a raiz do repositório. Pastas `supabase/`, `backup/`, `scripts/`, `tests/`, documentação e páginas da pesquisa não devem ser servidas como arquivos públicos.
+
+**Cloudflare Pages, via GitHub**: framework `None` / sem framework; branch de produção `main`; diretório raiz `/`; comando de build `python3 scripts/build_site.py`; diretório de saída `dist`. Antes da conexão do domínio, valide a URL de teste `*.pages.dev` e configure URLs de autenticação permitidas no Supabase.
+
+As validações do código no GitHub Actions são estáticas: **não comprovam** que a autenticação externa, a Edge Function Gemini e a execução real do Pyodide passaram nos testes de navegador.
+
+## Próximas verificações em ambiente real
+
+1. Testar login, cadastro, verificação de e-mail, redefinição de senha e sessão persistente.
+2. Confirmar no Supabase regras RLS, funções de acesso e progresso isolado por conta, sem bloqueio Senac.
+3. Implantar/conferir a versão atual da Edge Function `gemini-tutor` e o segredo `GEMINI_API_KEY` no servidor.
+4. Executar exercícios e comparar os resultados, verificar as métricas, o histórico e a restrição às respostas prontas.
+5. Validar o ambiente de homologação Cloudflare e então conectar `iatutor.com.br`.
+6. Registrar versões, casos de teste, evidências e falhas para o TCC II.
 
 ## Perfil do aluno
 
