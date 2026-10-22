@@ -149,11 +149,13 @@
       /* Firefox */
     }
   </style>
+<link rel="stylesheet" href="module-progress.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="supabase-config.js"></script>
 <script src="auth-client.js"></script>
 <script src="access-client.js"></script>
 <script src="progress-store.js"></script>
+<script src="module-progress.js"></script>
 <style>body{visibility:hidden}</style>
 <script>document.addEventListener("DOMContentLoaded",async()=>{if(await TutorAuth.requireLogin()){const header=document.querySelector(".sidebar-header")||document.querySelector("header");if(header){const btn=document.createElement("button");btn.textContent="Sair da conta";btn.type="button";btn.style.cssText="border:1px solid #cbd5e1;border-radius:10px;padding:9px 13px;background:white;color:#334155;font-size:12px;cursor:pointer";btn.addEventListener("click",()=>TutorAuth.logout());header.appendChild(btn);}}});</script>
 </head>
@@ -232,8 +234,8 @@
           id="modules-slider" style="scroll-padding: 4px;">
 
           <!-- Módulo 1 -->
-          <div
-            class="flashlight-card p-6 md:p-8 rounded-2xl border border-slate-200 bg-white/80 group flex-shrink-0 w-full md:w-[760px] snap-center flex flex-col justify-between min-h-[380px]">
+          <div data-module-number="1"
+            class="module-learning-card flashlight-card p-6 md:p-8 rounded-2xl border border-slate-200 bg-white/80 group flex-shrink-0 w-full md:w-[760px] snap-center flex flex-col justify-between min-h-[380px]">
             <div
               class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5 mb-5">
               <div class="flex items-center gap-3">
@@ -330,8 +332,8 @@
           </div>
 
           <!-- Módulo 2 -->
-          <div
-            class="flashlight-card p-6 md:p-8 rounded-2xl border border-slate-200 bg-white/80 group flex-shrink-0 w-full md:w-[760px] snap-center flex flex-col justify-between min-h-[380px]">
+          <div data-module-number="2"
+            class="module-learning-card flashlight-card p-6 md:p-8 rounded-2xl border border-slate-200 bg-white/80 group flex-shrink-0 w-full md:w-[760px] snap-center flex flex-col justify-between min-h-[380px]">
             <div
               class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5 mb-5">
               <div class="flex items-center gap-3">
@@ -428,8 +430,8 @@
           </div>
 
           <!-- Módulo 3 -->
-          <div
-            class="flashlight-card p-6 md:p-8 rounded-2xl border border-slate-200 bg-white/80 group flex-shrink-0 w-full md:w-[760px] snap-center flex flex-col justify-between min-h-[380px]">
+          <div data-module-number="3"
+            class="module-learning-card flashlight-card p-6 md:p-8 rounded-2xl border border-slate-200 bg-white/80 group flex-shrink-0 w-full md:w-[760px] snap-center flex flex-col justify-between min-h-[380px]">
             <div
               class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5 mb-5">
               <div class="flex items-center gap-3">
@@ -528,8 +530,8 @@
           </div>
 
           <!-- Módulo 4 -->
-          <div
-            class="flashlight-card p-6 md:p-8 rounded-2xl border border-slate-200 bg-white/80 group flex-shrink-0 w-full md:w-[760px] snap-center flex flex-col justify-between min-h-[380px]">
+          <div data-module-number="4"
+            class="module-learning-card flashlight-card p-6 md:p-8 rounded-2xl border border-slate-200 bg-white/80 group flex-shrink-0 w-full md:w-[760px] snap-center flex flex-col justify-between min-h-[380px]">
             <div
               class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5 mb-5">
               <div class="flex items-center gap-3">
@@ -626,8 +628,8 @@
           </div>
 
           <!-- Módulo 5 -->
-          <div
-            class="flashlight-card p-6 md:p-8 rounded-2xl border border-slate-200 bg-white/80 group flex-shrink-0 w-full md:w-[760px] snap-center flex flex-col justify-between min-h-[380px]">
+          <div data-module-number="5"
+            class="module-learning-card flashlight-card p-6 md:p-8 rounded-2xl border border-slate-200 bg-white/80 group flex-shrink-0 w-full md:w-[760px] snap-center flex flex-col justify-between min-h-[380px]">
             <div
               class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5 mb-5">
               <div class="flex items-center gap-3">
@@ -1178,7 +1180,14 @@
       // Initial call
       updateExerciseLocks();
       checkFinalChallengeUnlock();
+      // Indicador do módulo calculado com o progresso da conta, não com o status visual de desbloqueio.
+      TutorModuleProgress.update(TutorProgress.getCompletedIds());
       updateActiveState();
+    });
+    // Ao voltar da tela do exercício usando o histórico (BFCache), recarrega o
+    // progresso do servidor em vez de reaproveitar percentuais antigos.
+    window.addEventListener("pageshow", event => {
+      if (event.persisted) window.location.reload();
     });
   </script>
 </body>
