@@ -822,7 +822,7 @@ btnSubmitCode.addEventListener("click", async () => {
       errorAiHelp.innerHTML = `<strong>Explicação do Professor:</strong><br>${escapeHtml(errorExplanation)}`;
       loadChatHistory(currentOrch.problem.id);
 
-      currentOrch.state.completed = false;
+      // Uma tentativa com erro não desfaz uma conclusão conquistada anteriormente.
       document.getElementById("tests-wrapper").style.display = "none";
     } else {
       errorWrapper.style.display = "none";
@@ -890,7 +890,10 @@ btnSubmitCode.addEventListener("click", async () => {
         testAiHelp.textContent = res.input_overwritten && !currentOrch.problem.function_name
           ? "Atenção: você atribuiu um valor a 'entrada' no próprio código. O avaliador já define essa variável com um valor diferente em cada caso. Remova a linha 'entrada = ...' e use o valor recebido."
           : "Compare a entrada, o resultado esperado e o obtido em cada caso. Tente localizar qual parte do seu raciocínio não funciona para todos os valores. Se precisar, use Dica ou Pergunte ao professor.";
-        currentOrch.state.completed = false;
+        if (currentOrch.state.completed) {
+          testAiHelp.textContent += " Esta tentativa não passou, mas sua conclusão anterior continua registrada.";
+        }
+        // A tentativa atual falhou; o estado de conclusão anterior permanece intacto.
       } else {
         testAiHelp.style.display = "none";
         currentOrch.state.completed = true;

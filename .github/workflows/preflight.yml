@@ -21,6 +21,8 @@ jobs:
           python-version: '3.11'
       - name: Testes estáticos do protótipo
         run: python -m unittest discover -s tests -p 'verify_*.py' -v
+      - name: Regressão dinâmica da conclusão de exercícios
+        run: node tests/sticky_completion.mjs
       - name: Gerar somente os arquivos públicos
         run: python scripts/build_site.py
       - name: Armazenar pacote para inspeção

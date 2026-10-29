@@ -57,12 +57,18 @@
     const previous = writeQueues.get(exerciseId) || Promise.resolve();
     const current = previous.catch(() => {}).then(async () => {
       await init();
+      // "Concluído" é um marco permanente do currículo vigente.
+      // Erros em tentativas seguintes atualizam o código e as métricas,
+      // mas não podem reverter um exercício já finalizado no Supabase.
+      // A verificação ocorre dentro da fila, após a gravação anterior.
+      const saved = records.get(exerciseId);
+      const previouslyCompleted = saved?.completed === true && isCurrentCurriculum(saved);
       const row = {
         user_id: userId,
         exercise_id: exerciseId,
         user_code: String(changes.user_code ?? ""),
         user_idea: String(changes.user_idea ?? ""),
-        completed: !!changes.completed,
+        completed: previouslyCompleted || changes.completed === true,
         metrics: { ...(changes.metrics ?? {}), curriculum_version: CURRICULUM_VERSION },
         updated_at: new Date().toISOString()
       };
