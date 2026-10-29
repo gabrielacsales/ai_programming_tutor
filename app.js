@@ -638,6 +638,7 @@ document.getElementById("nav-student-profile")?.addEventListener("click", async 
 function setMobileNavigation(open, restoreFocus = false) {
   if (!sidebar || !btnToggleSidebar) return;
   const show = mobileViewport.matches && open;
+  if (mobileViewport.matches) sidebar.classList.remove("collapsed");
   sidebar.classList.toggle("mobile-open", show);
   document.body.classList.toggle("mobile-nav-open", show);
   btnToggleSidebar.setAttribute("aria-expanded", String(show));
