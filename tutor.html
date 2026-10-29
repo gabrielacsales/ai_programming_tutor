@@ -454,6 +454,7 @@
   <link rel="stylesheet" href="code-editor.css">
   <link rel="stylesheet" href="learning-ui.css" />
   <link rel="stylesheet" href="study-guide.css" />
+  <link rel="stylesheet" href="challenge-mobile.css" />
 </head>
 
 <body class="selection:bg-black selection:text-white relative min-h-screen">
@@ -471,9 +472,10 @@
 
         <!-- Sidebar -->
         <aside
-          class="sidebar app-sidebar-width bg-slate-50/90 backdrop-blur-md border-b lg:border-b-0 lg:border-r border-slate-200/60 flex flex-col lg:h-screen lg:sticky lg:top-0 z-20">
+          class="sidebar app-sidebar-width bg-slate-50/90 backdrop-blur-md border-b lg:border-b-0 lg:border-r border-slate-200/60 flex flex-col lg:h-screen lg:sticky lg:top-0 z-20" id="exercise-sidebar" aria-label="Navegação de exercícios">
           <!-- Sidebar Header -->
           <div class="sidebar-header p-6 border-b border-slate-200/60 flex flex-col gap-4">
+            <button id="mobile-sidebar-close" type="button" class="mobile-sidebar-close lg:hidden" aria-label="Fechar navegação de exercícios">Fechar <span aria-hidden="true">×</span></button>
             <div class="flex items-center justify-between">
               <a href="conteudos.html" aria-label="IA Tutor — Módulos" class="flex items-center gap-2.5 group">
                 <span class="w-8 h-8 bg-black text-white flex items-center justify-center rounded-lg shadow-lg group-hover:rotate-90 transition-transform duration-500">
@@ -527,6 +529,7 @@
             </div>
           </div>
         </aside>
+        <div id="mobile-nav-backdrop" class="mobile-nav-backdrop" aria-hidden="true"></div>
 
         <!-- Sidebar Toggle Handle (Desktop only) -->
         <button
@@ -544,8 +547,9 @@
               <!-- Mobile sidebar toggle -->
               <button
                 class="lg:hidden flex items-center justify-center p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 transition-all focus:outline-none cursor-pointer"
-                id="btn-toggle-sidebar" title="Alternar Painel Lateral">
+                id="btn-toggle-sidebar" type="button" aria-controls="exercise-sidebar" aria-expanded="false" aria-label="Abrir lista de exercícios" title="Escolher exercício">
                 <iconify-icon icon="solar:hamburger-menu-linear" class="text-base"></iconify-icon>
+                <span class="mobile-nav-label">Exercícios</span>
               </button>
               <div class="flex items-center gap-2.5">
                 <span class="w-8 h-8 rounded-lg bg-sky-50 text-[#1CB0F6] border border-sky-100 flex items-center justify-center">
@@ -563,23 +567,25 @@
             </div>
           </div>
 
+          <p id="mobile-current-exercise" class="mobile-current-exercise" aria-live="polite">Carregando desafio...</p>
+
           <!-- Abas Superiores de Conteúdo -->
-          <div class="flex border-b border-slate-200 gap-6 mb-2">
+          <div class="exercise-tab-bar flex border-b border-slate-200 gap-6 mb-2" role="tablist" aria-label="Conteúdo do exercício">
             <button
               class="exercise-tab active cursor-pointer pb-3 text-sm font-bold text-slate-400 border-b-[3px] border-transparent -mb-[2px] transition-all hover:text-black flex items-center gap-2 focus:outline-none"
-              id="tab-exercise-statement" data-target="view-exercise-statement">
+              id="tab-exercise-statement" data-target="view-exercise-statement" role="tab" aria-controls="view-exercise-statement" aria-selected="true">
               <iconify-icon icon="solar:programming-bold-duotone" class="text-base"></iconify-icon>
               <span>Desafio</span>
             </button>
             <button
               class="exercise-tab cursor-pointer pb-3 text-sm font-bold text-slate-400 border-b-[3px] border-transparent -mb-[2px] transition-all hover:text-black flex items-center gap-2 focus:outline-none"
-              id="tab-exercise-summary" data-target="view-exercise-summary">
+              id="tab-exercise-summary" data-target="view-exercise-summary" role="tab" aria-controls="view-exercise-summary" aria-selected="false">
               <iconify-icon icon="solar:document-text-bold-duotone" class="text-base"></iconify-icon>
               <span>Resumo do Tema</span>
             </button>
             <button
               class="exercise-tab cursor-pointer pb-3 text-sm font-bold text-slate-400 border-b-[3px] border-transparent -mb-[2px] transition-all hover:text-black flex items-center gap-2 focus:outline-none"
-              id="tab-exercise-examples" data-target="view-exercise-examples">
+              id="tab-exercise-examples" data-target="view-exercise-examples" role="tab" aria-controls="view-exercise-examples" aria-selected="false">
               <iconify-icon icon="solar:code-file-bold-duotone" class="text-base"></iconify-icon>
               <span>Exemplos Práticos</span>
             </button>
@@ -588,7 +594,7 @@
           <button type="button" class="feature-tip feature-review-tip" data-tour-step="3" aria-label="Dica: resumo e exemplos práticos" title="Como revisar o tema?">?</button>
 
           <!-- VIEW 1: Desafio (Conteúdo original) -->
-          <div id="view-exercise-statement" class="flex flex-col gap-6 w-full">
+          <div id="view-exercise-statement" role="tabpanel" aria-labelledby="tab-exercise-statement" class="flex flex-col gap-6 w-full">
             <!-- Problem Header Card -->
             <div
               class="problem-card bg-white border border-slate-200 p-6 md:p-8 rounded-2xl shadow-sm space-y-4 relative">
@@ -632,18 +638,18 @@
             </div>
 
             <!-- Tab Selector Mode -->
-            <div class="mode-selector flex border-b-2 border-slate-100 gap-8 mt-2">
-              <div
+            <div class="mode-selector flex border-b-2 border-slate-100 gap-8 mt-2" role="group" aria-label="Como responder ao desafio">
+              <button type="button"
                 class="mode-tab cursor-pointer text-sm font-bold text-slate-400 border-b-[3px] border-transparent pb-3 -mb-[2px] transition-all hover:text-black"
-                id="tab-code" data-mode="code">
+                id="tab-code" data-mode="code" aria-pressed="true">
                 Escrever código (Python)
-              </div>
-              <div
+              </button>
+              <button type="button"
                 class="mode-tab cursor-pointer text-sm font-bold text-slate-400 border-b-[3px] border-transparent pb-3 -mb-[2px] transition-all hover:text-black"
-                id="tab-desc" data-mode="desc">
-                Escreva com suas palavras
-                <button type="button" class="feature-tip" data-tour-step="0" aria-label="Dica: descreva sua ideia" title="Como conferir se sua ideia faz sentido?">?</button>
-              </div>
+                id="tab-desc" data-mode="desc" aria-pressed="false">
+                Descrever minha ideia
+              </button>
+              <button type="button" class="feature-tip" data-tour-step="0" aria-label="Dica: descreva sua ideia" title="Como conferir se sua ideia faz sentido?">?</button>
             </div>
 
             <!-- TAB 1: Descrever Ideia -->
@@ -735,6 +741,10 @@
                   aria-label="Editor de código Python" spellcheck="false"
                   placeholder="# Digite seu código Python aqui"></textarea>
               </div>
+              <div class="mobile-code-tools" aria-label="Ferramentas do editor no celular">
+                <button type="button" id="btn-indent-code" aria-label="Inserir quatro espaços para indentar código Python">↳ Inserir recuo</button>
+                <span>Python usa recuo para organizar blocos como <code>if</code> e <code>for</code>.</span>
+              </div>
 
               <div class="action-row flex flex-wrap gap-4 items-center">
                 <!-- Pill Beam Button Submit Code -->
@@ -747,7 +757,7 @@
                     <span
                       class="relative z-10 flex items-center justify-center gap-2 text-xs font-bold tracking-widest text-black uppercase">
                       <span class="spinner" id="pyodide-spinner" style="display: none;"></span>
-                      Registrar código
+                      Testar meu código
                     </span>
                   </span>
                 </button>
@@ -793,7 +803,7 @@
 
               <!-- Execution Results -->
               <div class="result-container border-t-2 border-dashed border-slate-200 pt-6 mt-2 flex flex-col gap-4"
-                id="execution-results" style="display: none;">
+                id="execution-results" role="status" aria-live="polite" tabindex="-1" style="display: none;">
                 <details id="execution-feedback-details" class="execution-feedback-disclosure" open>
                 <summary class="text-lg font-bold font-heading text-black"><iconify-icon icon="solar:programming-bold-duotone" class="text-slate-400"></iconify-icon> Resultado do código <span class="feedback-disclosure-action">Recolher / expandir</span></summary>
 
@@ -841,10 +851,9 @@
               </div>
             </details>
 
-            <!-- Dashboard de Métricas -->
-            <h3
-              class="dashboard-title text-base font-bold font-heading text-slate-400 border-t border-slate-100 pt-6 uppercase tracking-wider">
-              📊 Painel de Métricas (Behavioral)</h3>
+            <!-- Métricas complementares: não competem com o fluxo principal do desafio. -->
+            <details id="metrics-disclosure" class="metrics-disclosure">
+              <summary>📊 Ver métricas de aprendizagem <span>Opcional · dicas, tentativas e inatividade</span></summary>
 
             <div class="metrics-grid grid grid-cols-2 lg:grid-cols-4 gap-4 pb-12">
               <!-- Metric 1: IPT -->
@@ -907,17 +916,18 @@
                 </div>
               </div>
             </div>
+            </details>
           </div>
 
           <!-- VIEW 2: Resumo do Tema — apostila visual por exercício -->
-          <div id="view-exercise-summary" class="hidden flex flex-col w-full">
+          <div id="view-exercise-summary" role="tabpanel" aria-labelledby="tab-exercise-summary" class="hidden flex flex-col w-full">
             <div id="exercise-summary-content" class="w-full">
               <!-- Caderno de estudo carregado dinamicamente pelo study-guide.js -->
             </div>
           </div>
 
           <!-- VIEW 3: Exemplos Práticos -->
-          <div id="view-exercise-examples" class="hidden flex flex-col gap-6 w-full">
+          <div id="view-exercise-examples" role="tabpanel" aria-labelledby="tab-exercise-examples" class="hidden flex flex-col gap-6 w-full">
             <div class="bg-white border border-slate-200 p-6 md:p-8 rounded-2xl shadow-sm space-y-4">
               <h2 class="text-xl md:text-2xl font-bold font-heading text-black tracking-tight flex items-center gap-2">
                 <iconify-icon icon="solar:code-file-bold-duotone" class="text-primary"></iconify-icon>
