@@ -107,6 +107,14 @@
   .mode-selector { gap: 12px; flex-wrap: wrap; align-items: center; }
   .mode-selector > .mode-tab { min-height: 44px; flex: 1 1 200px; padding: 8px 0; font-size: 13px; }
   .code-editor-wrapper { min-width: 0; max-width: 100%; }
+  .code-editor-wrapper .CodeMirror {
+    font-size: 16px;
+    height: clamp(255px, 44dvh, 390px);
+    min-height: 255px;
+    line-height: 1.55;
+  }
+  .code-editor-wrapper .CodeMirror-scroll { min-height: 255px; }
+  .code-editor-wrapper .CodeMirror-gutters { min-width: 24px; }
   .action-row > .feature-tip { display: none; }
   #panel-code .action-row, #panel-desc .action-row {
     display: grid;
