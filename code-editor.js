@@ -10,6 +10,7 @@
   function start(onChange) {
     if (!textarea) return false;
     if (window.CodeMirror && !instance) {
+      const mobileEditor = window.matchMedia("(max-width: 640px)");
       instance = window.CodeMirror.fromTextArea(textarea, {
         mode: { name: "python", version: 3, singleLineStringErrors: false },
         theme: "material-darker",
@@ -19,7 +20,7 @@
         tabSize: 4,
         indentWithTabs: false,
         smartIndent: true,
-        lineWrapping: false,
+        lineWrapping: mobileEditor.matches,
         viewportMargin: 12,
         autofocus: false,
         extraKeys: {
@@ -34,6 +35,10 @@
         if (suppressChange) return;
         instance.save(); // sincroniza valor com textarea original
         if (typeof onChange === "function") onChange(getValue());
+      });
+      mobileEditor.addEventListener("change", (event) => {
+        instance.setOption("lineWrapping", event.matches);
+        instance.refresh();
       });
     }
     return Boolean(instance);
@@ -64,6 +69,20 @@
   }
 
   function isEnabled() { return Boolean(instance); }
+
+  function insertIndent() {
+    if (instance) {
+      instance.replaceSelection("    ", "end");
+      instance.focus();
+      return;
+    }
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    textarea.setRangeText("    ", start, end, "end");
+    textarea.dispatchEvent(new Event("input", { bubbles: true }));
+    textarea.focus();
+  }
 
   function renderExample(code) {
     if (!exampleContainer) return;
@@ -97,5 +116,5 @@
     exampleContainer.append(card, note);
   }
 
-  window.TutorEditor = { start, getValue, setValue, refresh, renderExample, isEnabled };
+  window.TutorEditor = { start, getValue, setValue, refresh, renderExample, isEnabled, insertIndent };
 })();
