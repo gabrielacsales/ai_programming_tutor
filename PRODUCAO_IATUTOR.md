@@ -32,6 +32,16 @@
 
 O serviço Git do Cloudflare permite previews de Pull Requests e controle de deployments por branch; não ligar o domínio definitivo antes da homologação.
 
+## Verificação HTTP automática da homologação
+
+Quando o Cloudflare informar o endereço real `https://SEU-PROJETO.pages.dev`, executar na raiz do repositório:
+
+```bash
+python scripts/smoke_site.py https://SEU-PROJETO.pages.dev
+```
+
+O script exige HTTPS, verifica as seis páginas e recursos principais, exige `noindex` em telas privadas e testa se arquivos históricos/sensíveis retornam 403/404/410. **Não usa senha e não lê dados pessoais.** Se qualquer arquivo privado puder ser baixado, interromper publicação. O script não substitui testes manuais de autenticação, banco, Pyodide e Gemini.
+
 ## Etapa C — Autenticação Supabase
 
 No dashboard do projeto existente em https://supabase.com/dashboard:
