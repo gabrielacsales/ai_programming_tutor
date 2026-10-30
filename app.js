@@ -149,6 +149,10 @@ const constraintsList = document.getElementById("constraints-list");
 const sidebar = document.querySelector(".sidebar");
 const btnToggleSidebar = document.getElementById("btn-toggle-sidebar");
 const sidebarHandle = document.getElementById("sidebar-handle");
+const mobileNavClose = document.getElementById("mobile-sidebar-close");
+const mobileNavBackdrop = document.getElementById("mobile-nav-backdrop");
+const mobileCurrentExercise = document.getElementById("mobile-current-exercise");
+const mobileViewport = window.matchMedia("(max-width: 1023px)");
 
 // Abas de Exercício e Conteúdo
 const tabExerciseStatement = document.getElementById("tab-exercise-statement");
@@ -339,6 +343,7 @@ async function loadActiveExercise(challengeId) {
 
   // Preenche metadados do exercício
   problemTitle.innerText = p.title;
+  if (mobileCurrentExercise) mobileCurrentExercise.textContent = "Desafio atual: " + p.title;
   problemStatement.innerHTML = learningUI.renderExerciseStatementMarkdown(p.statement);
   const statementBody = document.getElementById("problem-statement-content");
   statementBody.hidden = false;
@@ -426,6 +431,8 @@ exerciseSummaryContent.addEventListener("click", (event) => {
 
 // Alterna entre abas "Descrever Ideia" e "Código"
 function switchMode(mode) {
+  tabDesc.setAttribute("aria-pressed", String(mode === "desc"));
+  tabCode.setAttribute("aria-pressed", String(mode !== "desc"));
   if (mode === "desc") {
     tabDesc.classList.add("active");
     tabCode.classList.remove("active");
@@ -444,6 +451,11 @@ function switchMode(mode) {
 
 // Alterna entre abas de visualização do exercício ("Desafio", "Resumo do Tema" e "Exemplos do Professor")
 function switchExerciseTab(tabId) {
+  const tabs = { statement: tabExerciseStatement, summary: tabExerciseSummary, examples: tabExerciseExamples };
+  Object.entries(tabs).forEach(([key, tab]) => {
+    tab.setAttribute("aria-selected", String(key === tabId));
+    tab.tabIndex = key === tabId ? 0 : -1;
+  });
   tabExerciseStatement.classList.remove("active");
   tabExerciseSummary.classList.remove("active");
   tabExerciseExamples.classList.remove("active");
@@ -514,8 +526,15 @@ if (btnBackLanding) {
 }
 
 // Alternância de Exercício
-selectExercise.addEventListener("change", (e) => {
-  loadActiveExercise(e.target.value);
+selectExercise.addEventListener("change", async (e) => {
+  const challengeId = e.target.value;
+  setMobileNavigation(false);
+  await loadActiveExercise(challengeId);
+  if (mobileViewport.matches) {
+    problemTitle.setAttribute("tabindex", "-1");
+    problemTitle.focus({ preventScroll: true });
+    problemTitle.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 });
 
 // Ordenação no DOM: código antes de ideia, inclusive para navegação por teclado.
@@ -557,6 +576,9 @@ TutorEditor.start((value) => {
   if (currentOrch) currentOrch.state.user_code = value;
   scheduleProgressSave();
   lastInteractionTime = Date.now();
+});
+document.getElementById("btn-indent-code")?.addEventListener("click", () => {
+  TutorEditor.insertIndent();
 });
 
 // Ao sair de um campo, grava o rascunho imediatamente.
@@ -612,6 +634,44 @@ document.getElementById("nav-student-profile")?.addEventListener("click", async 
   window.location.href = "perfil.html";
 });
 
+// A escolha de exercícios vira uma gaveta acessível no celular.
+function setMobileNavigation(open, restoreFocus = false) {
+  if (!sidebar || !btnToggleSidebar) return;
+  const show = mobileViewport.matches && open;
+  if (mobileViewport.matches) sidebar.classList.remove("collapsed");
+  sidebar.classList.toggle("mobile-open", show);
+  document.body.classList.toggle("mobile-nav-open", show);
+  btnToggleSidebar.setAttribute("aria-expanded", String(show));
+  btnToggleSidebar.setAttribute("aria-label", show ? "Fechar lista de exercícios" : "Abrir lista de exercícios");
+  sidebar.inert = mobileViewport.matches && !show;
+  if (show) mobileNavClose?.focus();
+  else if (restoreFocus) btnToggleSidebar.focus();
+}
+setMobileNavigation(false);
+mobileViewport.addEventListener("change", () => setMobileNavigation(false));
+mobileNavClose?.addEventListener("click", () => setMobileNavigation(false, true));
+mobileNavBackdrop?.addEventListener("click", () => setMobileNavigation(false, true));
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && sidebar?.classList.contains("mobile-open")) {
+    setMobileNavigation(false, true);
+  }
+});
+
+// Navegação das abas com setas, Home e End pelo teclado.
+const exerciseTabs = [tabExerciseStatement, tabExerciseSummary, tabExerciseExamples];
+exerciseTabs.forEach((tab, index) => {
+  tab.addEventListener("keydown", (event) => {
+    const nextIndex = event.key === "ArrowRight" ? index + 1 :
+      event.key === "ArrowLeft" ? index - 1 :
+      event.key === "Home" ? 0 : event.key === "End" ? exerciseTabs.length - 1 : null;
+    if (nextIndex === null) return;
+    event.preventDefault();
+    const nextTab = exerciseTabs[(nextIndex + exerciseTabs.length) % exerciseTabs.length];
+    nextTab.click();
+    nextTab.focus();
+  });
+});
+
 // Event Listeners para Controle da Sidebar Retrátil
 if (sidebarHandle) {
   sidebarHandle.addEventListener("click", () => {
@@ -621,7 +681,7 @@ if (sidebarHandle) {
 
 if (btnToggleSidebar) {
   btnToggleSidebar.addEventListener("click", () => {
-    sidebar.classList.toggle("collapsed");
+    setMobileNavigation(!sidebar.classList.contains("mobile-open"));
   });
 }
 
@@ -957,6 +1017,11 @@ btnSubmitCode.addEventListener("click", async () => {
     pyodideSpinner.style.display = "none";
     updateUIState();
     scheduleProgressSave();
+    if (mobileViewport.matches && execResults.style.display !== "none") {
+      requestAnimationFrame(() => {
+        execResults.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
   }
 });
 

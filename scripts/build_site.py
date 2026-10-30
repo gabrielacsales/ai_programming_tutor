@@ -33,6 +33,7 @@ PUBLIC_STYLES = (
     "module-progress.css",
     "preflight-review.css",
     "code-editor.css",
+    "challenge-mobile.css",
     "learning-ui.css",
     "study-guide.css",
 )
