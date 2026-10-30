@@ -72,6 +72,21 @@ Registrar cenário, data, versão do GitHub, navegador, conta de teste, esperado
 - Barra de progresso 0%, 33%, 67%, 100% com atualização após novo exercício.
 - Persistência após refresh/logout/login e dados isolados por usuário.
 - Celular/tablet/desktop, carregamento, acessibilidade básica, mensagens de erro.
+
+### Homologação mobile da área de desafios
+
+Testar em smartphone real ou no modo responsivo do navegador (larguras 320, 360, 390, 768 e 1024 px):
+
+1. O desafio aparece imediatamente no celular; a lista de exercícios só abre quando o aluno toca em **Exercícios**. O painel fecha por botão, toque fora e tecla Escape.
+2. Trocar de exercício fecha o painel, atualiza o título e mantém o bloqueio progressivo.
+3. **Desafio**, **Resumo do Tema** e **Exemplos Práticos** continuam acessíveis; no teclado as abas aceitam setas/Home/End.
+4. O editor tem fonte legível no celular, não força rolagem horizontal por linhas longas e oferece botão **Inserir recuo** para blocos Python.
+5. O botão **Testar meu código** se destaca. Após execução, a página vai ao resultado atual e o feedback identifica testes corretos/incorretos.
+6. **Dica**, **Professor Socrático**, histórico e salvamento do rascunho continuam operantes; não se perde a conclusão ao testar código errado depois de acertar.
+7. O painel de métricas inicia recolhido e pode ser expandido; não encobre resultados.
+8. Girar a tela, abrir teclado virtual e trocar para desktop não deixam o menu travado. Conferir também foco visível e contraste.
+
+Registrar screenshots da tela pequena e do feedback para validação funcional do TCC; testes de CI não comprovam experiência real em dispositivo.
 - Inexistência de redirecionamento para pesquisa Senac.
 - Checagem manual das restrições de segurança, acesso não autorizado e políticas RLS.
 
