@@ -37,6 +37,7 @@ PUBLIC_STYLES = (
     "learning-ui.css",
     "study-guide.css",
 )
+PUBLIC_IMAGES = ("foto-gabi.jpg",)
 PUBLIC_SCRIPTS = (
     "supabase-config.js",
     "auth-client.js",
@@ -53,7 +54,7 @@ PUBLIC_SCRIPTS = (
     "app.js",
     "perfil.js",
 )
-OUTPUT_FILES = frozenset((*PUBLIC_PAGES, *PUBLIC_STYLES, *PUBLIC_SCRIPTS))
+OUTPUT_FILES = frozenset((*PUBLIC_PAGES, *PUBLIC_STYLES, *PUBLIC_SCRIPTS, *PUBLIC_IMAGES))
 
 
 class LocalReferences(html.parser.HTMLParser):
