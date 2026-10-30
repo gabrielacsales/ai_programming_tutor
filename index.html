@@ -891,6 +891,9 @@
       if (aboutCard && aboutBioContainer) {
         aboutCard.addEventListener('click', () => {
           const isOpen = aboutBioContainer.classList.toggle('open');
+          // Com a biografia aberta, o retrato permanece colorido mesmo sem hover.
+          // Ao recolher, volta a ser P&B e revela as cores apenas no hover.
+          aboutCard.querySelector('img')?.classList.toggle('grayscale', !isOpen);
           if (isOpen) {
             aboutArrow.style.transform = 'rotate(180deg)';
             aboutPrompt.innerText = 'Clique para recolher';
