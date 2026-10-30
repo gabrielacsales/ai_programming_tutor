@@ -37,7 +37,7 @@ PUBLIC_STYLES = (
     "learning-ui.css",
     "study-guide.css",
 )
-PUBLIC_IMAGES = ("foto-gabi.webp",)
+PUBLIC_IMAGES = ("foto-gabi.jpg",)
 PUBLIC_SCRIPTS = (
     "supabase-config.js",
     "auth-client.js",
