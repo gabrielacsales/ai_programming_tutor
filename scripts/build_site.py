@@ -37,7 +37,14 @@ PUBLIC_STYLES = (
     "learning-ui.css",
     "study-guide.css",
 )
-PUBLIC_IMAGES = ("foto-gabi.jpg",)
+PUBLIC_IMAGES = (
+    "foto-gabi.jpg",
+    "favicon.svg",
+    "favicon.ico",
+    "favicon-16x16.png",
+    "favicon-32x32.png",
+    "apple-touch-icon.png",
+)
 PUBLIC_SCRIPTS = (
     "supabase-config.js",
     "auth-client.js",
