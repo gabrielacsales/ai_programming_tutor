@@ -44,10 +44,10 @@ class FaviconTests(unittest.TestCase):
                 self.assertEqual(found["apple-touch-icon.png"]["rel"], "apple-touch-icon")
 
     def test_actual_image_formats_and_sizes(self):
-        self.assertTrue((ROOT / "favicon.ico").read_bytes().startswith(b"\\x00\\x00\\x01\\x00"))
+        self.assertTrue((ROOT / "favicon.ico").read_bytes().startswith(b"\x00\x00\x01\x00"))
         for filename, size in (("favicon-16x16.png", 16), ("favicon-32x32.png", 32), ("apple-touch-icon.png", 180)):
             data = (ROOT / filename).read_bytes()
-            self.assertTrue(data.startswith(b"\\x89PNG\\r\\n\\x1a\\n"), filename)
+            self.assertTrue(data.startswith(b"\x89PNG\r\n\x1a\n"), filename)
             self.assertEqual(struct.unpack(">II", data[16:24]), (size, size))
         root = ET.fromstring((ROOT / "favicon.svg").read_text(encoding="utf-8"))
         self.assertEqual(root.attrib["viewBox"], "0 0 64 64")
