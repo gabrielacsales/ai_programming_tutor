@@ -15,6 +15,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="login.css">
+  <link rel="stylesheet" href="legal.css">
+  <script defer src="privacy-notice.js"></script>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
@@ -108,6 +110,17 @@
           <p class="auth-field-help">Essa identificação não exige pré-teste e não bloqueia seu acesso aos exercícios.</p>
         </div>
 
+        <div id="legal-block" class="auth-field" hidden>
+          <div class="privacy-consent">
+            <input type="checkbox" id="legal-ack" name="legal-ack" required>
+            <label for="legal-ack">
+              Li o <a href="privacidade.html" target="_blank" rel="noopener noreferrer">Aviso de Privacidade</a> e
+              concordo com os <a href="termos.html" target="_blank" rel="noopener noreferrer">Termos de Uso</a>.
+            </label>
+          </div>
+          <p class="privacy-consent-help">O uso da conta exige dados para autenticação e progresso. Saiba mais sobre <a href="cookies.html" target="_blank" rel="noopener noreferrer">cookies e armazenamento</a>. Não envie dados pessoais ou sensíveis ao professor virtual. Se você for menor de 18 anos, a utilização requer orientações específicas de proteção e responsável.</p>
+        </div>
+
         <div id="form-footer" class="auth-form-footer">
           <p class="auth-session-note">Sua sessão pode continuar ativa neste navegador.</p>
           <button type="button" id="forgot-password" class="auth-reset-trigger">Esqueci minha senha</button>
@@ -116,6 +129,7 @@
       </form>
       <p id="message" class="auth-message" role="status" aria-live="polite"></p>
       <p class="auth-card-bottom">Protótipo educacional · IA Tutor</p>
+      <nav class="privacy-links" aria-label="Informações legais"><a href="privacidade.html">Privacidade</a><a href="termos.html">Termos de Uso</a><a href="cookies.html">Cookies</a></nav>
     </section>
   </main>
 
@@ -132,6 +146,9 @@
     const passwordBlock = document.getElementById("password-block");
     const password = document.getElementById("password");
     const senacBlock = document.getElementById("senac-block");
+    const legalBlock = document.getElementById("legal-block");
+    const legalAck = document.getElementById("legal-ack");
+    const LEGAL_VERSION = "2026-11-02";
     const senacChoice = document.getElementById("senac-choice");
     const forgotPassword = document.getElementById("forgot-password");
     const formFooter = document.getElementById("form-footer");
@@ -152,6 +169,8 @@
       nameBlock.hidden = nextMode !== "signup";
       passwordBlock.hidden = nextMode === "reset";
       senacBlock.hidden = nextMode === "reset";
+      legalBlock.hidden = nextMode !== "signup";
+      legalAck.required = nextMode === "signup";
       senacChoice.required = nextMode === "signup";
       senacChoice.options[0].textContent = nextMode === "signup"
         ? "Selecione uma opção" : "Já informei ou prefiro decidir depois";
@@ -201,12 +220,24 @@
         const pass = password.value;
         let result;
         if (mode === "signup") {
+          // Termos são aceitos; Aviso de Privacidade é informado, não um
+          // consentimento genérico para tratamentos necessários.
+          if (!legalAck.checked) {
+            show("error", "Leia os Termos de Uso e o Aviso de Privacidade para criar uma conta.");
+            legalAck.focus();
+            return;
+          }
+          const acknowledgedAt = new Date().toISOString();
           result = await client.auth.signUp({
             email, password: pass,
             options: {
               data: {
                 display_name: document.getElementById("name").value.trim(),
-                senac_student: senacChoice.value === "yes"
+                senac_student: senacChoice.value === "yes",
+                terms_accepted_version: LEGAL_VERSION,
+                terms_accepted_at: acknowledgedAt,
+                privacy_notice_version: LEGAL_VERSION,
+                privacy_notice_acknowledged_at: acknowledgedAt
               },
               emailRedirectTo: new URL("login.html", location.href).href
             }
