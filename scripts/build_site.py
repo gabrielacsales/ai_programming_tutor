@@ -26,6 +26,9 @@ PUBLIC_PAGES = (
     "conteudos.html",
     "tutor.html",
     "perfil.html",
+    "privacidade.html",
+    "termos.html",
+    "cookies.html",
 )
 PUBLIC_STYLES = (
     "login.css",
@@ -36,6 +39,7 @@ PUBLIC_STYLES = (
     "challenge-mobile.css",
     "learning-ui.css",
     "study-guide.css",
+    "legal.css",
 )
 PUBLIC_IMAGES = (
     "foto-gabi.jpg",
@@ -60,6 +64,7 @@ PUBLIC_SCRIPTS = (
     "study-guide.js",
     "app.js",
     "perfil.js",
+    "privacy-notice.js",
 )
 OUTPUT_FILES = frozenset((*PUBLIC_PAGES, *PUBLIC_STYLES, *PUBLIC_SCRIPTS, *PUBLIC_IMAGES))
 
