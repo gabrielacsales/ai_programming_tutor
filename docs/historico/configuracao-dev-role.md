@@ -1,5 +1,8 @@
 # Contas desenvolvedora e aluno — liberar exercícios com segurança
 
+> **REGISTRO HISTÓRICO — NÃO É UM GUIA DE IMPLANTAÇÃO ATUAL.** Este texto documenta uma fase anterior do projeto. Antes de executar comandos, migrações ou configurações, confira [README](../../README.md) e [operação atual](../operacao.md). O TCC II vigente não envolve pesquisa com estudantes.
+
+
 Status: **código implementado na branch `feature/supabase-auth-and-database`**, mas **ainda precisa executar a migração SQL no Supabase e testar**.
 
 ## 1. Criar permissões no Supabase

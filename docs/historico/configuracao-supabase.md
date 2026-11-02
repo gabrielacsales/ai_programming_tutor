@@ -1,5 +1,8 @@
 # Configuração inicial: Supabase + login (branch de revisão)
 
+> **REGISTRO HISTÓRICO — NÃO É UM GUIA DE IMPLANTAÇÃO ATUAL.** Este texto documenta uma fase anterior do projeto. Antes de executar comandos, migrações ou configurações, confira [README](../../README.md) e [operação atual](../operacao.md). O TCC II vigente não envolve pesquisa com estudantes.
+
+
 Esta branch é uma **primeira entrega**, ainda não pronta para liberar aos alunos.
 
 ## 1. Supabase
@@ -35,5 +38,5 @@ O frontend estático poderá ser publicado no Cloudflare Pages via GitHub (sem b
 **Segurança:** nunca envie suas senhas, API keys privadas, tokens de acesso ou sua service_role para o chat nem faça commit dessas credenciais.
 
 ## 5. Etapa 4 — Progresso
-Os testes de persistência de progresso por aluno já foram realizados com sucesso. Para testar a integração com o Gemini, use [SETUP_GEMINI.md](SETUP_GEMINI.md).
+Os testes de persistência de progresso por aluno já foram realizados com sucesso. Para testar a integração com o Gemini, use [SETUP_GEMINI.md](configuracao-gemini.md).
 

@@ -1,95 +1,81 @@
-# AI Programming Tutor for Coding Challenges (Anti-Overreliance)
+# IA Tutor — tutor socrático para lógica de programação
 
-Protótipo de **engenharia** que desencoraja superdependência em LLMs por meio de:
-- **Scaffolding** (hints graduais) e **tutoria socrática**;
-- **GATING POR TESTES**: a interface conclui o exercício quando o código passa nos testes disponíveis no navegador (Pyodide); isso **não equivale a avaliação segura no servidor**, nem há testes verdadeiramente ocultos enquanto estiverem em `problems.js`.
+**Protótipo de Engenharia da Computação (TCC II)** para apoiar iniciantes na resolução de desafios de Python. A interface reúne currículo progressivo, revisão de conceitos, dicas graduais, execução de código e professor virtual orientado por perguntas. O escopo acadêmico atual é **desenvolvimento e validação técnica/funcional**, não avaliação de ganhos de aprendizagem com estudantes.
 
-Métricas instrumentadas: **IPT, TRIB, RER, IT**.
+**Site:** [iatutor.com.br](https://iatutor.com.br/) · **Hospedagem:** Cloudflare Pages · **Branch de produção:** `main`.
 
-## Rodar Localmente
+## Arquitetura em uma visão
 
-O frontend roda no navegador; autenticação, progresso e Gemini utilizam Supabase. Para executar localmente:
-
-1. Iniciando um servidor local de desenvolvimento (recomendado para evitar problemas de CORS no carregamento de assets):
-   ```bash
-   python -m http.server 8000
-   ```
-   E acesse `http://localhost:8000/login.html`.
-
-2. Evite abrir os arquivos com `file://`, pois autenticação e APIs podem falhar fora de um servidor HTTP.
-
-## Estrutura do Projeto
-```
-ai_programming_tutor/
-├─ login.html             # Cadastro, login e sessão
-├─ conteudos.html         # Trilha e bloqueio progressivo dos módulos
-├─ tutor.html             # Workspace de programação e professor
-├─ problems.js            # Currículo 2, 16 exercícios com dica/teoria/exemplo
-├─ preflight-review.js    # Minijogo de revisão sintática antes do exercício
-├─ preflight-review.css   # Interface responsiva do minijogo
-├─ progress-store.js      # Persistência individual do aluno, com versão
-├─ runner.js              # Executor de código Python via Pyodide
-├─ tutor.js               # Cliente Gemini seguro (sem chave no navegador)
-├─ access-client.js       # Papéis developer/student consultados no Supabase
-├─ supabase/              # SQL, migração do currículo e Edge Function
-└─ tests/                 # Validação estática da trilha
+```text
+Navegador (HTML, CSS e JavaScript)
+├── Conteúdo dos 16 exercícios ──► Editor + Pyodide (execução/testes locais)
+├── Autenticação, regras e progresso ──► Supabase Auth + PostgreSQL (RLS)
+└── Professor Socrático ──► Supabase Edge Function (JWT) ──► Gemini API
+                                          └── Histórico no PostgreSQL
+E-mails de autenticação: Supabase Auth ──► SMTP Brevo
+Publicação: GitHub main ──► GitHub Actions ──► build_site.py ──► Cloudflare Pages
 ```
 
-## Referência teórica
-ZHAI; WIBOWO; LI (2024). *The effects of over-reliance on AI dialogue systems on students’ cognitive abilities: a systematic review.* Smart Learning Environments.
+**Limites importantes:** testes e execução Python acontecem no navegador, portanto o progresso não comprova autoria para fins de certificação. As instruções do tutor procuram evitar soluções prontas, mas não garantem conformidade pedagógica em todas as respostas. A cota da API Gemini é compartilhada pelo projeto Google; o controle de 6 respostas/min e 80 respostas/24h por usuário, existente na função, é simples e **não atômico**.
 
+## Organização do repositório
 
-## Deploy e integração
+| Local | Responsabilidade |
+| --- | --- |
+| `index.html`, `login.html`, `reset-password.html` | Apresentação, cadastro/login e recuperação de senha |
+| `conteudos.html`, `tutor.html`, `perfil.html` | Módulos, ambiente de desafios e indicadores individuais |
+| `problems.js`, `study-guide.js`, `preflight-review.js` | Currículo V2 (5 módulos, 3 desafios cada, mais desafio final), apostilas e revisão prévia |
+| `app.js`, `learning-ui.js`, `code-editor.js`, `runner.js`, `tutor.js` | Orquestração, interface, editor, avaliação local em Python e cliente do tutor |
+| `auth-client.js`, `access-client.js`, `progress-store.js`, `module-progress.js`, `perfil.js` | Sessão, permissões, persistência, progresso e perfil |
+| `*.css`, `favicon.*`, `foto-gabi.jpg` | Estilos e recursos públicos referenciados pelas páginas |
+| `supabase/` | Modelo SQL, regras de acesso, migração de currículo e fonte da Edge Function `gemini-tutor` |
+| `scripts/`, `tests/`, `.github/workflows/` | Build de publicação, verificações e CI |
+| `docs/` | Arquitetura, decisões, operação, roteiros de validação e histórico acadêmico |
 
-1. [Configuração do Supabase](SETUP_SUPABASE.md) — login e banco de dados.
-2. [Etapa de integração segura do Gemini](SETUP_GEMINI.md) — função autenticada, segredo Gemini e histórico.
-3. [Revisão pedagógica do Currículo 2](REVISAO_CURRICULO_V2.md) — revisão integral dos 16 desafios, critérios e 76 testes revisados.
-4. **Antes do novo frontend:** execute [migração do currículo 2](supabase/curriculum-v2.sql) no Supabase SQL Editor (após [developer-access.sql](supabase/developer-access.sql), se ainda não executou), preservando progresso e histórico antigo.
-5. Atualize a Edge Function `gemini-tutor` com o conteúdo **atual** da branch, para separar os históricos por versão.
-6. Baixe a branch atualizada e teste em `http://localhost:8000/login.html`.
-7. Gerar o pacote público com `python scripts/build_site.py`, validar a URL de homologação no Cloudflare Pages e conectar o domínio após aprovação técnica.
+O frontend é intencionalmente **estático, sem React, sem servidor Node e sem empacotador obrigatório**. Os arquivos públicos permanecem na raiz para preservar suas URLs e reduzir o risco de mudanças durante a homologação. O script de build funciona como uma lista de permissão explícita: apenas o que está em `OUTPUT_FILES` é publicado em `dist/`.
 
-**Importante:** mantenha chaves Gemini apenas nos Secrets do Supabase; o progresso `completed` calculado no navegador não é válido como certificação ou medida antifraude sem validação no servidor.
+## Executar localmente
 
-## Situação do TCC II e fluxo de acesso
+Requisitos: **Python 3.11+**, navegador moderno e conexão com os serviços externos configurados. Não é necessário instalar bibliotecas Python para servir as páginas.
 
-O TCC II concentra-se no **desenvolvimento e na validação técnica/funcional da plataforma**. Não há pré-teste, pós-teste ou participação de estudantes em pesquisa vinculados ao fluxo de acesso ao curso.
+```bash
+git clone https://github.com/gabrielacsales/ai_programming_tutor.git
+cd ai_programming_tutor
+python -m http.server 8000
+```
 
-O cadastro pode manter a pergunta opcional sobre vínculo com o Senac, mas **essa identificação não libera, bloqueia ou exige pesquisa**. Alunos autenticados seguem o currículo e suas regras normais de progressão.
+Abra `http://localhost:8000/login.html`. Para testar login/recuperação local, a origem e os redirecionamentos correspondentes precisam estar autorizados no **Supabase Authentication → URL Configuration**. Não execute a aplicação via `file://`.
 
-Os arquivos de pesquisa anteriores (`pesquisa.html`, `inicio-senac.html`, `painel-pesquisa.html`, scripts e migrações) permanecem versionados apenas para histórico: **não fazem parte do build de publicação** e não devem ser reativados sem novo protocolo, revisão institucional e escopo de pesquisa.
+## Testes e publicação
 
-## Build para publicação segura
+```bash
+python -m unittest discover -s tests -p "verify_*.py" -v
+node tests/sticky_completion.mjs
+python scripts/build_site.py
+python scripts/smoke_site.py https://iatutor.com.br
+```
 
-Rode `python scripts/build_site.py` na raiz. O comando valida dependências locais e cria `dist/` contendo apenas HTML, JS e CSS necessários ao site, com cabeçalhos HTTP básicos.
+O último comando verifica apenas recursos HTTP públicos e exposição acidental de caminhos privados; **não substitui** testes em navegador de cadastro, RLS, Pyodide, Gemini, responsividade ou acessibilidade. O GitHub Actions executa testes e build em PRs e na `main`.
 
-Nunca configure o Cloudflare Pages para publicar a raiz do repositório. Pastas `supabase/`, `backup/`, `scripts/`, `tests/`, documentação e páginas da pesquisa não devem ser servidas como arquivos públicos.
+**Cloudflare Pages:** framework `None`; build `python3 scripts/build_site.py`; saída `dist`; produção pela `main`. Não use a raiz do repositório como diretório público: há SQL, testes e documentos que não podem ser publicados.
 
-**Cloudflare Pages, via GitHub**: framework `None` / sem framework; branch de produção `main`; diretório raiz `/`; comando de build `python3 scripts/build_site.py`; diretório de saída `dist`. Antes da conexão do domínio, valide a URL de teste `*.pages.dev` e configure URLs de autenticação permitidas no Supabase.
+**Segredos:** `GEMINI_API_KEY` fica somente nas Secrets da Supabase Edge Function; a chave SMTP fica nas configurações privadas do Auth. A URL e a chave publicável do Supabase são configurações do cliente, não privilégios administrativos. Nunca adicione `service_role`, tokens ou senhas ao repositório.
 
-As validações do código no GitHub Actions são estáticas: **não comprovam** que a autenticação externa, a Edge Function Gemini e a execução real do Pyodide passaram nos testes de navegador.
+**Banco:** arquivos SQL versionados não são executados automaticamente pelo Cloudflare ou pelo GitHub Actions. Não reaplique migrações antigas sem conferir o estado real do projeto e fazer backup.
 
-## Próximas verificações em ambiente real
+## Documentação técnica para o TCC
 
-1. Testar login, cadastro, verificação de e-mail, redefinição de senha e sessão persistente.
-2. Confirmar no Supabase regras RLS, funções de acesso e progresso isolado por conta, sem bloqueio Senac.
-3. Implantar/conferir a versão atual da Edge Function `gemini-tutor` e o segredo `GEMINI_API_KEY` no servidor.
-4. Executar exercícios e comparar os resultados, verificar as métricas, o histórico e a restrição às respostas prontas.
-5. Validar o ambiente de homologação Cloudflare e então conectar `iatutor.com.br`.
-6. Registrar versões, casos de teste, evidências e falhas para o TCC II.
+- [Arquitetura, componentes e fluxo de dados](docs/arquitetura.md)
+- [Decisões de engenharia, trade-offs e limitações](docs/decisoes-tecnicas.md)
+- [Operação e checklist do domínio oficial](docs/operacao.md)
+- [Validação e roteiros de teste](docs/validacao/README.md)
+- [Revisão pedagógica do currículo V2](docs/artefatos/revisao-curriculo-v2.md)
+- [Registro de escolhas antigas e materiais não vigentes](docs/historico/README.md)
 
-## Perfil do aluno
+A documentação distingue **funcionalidade implementada**, **teste automatizado** e **comportamento validado em produção**. Evidência de interface deve registrar data, URL, commit, navegador, cenário, resultado esperado e observado. O projeto não afirma impacto comprovado sobre aprendizagem ou redução de superdependência de IA.
 
-A página autenticada [perfil.html](perfil.html) reúne nome, e-mail, ingresso no curso e indicadores reais da conta: exercícios concluídos, percentual, progresso por módulo, dicas, envios de código, interações com o professor e pedidos diretos bloqueados. Utiliza RLS Supabase e somente o **currículo 2**. A contagem de envios de código foi adicionada nesta versão e não recupera tentativas anteriores.
+## Manutenção e evolução
 
-Acesse **Meu perfil** na página de módulos ou no exercício. Veja [TESTE_PERFIL_ALUNO.md](TESTE_PERFIL_ALUNO.md) para o roteiro de validação e as definições das estatísticas. Não é necessário executar SQL adicional se as migrations anteriores já foram aplicadas.
+Mudanças devem começar em uma branch, passar pelo CI e ser integradas à `main` via Pull Request. Para adicionar um recurso local usado pelas páginas, atualizar `scripts/build_site.py` e os testes correspondentes. Alterações de esquema e da Edge Function requerem implantação no Supabase separadamente; alterar apenas o GitHub **não implanta** código de função nem SQL.
 
-## Editor e avaliação do código
-
-O editor Python (CodeMirror) destaca palavras-chave, mostra números de linha e auxilia na indentação; o Pyodide executa de verdade cada entrada de teste **no navegador**. Nos scripts dos módulos 1–3, a variável `entrada` já é fornecida: **não a redefina com `entrada = 6`**. A tela mostra entrada, resultado esperado e obtido para cada teste. A aba **Código** é o fluxo normal; na primeira visita neste navegador, a aba **Ideia** aparece como orientação inicial e depois torna-se apoio opcional (inclusive após 90 segundos sem interação).
-
-Veja [TESTE_EDITOR_PYTHON.md](TESTE_EDITOR_PYTHON.md) para o roteiro de validação.
-
-## Verificação do currículo
-
-Execute `python tests/verify_curriculum_v2.py` na pasta raiz para conferir estrutura, pré-requisitos, enunciados, revisões e versionamento. Isso não substitui testes do Pyodide no navegador nem avaliação didática com iniciantes.
+**Histórico de refatoração:** código de pesquisa, páginas de diagnóstico Senac, backups e assets sem uso foram excluídos da árvore ativa; os commits anteriores preservam essas versões para auditoria histórica. Os documentos úteis foram reunidos em `docs/`.

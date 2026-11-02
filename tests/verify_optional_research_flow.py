@@ -18,7 +18,7 @@ class OptionalResearchFlowTests(unittest.TestCase):
         cls.tutor = (ROOT / "tutor.html").read_text(encoding="utf-8")
         cls.app = (ROOT / "app.js").read_text(encoding="utf-8")
         cls.access = (ROOT / "access-client.js").read_text(encoding="utf-8")
-        cls.rollback = (ROOT / "supabase" / "restore-course-without-senac.sql").read_text(encoding="utf-8")
+        cls.rollback = (ROOT / "docs" / "historico" / "restore-course-without-senac.sql").read_text(encoding="utf-8")
 
     def test_auth_requires_login_but_not_senac_diagnostic(self):
         self.assertRegex(self.auth, r"async function requireCourseReady\(\)\s*\{\s*return requireLogin\(\)")
@@ -39,9 +39,16 @@ class OptionalResearchFlowTests(unittest.TestCase):
             self.assertNotRegex(source, r'href="(?:pesquisa|inicio-senac|painel-pesquisa)\.html"')
         self.assertNotIn('<script src="research-collector.js"></script>', self.tutor)
         self.assertNotIn("TutorResearch", self.app)
-        # Páginas e módulos de pesquisa continuam guardados para reativação posterior.
-        self.assertTrue((ROOT / "pesquisa.html").exists())
-        self.assertTrue((ROOT / "inicio-senac.html").exists())
+        # O experimento retirado do escopo não deve permanecer na árvore ativa.
+        for obsolete in (
+            "pesquisa.html", "inicio-senac.html", "painel-pesquisa.html",
+            "research-collector.js", "research-page.js", "research-admin.js",
+            "senac-onboarding.js",
+        ):
+            with self.subTest(file=obsolete):
+                self.assertFalse((ROOT / obsolete).exists())
+        self.assertFalse((ROOT / "supabase" / "research-study.sql").exists())
+        self.assertFalse((ROOT / "supabase" / "senac-onboarding.sql").exists())
 
     def test_progress_permissions_remain(self):
         self.assertIn('client.rpc("get_tutor_access"', self.access)

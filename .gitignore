@@ -5,3 +5,13 @@ __pycache__/
 logs/
 design-system/
 dist/
+.env.*
+!.env.example
+.venv/
+node_modules/
+.pytest_cache/
+.coverage
+.DS_Store
+*.log
+*.private.json
+resultados_pesquisa/

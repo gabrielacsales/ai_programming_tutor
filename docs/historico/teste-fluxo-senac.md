@@ -1,5 +1,8 @@
 # Fluxo de entrada do Senac e pré-teste inicial
 
+> **REGISTRO HISTÓRICO — NÃO É UM GUIA DE IMPLANTAÇÃO ATUAL.** Este texto documenta uma fase anterior do projeto. Antes de executar comandos, migrações ou configurações, confira [README](../../README.md) e [operação atual](../operacao.md). O TCC II vigente não envolve pesquisa com estudantes.
+
+
 **Status:** arquivos preparados na branch `feature/supabase-auth-and-database`. **Não foram publicados no Supabase pelo GitHub.** Execute a migração apenas depois de conferir backup e usar um projeto staging para os primeiros testes.
 
 ## Como funciona

@@ -1,5 +1,8 @@
 # Publicação do IA Tutor em iatutor.com.br
 
+> **REGISTRO HISTÓRICO — NÃO É UM GUIA DE IMPLANTAÇÃO ATUAL.** Este texto documenta uma fase anterior do projeto. Antes de executar comandos, migrações ou configurações, confira [README](../../README.md) e [operação atual](../operacao.md). O TCC II vigente não envolve pesquisa com estudantes.
+
+
 > Este documento é o roteiro operacional do TCC II (validação **técnica/funcional**).
 > Não executar pesquisa com alunos, questionários ou pré/pós-teste para colocar a plataforma no ar.
 

@@ -1,5 +1,8 @@
 # Preparação da Pesquisa do TCC — IA Tutor (tcc-v1)
 
+> **REGISTRO HISTÓRICO — NÃO É UM GUIA DE IMPLANTAÇÃO ATUAL.** Este texto documenta uma fase anterior do projeto. Antes de executar comandos, migrações ou configurações, confira [README](../../README.md) e [operação atual](../operacao.md). O TCC II vigente não envolve pesquisa com estudantes.
+
+
 ATENÇÃO: implementado apenas na branch de testes; NENHUMA migração foi executada no seu Supabase por esta atualização. O recrutamento começa fechado pelo servidor. Não abra coleta antes de revisar TCLE, ética e retenção com orientador(a) e instituição.
 
 ## Componentes preparados
