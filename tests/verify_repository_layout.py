@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PAGES = {
     "index.html", "login.html", "reset-password.html",
     "conteudos.html", "tutor.html", "perfil.html",
+    "privacidade.html", "termos.html", "cookies.html",
 }
 CURRENT_DOCS = [
     ROOT / "README.md",
