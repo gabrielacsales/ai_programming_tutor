@@ -7,17 +7,18 @@ import re
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+WEB = ROOT / "web"
 
 
 class OptionalResearchFlowTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.auth = (ROOT / "auth-client.js").read_text(encoding="utf-8")
-        cls.login = (ROOT / "login.html").read_text(encoding="utf-8")
-        cls.contents = (ROOT / "conteudos.html").read_text(encoding="utf-8")
-        cls.tutor = (ROOT / "tutor.html").read_text(encoding="utf-8")
-        cls.app = (ROOT / "app.js").read_text(encoding="utf-8")
-        cls.access = (ROOT / "access-client.js").read_text(encoding="utf-8")
+        cls.auth = (WEB / "auth-client.js").read_text(encoding="utf-8")
+        cls.login = (WEB / "login.html").read_text(encoding="utf-8")
+        cls.contents = (WEB / "conteudos.html").read_text(encoding="utf-8")
+        cls.tutor = (WEB / "tutor.html").read_text(encoding="utf-8")
+        cls.app = (WEB / "app.js").read_text(encoding="utf-8")
+        cls.access = (WEB / "access-client.js").read_text(encoding="utf-8")
         cls.rollback = (ROOT / "supabase" / "restore-course-without-senac.sql").read_text(encoding="utf-8")
 
     def test_auth_requires_login_but_not_senac_diagnostic(self):
@@ -39,9 +40,10 @@ class OptionalResearchFlowTests(unittest.TestCase):
             self.assertNotRegex(source, r'href="(?:pesquisa|inicio-senac|painel-pesquisa)\.html"')
         self.assertNotIn('<script src="research-collector.js"></script>', self.tutor)
         self.assertNotIn("TutorResearch", self.app)
-        # Páginas e módulos de pesquisa continuam guardados para reativação posterior.
-        self.assertTrue((ROOT / "pesquisa.html").exists())
-        self.assertTrue((ROOT / "inicio-senac.html").exists())
+        # Pesquisa descontinuada: código de coleta não integra mais a árvore ativa.
+        self.assertFalse((WEB / "pesquisa.html").exists())
+        self.assertFalse((WEB / "inicio-senac.html").exists())
+        self.assertFalse((WEB / "painel-pesquisa.html").exists())
 
     def test_progress_permissions_remain(self):
         self.assertIn('client.rpc("get_tutor_access"', self.access)
