@@ -1,3 +1,5 @@
+> **Roteiro manual de uma etapa do desenvolvimento.** Pode mencionar telas ou branches anteriores. Para reproduzir com a versão atual, use a branch `main`, execute `cd web && python -m http.server 8000` e confirme os critérios no [Plano de validação](../VALIDACAO.md). O roteiro não equivale a resultado aprovado em produção.
+
 # Perfil do aluno e estatísticas — como testar
 
 Implementado na branch `feature/supabase-auth-and-database`, em `perfil.html`, `perfil.css` e `perfil.js`.
