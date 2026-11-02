@@ -8,18 +8,19 @@ import re
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+WEB = ROOT / "web"
 
 
 class ExerciseUXTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.problems_source = (ROOT / "problems.js").read_text(encoding="utf-8")
-        cls.ui = (ROOT / "learning-ui.js").read_text(encoding="utf-8")
-        cls.app = (ROOT / "app.js").read_text(encoding="utf-8")
-        cls.html = (ROOT / "tutor.html").read_text(encoding="utf-8")
-        cls.style = (ROOT / "learning-ui.css").read_text(encoding="utf-8")
-        cls.guide = (ROOT / "study-guide.js").read_text(encoding="utf-8")
-        cls.guide_css = (ROOT / "study-guide.css").read_text(encoding="utf-8")
+        cls.problems_source = (WEB / "problems.js").read_text(encoding="utf-8")
+        cls.ui = (WEB / "learning-ui.js").read_text(encoding="utf-8")
+        cls.app = (WEB / "app.js").read_text(encoding="utf-8")
+        cls.html = (WEB / "tutor.html").read_text(encoding="utf-8")
+        cls.style = (WEB / "learning-ui.css").read_text(encoding="utf-8")
+        cls.guide = (WEB / "study-guide.js").read_text(encoding="utf-8")
+        cls.guide_css = (WEB / "study-guide.css").read_text(encoding="utf-8")
         source = cls.problems_source
         cls.problems = json.JSONDecoder().raw_decode(
             source.split("const problems = ", 1)[1].lstrip()
