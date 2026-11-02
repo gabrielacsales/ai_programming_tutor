@@ -1,3 +1,5 @@
+> **Documento histórico — não é um guia de implantação vigente.** Registra decisões de fases anteriores, inclusive funcionalidades removidas da versão atual. **Não execute procedimentos ou SQL deste arquivo em produção sem revisar o estado atual do sistema e do banco.** Use [Operação](../OPERACAO.md) e [Arquitetura](../ARQUITETURA.md) para a versão vigente.
+
 # Etapa 5 — Gemini com chave segura e histórico de conversa
 
 **Status: código preparado, ainda precisa implantar a função e testar.**
