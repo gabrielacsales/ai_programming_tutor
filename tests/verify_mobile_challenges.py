@@ -7,6 +7,7 @@ from pathlib import Path
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+WEB = ROOT / "web"
 
 
 class MarkupInspector(HTMLParser):
@@ -36,10 +37,10 @@ class MarkupInspector(HTMLParser):
 class ChallengeMobileTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.html = (ROOT / "tutor.html").read_text(encoding="utf-8")
-        cls.app = (ROOT / "app.js").read_text(encoding="utf-8")
-        cls.css = (ROOT / "challenge-mobile.css").read_text(encoding="utf-8")
-        cls.editor = (ROOT / "code-editor.js").read_text(encoding="utf-8")
+        cls.html = (WEB / "tutor.html").read_text(encoding="utf-8")
+        cls.app = (WEB / "app.js").read_text(encoding="utf-8")
+        cls.css = (WEB / "challenge-mobile.css").read_text(encoding="utf-8")
+        cls.editor = (WEB / "code-editor.js").read_text(encoding="utf-8")
         cls.build = (ROOT / "scripts/build_site.py").read_text(encoding="utf-8")
 
     def test_mobile_nav_accessible_and_closed_by_default(self):
