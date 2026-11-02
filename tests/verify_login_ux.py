@@ -7,15 +7,16 @@ import re
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+WEB = ROOT / "web"
 
 
 class LoginUXTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.landing = (ROOT / "index.html").read_text(encoding="utf-8")
-        cls.login = (ROOT / "login.html").read_text(encoding="utf-8")
-        cls.css = (ROOT / "login.css").read_text(encoding="utf-8")
-        cls.auth = (ROOT / "auth-client.js").read_text(encoding="utf-8")
+        cls.landing = (WEB / "index.html").read_text(encoding="utf-8")
+        cls.login = (WEB / "login.html").read_text(encoding="utf-8")
+        cls.css = (WEB / "login.css").read_text(encoding="utf-8")
+        cls.auth = (WEB / "auth-client.js").read_text(encoding="utf-8")
 
     def test_landing_start_button_goes_to_login(self):
         self.assertIn("window.location.href = 'login.html';", self.landing)
