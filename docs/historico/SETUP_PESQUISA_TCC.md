@@ -1,3 +1,5 @@
+> **Documento histórico — não é um guia de implantação vigente.** Registra decisões de fases anteriores, inclusive funcionalidades removidas da versão atual. **Não execute procedimentos ou SQL deste arquivo em produção sem revisar o estado atual do sistema e do banco.** Use [Operação](../OPERACAO.md) e [Arquitetura](../ARQUITETURA.md) para a versão vigente.
+
 # Preparação da Pesquisa do TCC — IA Tutor (tcc-v1)
 
 ATENÇÃO: implementado apenas na branch de testes; NENHUMA migração foi executada no seu Supabase por esta atualização. O recrutamento começa fechado pelo servidor. Não abra coleta antes de revisar TCLE, ética e retenção com orientador(a) e instituição.
