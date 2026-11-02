@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="O IA Tutor utiliza recursos do navegador para manter a sessão, guardar preferências de interface e tornar a experiência de aprendizagem contínua.">
+  <meta name="robots" content="index,follow">
+  <title>Cookies e Armazenamento | IA Tutor</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=1">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=1">
+  <link rel="stylesheet" href="legal.css">
+  <script defer src="privacy-notice.js"></script>
+</head>
+<body class="legal-body">
+  <header class="legal-header">
+    <a class="legal-brand" href="index.html"><img class="legal-brand-icon" src="favicon.svg" alt=""> IA Tutor</a>
+    <nav class="legal-header-nav"><a href="login.html">Voltar ao acesso</a></nav>
+  </header>
+  <main class="legal-layout">
+    <p class="legal-overline">Transparência e responsabilidade</p>
+    <h1 class="legal-heading">Cookies e Armazenamento</h1>
+    <p class="legal-meta">Versão: 02/11/2026 · IA Tutor — protótipo educacional</p>
+    <p class="legal-intro">O IA Tutor utiliza recursos do navegador para manter a sessão, guardar preferências de interface e tornar a experiência de aprendizagem contínua.</p>
+    <article class="legal-content">
+      <h2>1. O que é usado atualmente?</h2>
+      <p>O código atual usa principalmente <strong>armazenamento local (localStorage)</strong>, que é uma tecnologia diferente dos cookies HTTP tradicionais. A biblioteca Supabase também pode utilizar armazenamento do navegador para manter e renovar a sessão de autenticação. O site não inclui, no código auditado, ferramentas próprias de anúncios, pixels de marketing ou Google Analytics.</p>
+
+      <h2>2. Armazenamentos identificados no código</h2>
+      <ul>
+        <li><strong>Sessão do Supabase:</strong> chaves gerenciadas pelo SDK para manter a autenticação, necessárias para a conta.</li>
+        <li><strong>Progresso local de interface:</strong> estado de exercícios concluídos e sincronização visual; a fonte de dados da conta permanece no Supabase.</li>
+        <li><strong>Preferências didáticas:</strong> registro de primeira visita e configurações de apresentação de alguns recursos.</li>
+        <li><strong>Este aviso:</strong> a chave <code>iatutor_essential_storage_notice_v1</code> lembra que você já leu a informação, evitando repeti-la.</li>
+      </ul>
+      <p>O nome e a duração exata das chaves de sessão geridas pela biblioteca Supabase podem mudar conforme suas versões e configurações. Algumas preferências são mantidas até que o usuário limpe o armazenamento do site.</p>
+
+      <h2>3. Dados técnicos de terceiros</h2>
+      <p>Cloudflare, Supabase, Google Fonts e serviços de distribuição de bibliotecas podem receber informações técnicas sobre a conexão e, conforme suas próprias políticas, utilizar mecanismos de segurança e armazenamento. Esta página não garante que nenhum fornecedor externo utilize cookies sob seus respectivos domínios.</p>
+
+      <h2>4. Por que não há botões de aceitar/rejeitar cookies de publicidade?</h2>
+      <p>Na implementação atualmente auditada, não identificamos cookies <strong>próprios</strong> de publicidade, marketing ou analytics para os quais seria necessário solicitar opção de consentimento. O botão <strong>“Entendi”</strong> do aviso informativo apenas oculta a mensagem: não autoriza rastreamento. Se ferramentas opcionais forem adicionadas, será necessária nova avaliação e, quando cabível, escolha real de aceitar, recusar e revogar.</p>
+
+      <h2>5. Como controlar o armazenamento?</h2>
+      <p>Você pode limpar os dados e cookies deste site nas configurações do navegador. Isso pode encerrar sua sessão e apagar preferências locais; seus dados registrados no banco Supabase não são automaticamente eliminados por essa ação. Para conhecer seus direitos, consulte o <a href="privacidade.html">Aviso de Privacidade</a>.</p>
+
+      <h2>6. Referência</h2>
+      <p>O tratamento de tecnologias de rastreamento deve observar a LGPD e as orientações da <a href="https://www.gov.br/anpd/pt-br/centrais-de-conteudo/materiais-educativos-e-publicacoes/guia_orientativo_cookies_e_protecao_de_dados_pessoais" target="_blank" rel="noopener noreferrer">ANPD sobre Cookies e Proteção de Dados</a>.</p>
+    </article>
+  </main>
+  <footer class="legal-footer">
+    IA Tutor · <nav class="privacy-links" aria-label="Informações legais">
+      <a href="privacidade.html">Privacidade</a>
+      <a href="termos.html">Termos de Uso</a>
+      <a href="cookies.html">Cookies e armazenamento</a>
+      <a href="index.html">Início</a>
+    </nav>
+  </footer>
+</body>
+</html>
