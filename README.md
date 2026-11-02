@@ -63,6 +63,12 @@ O último comando verifica apenas recursos HTTP públicos e exposição acidenta
 
 **Banco:** arquivos SQL versionados não são executados automaticamente pelo Cloudflare ou pelo GitHub Actions. Não reaplique migrações antigas sem conferir o estado real do projeto e fazer backup.
 
+## Privacidade e dados pessoais
+
+O cadastro requer a aceitação dos [Termos de Uso](termos.html) e a declaração de leitura do [Aviso de Privacidade](privacidade.html). A [Política de Cookies e Armazenamento](cookies.html) descreve tecnologias usadas na sessão e preferências. Não foram identificados scripts próprios de publicidade/analytics no frontend atual; por isso o aviso de armazenamento essencial é informativo, e não um falso consentimento para cookies necessários.
+
+Os campos de versão/data de aceite são armazenados em metadados de cadastro pelo cliente e **não constituem registro imutável auditado no servidor**. O protótipo ainda precisa de canal privado funcional para titulares, regras de retenção e adequação específica antes de utilização irrestrita por menores. Consulte o [checklist de privacidade](docs/privacidade-implantacao.md). No tier gratuito, a API Gemini pode utilizar entradas/saídas para aprimoramento dos serviços conforme seus termos: não enviar dados pessoais ou sensíveis.
+
 ## Documentação técnica para o TCC
 
 - [Arquitetura, componentes e fluxo de dados](docs/arquitetura.md)
