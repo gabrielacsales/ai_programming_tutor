@@ -1,5 +1,8 @@
 # Etapa 5 — Gemini com chave segura e histórico de conversa
 
+> **REGISTRO HISTÓRICO — NÃO É UM GUIA DE IMPLANTAÇÃO ATUAL.** Este texto documenta uma fase anterior do projeto. Antes de executar comandos, migrações ou configurações, confira [README](../../README.md) e [operação atual](../operacao.md). O TCC II vigente não envolve pesquisa com estudantes.
+
+
 **Status: código preparado, ainda precisa implantar a função e testar.**
 Não mexer no SQL: a tabela `chat_messages` já existe no Supabase e a RLS foi criada na Etapa 2.
 
