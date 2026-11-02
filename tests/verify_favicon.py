@@ -8,6 +8,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+WEB = ROOT / "web"
 PAGES = ("index.html", "login.html", "reset-password.html", "conteudos.html", "tutor.html", "perfil.html")
 FAVICONS = {
     "favicon.ico": "image/x-icon",
@@ -35,21 +36,21 @@ class FaviconTests(unittest.TestCase):
         for page in PAGES:
             with self.subTest(page=page):
                 parser = IconParser()
-                parser.feed((ROOT / page).read_text(encoding="utf-8"))
+                parser.feed((WEB / page).read_text(encoding="utf-8"))
                 found = {x.get("href", "").split("?")[0]: x for x in parser.icons}
                 self.assertEqual(set(found), set(FAVICONS))
                 for name, content_type in FAVICONS.items():
                     self.assertEqual(found[name].get("type"), content_type if name != "apple-touch-icon.png" else None)
-                    self.assertTrue((ROOT / name).is_file())
+                    self.assertTrue((WEB / name).is_file())
                 self.assertEqual(found["apple-touch-icon.png"]["rel"], "apple-touch-icon")
 
     def test_actual_image_formats_and_sizes(self):
-        self.assertTrue((ROOT / "favicon.ico").read_bytes().startswith(b"\x00\x00\x01\x00"))
+        self.assertTrue((WEB / "favicon.ico").read_bytes().startswith(b"\x00\x00\x01\x00"))
         for filename, size in (("favicon-16x16.png", 16), ("favicon-32x32.png", 32), ("apple-touch-icon.png", 180)):
-            data = (ROOT / filename).read_bytes()
+            data = (WEB / filename).read_bytes()
             self.assertTrue(data.startswith(b"\x89PNG\r\n\x1a\n"), filename)
             self.assertEqual(struct.unpack(">II", data[16:24]), (size, size))
-        root = ET.fromstring((ROOT / "favicon.svg").read_text(encoding="utf-8"))
+        root = ET.fromstring((WEB / "favicon.svg").read_text(encoding="utf-8"))
         self.assertEqual(root.attrib["viewBox"], "0 0 64 64")
         self.assertTrue(any(x.tag.endswith("path") for x in root))
 
