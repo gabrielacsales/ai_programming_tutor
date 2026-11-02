@@ -11,13 +11,14 @@ import re
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+WEB = ROOT / "web"
 
 
 class StickyCompletionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.app = (ROOT / "app.js").read_text(encoding="utf-8")
-        cls.store = (ROOT / "progress-store.js").read_text(encoding="utf-8")
+        cls.app = (WEB / "app.js").read_text(encoding="utf-8")
+        cls.store = (WEB / "progress-store.js").read_text(encoding="utf-8")
 
     def test_failure_never_clears_completed_state(self):
         self.assertNotRegex(
