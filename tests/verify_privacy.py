@@ -53,7 +53,7 @@ class PrivacyTests(unittest.TestCase):
     def test_privacy_policy_names_data_and_gemini_risks(self):
         privacy = (ROOT / "privacidade.html").read_text(encoding="utf-8")
         for term in ("Gabriela Sales", "Supabase", "Brevo", "Google Gemini",
-                     "RLS", "direitos", "Menores", "revisão humana",
+                     "RLS", "direitos", "Crianças e adolescentes", "revisão humana",
                      "Canal de privacidade pendente"):
             self.assertIn(term, privacy)
         cookie_page = (ROOT / "cookies.html").read_text(encoding="utf-8")
