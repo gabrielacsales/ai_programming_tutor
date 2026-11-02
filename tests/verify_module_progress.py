@@ -8,19 +8,20 @@ import re
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+WEB = ROOT / "web"
 
 
 class ModuleProgressTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.content = (ROOT / "conteudos.html").read_text(encoding="utf-8")
-        cls.login = (ROOT / "login.html").read_text(encoding="utf-8")
-        cls.landing = (ROOT / "index.html").read_text(encoding="utf-8")
-        cls.tutor = (ROOT / "tutor.html").read_text(encoding="utf-8")
-        cls.module_js = (ROOT / "module-progress.js").read_text(encoding="utf-8")
-        cls.module_css = (ROOT / "module-progress.css").read_text(encoding="utf-8")
+        cls.content = (WEB / "conteudos.html").read_text(encoding="utf-8")
+        cls.login = (WEB / "login.html").read_text(encoding="utf-8")
+        cls.landing = (WEB / "index.html").read_text(encoding="utf-8")
+        cls.tutor = (WEB / "tutor.html").read_text(encoding="utf-8")
+        cls.module_js = (WEB / "module-progress.js").read_text(encoding="utf-8")
+        cls.module_css = (WEB / "module-progress.css").read_text(encoding="utf-8")
         cls.problems = json.JSONDecoder().raw_decode(
-            (ROOT / "problems.js").read_text(encoding="utf-8")
+            (WEB / "problems.js").read_text(encoding="utf-8")
             .split("const problems = ", 1)[1].lstrip()
         )[0]
 
