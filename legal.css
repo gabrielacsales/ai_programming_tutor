@@ -1,0 +1,39 @@
+/* Componentes de privacidade usados nas páginas públicas e nas páginas legais. */
+.privacy-links{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:8px 16px;margin-top:16px;font:500 12px/1.5 system-ui,sans-serif;text-transform:none;letter-spacing:normal}
+.privacy-links a{color:#475569;text-decoration:underline;text-underline-offset:3px}
+.privacy-links a:hover,.privacy-links a:focus-visible{color:#075985}
+.privacy-consent{display:flex;align-items:flex-start;gap:11px;padding:14px;border:1px solid #cbd5e1;background:#f8fafc;border-radius:12px;color:#334155;font:13px/1.55 system-ui,sans-serif}
+.privacy-consent input[type=checkbox]{width:18px;height:18px;min-width:18px;min-height:18px;margin:1px 0 0;accent-color:#0284c7;cursor:pointer}
+.privacy-consent label{display:block;cursor:pointer}
+.privacy-consent a{color:#0369a1;text-decoration:underline;text-underline-offset:3px;font-weight:650}
+.privacy-consent a:focus-visible,.privacy-links a:focus-visible,.privacy-banner a:focus-visible,.privacy-banner button:focus-visible{outline:3px solid #38bdf8;outline-offset:3px;border-radius:4px}
+.privacy-consent-help{font:11px/1.55 system-ui,sans-serif;color:#64748b;margin:7px 0 0}
+.privacy-banner{position:fixed;z-index:10000;bottom:16px;left:16px;right:16px;max-width:720px;margin:0 auto;padding:14px 16px;border:1px solid #cbd5e1;border-radius:14px;background:#fff;box-shadow:0 12px 45px rgba(15,23,42,.18);color:#1e293b;font:13px/1.55 system-ui,sans-serif;display:flex;gap:18px;align-items:center;justify-content:space-between}
+.privacy-banner p{margin:0;min-width:0}
+.privacy-banner strong{display:block;font-weight:750;margin-bottom:2px}
+.privacy-banner a{color:#075985;text-decoration:underline;text-underline-offset:2px}
+.privacy-banner button{font:700 12px system-ui,sans-serif;white-space:nowrap;border:0;border-radius:9px;background:#0f172a;color:#fff;padding:11px 16px;cursor:pointer}
+.privacy-banner button:hover{background:#334155}
+.legal-body{margin:0;background:#f8fafc;color:#172033;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.legal-header{background:#fff;border-bottom:1px solid #e2e8f0;padding:18px max(20px,calc((100vw - 850px)/2));display:flex;align-items:center;justify-content:space-between;gap:12px}
+.legal-brand{display:inline-flex;align-items:center;gap:10px;color:#111827;text-decoration:none;font-weight:800;font-size:18px}
+.legal-brand-icon{width:34px;height:34px;border-radius:9px}
+.legal-header-nav a{color:#075985;text-decoration:none;font-size:13px;font-weight:650}
+.legal-layout{max-width:850px;margin:42px auto 72px;padding:0 22px}
+.legal-heading{font-size:clamp(30px,5vw,43px);line-height:1.12;letter-spacing:-.04em;margin:4px 0 12px}
+.legal-overline{font:700 11px ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:#64748b}
+.legal-meta{font-size:13px;color:#64748b;margin:0 0 24px}
+.legal-intro{font-size:16px;line-height:1.8;color:#475569;margin-bottom:30px}
+.legal-content{background:white;border:1px solid #e2e8f0;border-radius:18px;padding:clamp(22px,5vw,40px);box-shadow:0 7px 28px rgba(15,23,42,.04)}
+.legal-content h2{margin:30px 0 10px;font-size:21px;letter-spacing:-.025em;color:#0f172a}
+.legal-content h2:first-child{margin-top:0}
+.legal-content h3{font-size:16px;margin:22px 0 8px}
+.legal-content p,.legal-content li{font-size:14px;line-height:1.9;color:#334155}
+.legal-content ul{padding-left:22px}
+.legal-content li{margin:7px 0}
+.legal-content a{color:#075985;text-underline-offset:3px}
+.legal-content strong{color:#0f172a}
+.legal-note{border-left:3px solid #0284c7;background:#f0f9ff;padding:13px 15px;border-radius:0 9px 9px 0;margin:18px 0}
+.legal-warning{border-left:3px solid #d97706;background:#fffbeb;padding:13px 15px;border-radius:0 9px 9px 0;margin:18px 0}
+.legal-footer{max-width:850px;margin:0 auto 30px;padding:20px 22px;border-top:1px solid #e2e8f0;text-align:center;color:#64748b;font-size:12px}
+@media(max-width:560px){.privacy-banner{bottom:10px;left:10px;right:10px;align-items:stretch;flex-direction:column;gap:11px}.privacy-banner button{width:100%}.legal-header{padding:14px 20px}.legal-layout{margin-top:25px;padding:0 16px}.legal-content{padding:20px}}
