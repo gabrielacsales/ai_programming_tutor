@@ -1,3 +1,5 @@
+> **Roteiro manual de uma etapa do desenvolvimento.** Pode mencionar telas ou branches anteriores. Para reproduzir com a versão atual, use a branch `main`, execute `cd web && python -m http.server 8000` e confirme os critérios no [Plano de validação](../VALIDACAO.md). O roteiro não equivale a resultado aprovado em produção.
+
 # Ajustes do professor socrático — validação
 
 O código desta melhoria foi atualizado na branch `feature/supabase-auth-and-database`. **A versão do Supabase não muda automaticamente quando o GitHub é atualizado.**
