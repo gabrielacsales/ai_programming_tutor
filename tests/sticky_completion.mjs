@@ -35,7 +35,7 @@ const client = {
     };
   },
 };
-const script = new Script(readFileSync(new URL("../progress-store.js", import.meta.url), "utf8"));
+const script = new Script(readFileSync(new URL("../web/progress-store.js", import.meta.url), "utf8"));
 function newSession() {
   const window = { TutorAuth: { client } };
   const localStorage = { setItem(k, v) { storage.set(k, v); } };
