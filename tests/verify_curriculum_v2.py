@@ -12,10 +12,11 @@ import re
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+WEB = ROOT / "web"
 
 
 def load_problems():
-    source = (ROOT / "problems.js").read_text(encoding="utf-8")
+    source = (WEB / "problems.js").read_text(encoding="utf-8")
     marker = "const problems = "
     start = source.index(marker) + len(marker)
     return json.JSONDecoder().raw_decode(source[start:].lstrip())[0]
@@ -26,8 +27,8 @@ class CurriculumV2Tests(unittest.TestCase):
     def setUpClass(cls):
         cls.problems = load_problems()
         cls.by_id = {p["id"]: p for p in cls.problems}
-        cls.cards = (ROOT / "conteudos.html").read_text(encoding="utf-8")
-        cls.reviews = (ROOT / "preflight-review.js").read_text(encoding="utf-8")
+        cls.cards = (WEB / "conteudos.html").read_text(encoding="utf-8")
+        cls.reviews = (WEB / "preflight-review.js").read_text(encoding="utf-8")
         cls.rules = (ROOT / "supabase" / "developer-access.sql").read_text(encoding="utf-8")
         cls.migration = (ROOT / "supabase" / "curriculum-v2.sql").read_text(encoding="utf-8")
 
@@ -89,9 +90,9 @@ class CurriculumV2Tests(unittest.TestCase):
                 )
 
     def test_legacy_progress_is_archived_and_isolated(self):
-        progress = (ROOT / "progress-store.js").read_text(encoding="utf-8")
+        progress = (WEB / "progress-store.js").read_text(encoding="utf-8")
         backend = (ROOT / "supabase" / "functions" / "gemini-tutor" / "index.ts").read_text(encoding="utf-8")
-        app = (ROOT / "app.js").read_text(encoding="utf-8")
+        app = (WEB / "app.js").read_text(encoding="utf-8")
         for text in [progress, self.rules, self.migration, app, backend]:
             self.assertIn("curriculum_version", text)
         self.assertIn("exercise_progress_v1_archive", self.migration)
