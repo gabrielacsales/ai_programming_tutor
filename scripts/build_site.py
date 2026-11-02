@@ -5,8 +5,8 @@ Uso local: python scripts/build_site.py
 Cloudflare Pages: python3 scripts/build_site.py
 Output directory: dist
 
-O build é baseado em uma lista explícita (fail closed): pastas supabase/,
-backup/, scripts/, tests/ e páginas antigas de pesquisa jamais são copiadas.
+O build lê somente web/, com lista explícita (fail closed).
+Arquivos em docs/, supabase/, scripts/ e tests/ nunca são publicados.
 """
 from __future__ import annotations
 
@@ -19,6 +19,7 @@ from urllib.parse import unquote, urlsplit
 
 
 ROOT = Path(__file__).resolve().parents[1]
+WEB = ROOT / "web"
 PUBLIC_PAGES = (
     "index.html",
     "login.html",
@@ -86,16 +87,18 @@ class LocalReferences(html.parser.HTMLParser):
 
 
 def validate_source_files() -> None:
+    if WEB.is_symlink() or not WEB.is_dir():
+        raise RuntimeError("A pasta web/ deve ser uma pasta real e existente.")
     for name in OUTPUT_FILES:
-        path = ROOT / name
+        path = WEB / name
         if not path.is_file() or path.is_symlink():
             raise RuntimeError(f"Arquivo público ausente ou link simbólico: {name}")
-        if path.parent != ROOT:
+        if path.parent != WEB:
             raise RuntimeError(f"Arquivo fora da raiz permitida: {name}")
 
     for page in PUBLIC_PAGES:
         parser = LocalReferences()
-        parser.feed((ROOT / page).read_text(encoding="utf-8"))
+        parser.feed((WEB / page).read_text(encoding="utf-8"))
         for reference in parser.files:
             if reference.startswith("/") and reference != "/":
                 raise RuntimeError(f"Referência absoluta não esperada em {page}: {reference}")
@@ -108,7 +111,7 @@ def validate_source_files() -> None:
                     "Atualize a lista explícita de arquivos e revise se é seguro expor."
                 )
 
-    config = (ROOT / "supabase-config.js").read_text(encoding="utf-8")
+    config = (WEB / "supabase-config.js").read_text(encoding="utf-8")
     if "publishableKey:" not in config or ".supabase.co" not in config:
         raise RuntimeError("supabase-config.js sem configuração pública válida")
     # HTMLParser acima inspeciona scripts e links REAIS, ignorando comentários.
@@ -127,7 +130,7 @@ def build(output: Path) -> None:
         shutil.rmtree(output)
     output.mkdir(parents=True)
     for name in sorted(OUTPUT_FILES):
-        shutil.copyfile(ROOT / name, output / name)
+        shutil.copyfile(WEB / name, output / name)
 
     # Segurança e privacidade: não expor índices de diretórios nem permitir
     # que crawlers arquivem conteúdo de perfis ou respostas de exercícios.
