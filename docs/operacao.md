@@ -66,6 +66,12 @@ Se alguma verificação crítica falhar, interromper a homologação, identifica
 - Confirmar a função implantada, autenticação JWT, Secret `GEMINI_API_KEY`, modelo e limites diretamente no painel Supabase/Google.
 - A migração histórica de restauração do desbloqueio fica em `docs/historico/` para rastreabilidade, não para execução rotineira.
 
+## Privacidade e cadastro
+
+As páginas de [Privacidade](../privacidade.html), [Termos](../termos.html) e [Cookies](../cookies.html) e o aceite no formulário foram adicionados como proposta de interface. Antes de publicar a atualização, cumprir as pendências em [docs/privacidade-implantacao.md](privacidade-implantacao.md): canal privado real para titulares, identificação do controlador, retenção, tratamento de dados por fornecedores e proteção de menores (ECA Digital).
+
+O campo `raw_user_meta_data` contém versão/horário informados pelo cliente na inscrição; não substitui registro confiável gerado no servidor quando for necessária prova de manifestação.
+
 ## Pendências de aceite antes da entrega acadêmica
 
 - Capturas e execução documentada de testes no domínio oficial.
