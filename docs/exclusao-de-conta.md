@@ -14,6 +14,7 @@ Implementada na branch `feature/self-service-account-deletion`.
 - A função aceita somente POST com token de usuário válido. Obtém o ID da sessão no servidor; nunca recebe ID arbitrário do navegador.
 - Exige confirmação de senha no servidor antes de chamar a API administrativa do Supabase. Não retorna detalhes internos de falhas.
 - A exclusão é **irreversível** e apaga o cadastro no Supabase Auth; as tabelas relacionais citadas são apagadas por cascata. O progresso é reiniciado ao criar uma conta nova.
+- A interface pede senha e a confirmação textual `EXCLUIR`; permite cancelar. Se o serviço falhar, apresenta mensagem de erro e mantém o usuário no perfil.
 - Não há exclusão executada na interface antes de receber sucesso do backend.
 - Contas que usam provedores externos sem senha precisarão de outro fluxo de reautenticação.
 - Uma nova inscrição com o mesmo e-mail ainda poderá ficar sujeita aos limites de e-mails/cadastros do Supabase, inclusive rate limiting, e a eventual demora na entrega do e-mail.
@@ -28,5 +29,5 @@ Implementada na branch `feature/self-service-account-deletion`.
 - [ ] Sem token válido, a função retorna 401.
 - [ ] Senha correta apaga só a conta autenticada.
 - [ ] `profiles`, `exercise_progress`, `exercise_progress_v1_archive`, `chat_messages`, `developer_accounts` não retêm linhas vinculadas.
-- [ ] Depois da exclusão, a navegação vai ao login e uma nova inscrição começa sem progresso.
+- [ ] Depois da exclusão confirmada pelo backend, a sessão local é encerrada e a pessoa é redirecionada para `index.html`, com confirmação visível de sucesso. Uma nova inscrição começa sem progresso.
 - [ ] Testar em desktop e mobile; validar o fluxo após deploy da função e do site.

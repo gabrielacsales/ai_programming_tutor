@@ -472,10 +472,16 @@
           const serverMessage = data?.error || error?.context?.error || error?.message;
           throw new Error(typeof serverMessage === "string" ? serverMessage : "Não foi possível excluir sua conta.");
         }
+        // Só redireciona depois de o servidor confirmar a exclusão.
         password.value = "";
-        localStorage.removeItem("completed_exercises");
-        await client.auth.signOut().catch(() => {});
-        location.replace("login.html?deleted=1");
+        try { localStorage.removeItem("completed_exercises"); } catch (storageError) {
+          console.warn("Não foi possível limpar o progresso local:", storageError);
+        }
+        // O usuário já foi removido no servidor; a limpeza da sessão é best-effort.
+        try { await client.auth.signOut({ scope: "local" }); } catch (signOutError) {
+          console.warn("Não foi possível limpar a sessão local:", signOutError);
+        }
+        location.replace("index.html?account_deleted=1");
       } catch (error) {
         errorText.textContent = error?.message || "Falha ao excluir. Tente novamente.";
         errorText.hidden = false;
