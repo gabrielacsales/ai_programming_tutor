@@ -136,12 +136,37 @@
           </div>
           <p class="data-note">Os números correspondem apenas às atividades da versão atual do currículo e à sua conta. Os envios de código começaram a ser contados nesta atualização, portanto submissões anteriores podem não aparecer. As interações com o tutor incluem perguntas e análises automáticas registradas no histórico. Inatividade registrada é o tempo sem interação detectado durante os exercícios; não é o tempo total de estudo. Estas estatísticas ajudam no acompanhamento, mas não representam nota nem diagnóstico da aprendizagem.</p>
         </section>
+
+        <section class="account-settings" aria-labelledby="account-settings-heading">
+          <div>
+            <p class="eyebrow">CONFIGURAÇÕES DA CONTA</p>
+            <h2 id="account-settings-heading">Gerenciar conta</h2>
+            <p class="data-note">Você pode excluir sua conta e os dados de aprendizagem associados a ela permanentemente.</p>
+          </div>
+          <button id="delete-account-btn" class="delete-account-btn" type="button">Excluir minha conta</button>
+        </section>
       </div>
       <div id="error-status" class="error-status" role="alert" hidden>
         <h2>Não conseguimos carregar suas estatísticas.</h2>
         <p id="error-details">Verifique sua conexão e tente novamente.</p>
         <button type="button" id="retry-btn">Tentar novamente</button>
       </div>
+
+      <dialog id="delete-account-dialog" class="delete-account-dialog" aria-labelledby="delete-dialog-title" aria-describedby="delete-dialog-description">
+        <form id="delete-account-form">
+          <h2 id="delete-dialog-title">Excluir conta permanentemente?</h2>
+          <p id="delete-dialog-description">Esta ação não pode ser desfeita. Seu cadastro, progresso, códigos e conversas com o tutor serão apagados. Para voltar, você precisará fazer um novo cadastro e começar do zero.</p>
+          <label for="delete-account-password">Confirme sua senha</label>
+          <input id="delete-account-password" type="password" autocomplete="current-password" required minlength="1">
+          <label for="delete-account-confirmation">Digite <strong>EXCLUIR</strong> para confirmar</label>
+          <input id="delete-account-confirmation" type="text" autocomplete="off" spellcheck="false" required>
+          <p id="delete-account-error" class="delete-account-error" role="alert" hidden></p>
+          <div class="delete-dialog-actions">
+            <button id="cancel-delete-account" type="button">Cancelar</button>
+            <button id="confirm-delete-account" type="submit" class="delete-account-btn" disabled>Excluir definitivamente</button>
+          </div>
+        </form>
+      </dialog>
     </main>
     <footer class="footer">IA Tutor · Seu perfil é pessoal e só pode ser consultado com sua conta.</footer>
   </div>
