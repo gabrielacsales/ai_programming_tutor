@@ -417,7 +417,78 @@
     }
   }
 
+
+  function setupAccountDeletion() {
+    const dialog = get("delete-account-dialog");
+    const form = get("delete-account-form");
+    const password = get("delete-account-password");
+    const confirmation = get("delete-account-confirmation");
+    const submit = get("confirm-delete-account");
+    const errorText = get("delete-account-error");
+    const open = get("delete-account-btn");
+    const cancel = get("cancel-delete-account");
+    let busy = false;
+
+    const update = () => {
+      submit.disabled = busy || !password.value || confirmation.value.trim() !== "EXCLUIR";
+    };
+    const reset = () => {
+      form.reset();
+      errorText.hidden = true;
+      errorText.textContent = "";
+      update();
+    };
+
+    open.addEventListener("click", () => {
+      reset();
+      dialog.showModal();
+      password.focus();
+    });
+    cancel.addEventListener("click", () => { if (!busy) dialog.close(); });
+    dialog.addEventListener("cancel", (event) => { if (busy) event.preventDefault(); });
+    dialog.addEventListener("close", reset);
+    password.addEventListener("input", update);
+    confirmation.addEventListener("input", update);
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      update();
+      if (busy || submit.disabled) return;
+      busy = true;
+      update();
+      cancel.disabled = true;
+      errorText.hidden = true;
+      try {
+        const client = window.TutorAuth.client;
+        const { data: sessionData, error: sessionError } = await client.auth.getSession();
+        if (sessionError || !sessionData?.session?.access_token) {
+          throw new Error("Sua sessão expirou. Entre novamente e tente outra vez.");
+        }
+        // A senha é verificada novamente pelo servidor, antes de excluir o usuário.
+        const { data, error } = await client.functions.invoke("delete-account", {
+          body: { password: password.value }
+        });
+        if (error || !data?.success) {
+          const serverMessage = data?.error || error?.context?.error || error?.message;
+          throw new Error(typeof serverMessage === "string" ? serverMessage : "Não foi possível excluir sua conta.");
+        }
+        password.value = "";
+        localStorage.removeItem("completed_exercises");
+        await client.auth.signOut().catch(() => {});
+        location.replace("login.html?deleted=1");
+      } catch (error) {
+        errorText.textContent = error?.message || "Falha ao excluir. Tente novamente.";
+        errorText.hidden = false;
+      } finally {
+        busy = false;
+        cancel.disabled = false;
+        update();
+      }
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
+    setupAccountDeletion();
     get("logout-btn").addEventListener("click", () => window.TutorAuth.logout());
     get("retry-btn").addEventListener("click", refresh);
     refresh();
