@@ -426,6 +426,7 @@
       opacity: 1 !important;
       margin-top: 16px;
     }
+    #account-deleted-notice[hidden] { display: none !important; }
   </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="supabase-config.js"></script>
@@ -467,6 +468,20 @@
           </div>
         </div>
       </header>
+
+      <!-- Confirmação exibida após uma exclusão concluída no Supabase. -->
+      <div id="account-deleted-notice" class="mx-6 mt-6 md:mx-auto md:max-w-7xl rounded-2xl border border-slate-200 bg-white shadow-sm px-5 py-4 flex items-start gap-3" role="status" aria-live="polite" hidden>
+        <span class="grid place-items-center w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex-shrink-0" aria-hidden="true">
+          <iconify-icon icon="solar:check-circle-bold" class="text-xl"></iconify-icon>
+        </span>
+        <div class="flex-1 min-w-0">
+          <p class="font-bold text-sm text-slate-900 mb-1">Sua conta foi excluída com sucesso.</p>
+          <p class="text-xs leading-relaxed text-slate-600">Você saiu da sua conta. Se quiser voltar ao IA Tutor, poderá fazer um novo cadastro.</p>
+        </div>
+        <button id="dismiss-account-deleted" type="button" class="flex-shrink-0 p-1.5 rounded-full text-slate-500 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500" aria-label="Fechar aviso">
+          <iconify-icon icon="solar:close-circle-linear" class="text-xl" aria-hidden="true"></iconify-icon>
+        </button>
+      </div>
 
       <!-- Main Hero -->
       <main class="max-w-7xl mx-auto px-6 py-12 md:py-24 flex flex-col gap-16 md:gap-24">
@@ -845,6 +860,19 @@
   <!-- ==================== JS HELPERS FOR VISUAL EFFECTS ==================== -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+
+      // A página inicial confirma a exclusão sem manter a pessoa no Perfil.
+      const currentUrl = new URL(window.location.href);
+      if (currentUrl.searchParams.get('account_deleted') === '1') {
+        const notice = document.getElementById('account-deleted-notice');
+        if (notice) notice.hidden = false;
+        currentUrl.searchParams.delete('account_deleted');
+        window.history.replaceState(window.history.state, '', currentUrl.pathname + currentUrl.search + currentUrl.hash);
+      }
+      document.getElementById('dismiss-account-deleted')?.addEventListener('click', () => {
+        document.getElementById('account-deleted-notice').hidden = true;
+      });
+
 
       // 1. Reveal Animations (Observer)
       const observer = new IntersectionObserver((entries) => {
