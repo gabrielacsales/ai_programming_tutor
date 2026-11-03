@@ -19,6 +19,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
   <script src="auth-client.js"></script>
+  <link rel="stylesheet" href="privacy.css">
+  <script src="privacy.js" defer></script>
 </head>
 <body>
   <div class="auth-background" aria-hidden="true"></div>
@@ -108,6 +110,14 @@
           <p class="auth-field-help">Essa identificação não exige pré-teste e não bloqueia seu acesso aos exercícios.</p>
         </div>
 
+        <div id="policies-block" class="auth-policy-block" hidden>
+          <label class="auth-policy-label" for="accept-policies">
+            <input id="accept-policies" name="accept-policies" type="checkbox" value="accepted">
+            <span>Li e concordo com os <a href="termos-de-uso.html" target="_blank" rel="noopener noreferrer">Termos de Uso</a> e declaro estar ciente da <a href="politica-de-privacidade.html" target="_blank" rel="noopener noreferrer">Política de Privacidade</a>.</span>
+          </label>
+          <p class="auth-policy-help">Necessário para criar sua conta. O aviso de privacidade explica como seus dados serão tratados.</p>
+        </div>
+
         <div id="form-footer" class="auth-form-footer">
           <p class="auth-session-note">Sua sessão pode continuar ativa neste navegador.</p>
           <button type="button" id="forgot-password" class="auth-reset-trigger">Esqueci minha senha</button>
@@ -133,6 +143,9 @@
     const password = document.getElementById("password");
     const senacBlock = document.getElementById("senac-block");
     const senacChoice = document.getElementById("senac-choice");
+    const policiesBlock = document.getElementById("policies-block");
+    const acceptPolicies = document.getElementById("accept-policies");
+    const POLICY_VERSION = "2026-11-02";
     const forgotPassword = document.getElementById("forgot-password");
     const formFooter = document.getElementById("form-footer");
     const tabs = document.getElementById("auth-tabs");
@@ -152,6 +165,9 @@
       nameBlock.hidden = nextMode !== "signup";
       passwordBlock.hidden = nextMode === "reset";
       senacBlock.hidden = nextMode === "reset";
+      policiesBlock.hidden = nextMode !== "signup";
+      acceptPolicies.required = nextMode === "signup";
+      if (nextMode !== "signup") acceptPolicies.checked = false;
       senacChoice.required = nextMode === "signup";
       senacChoice.options[0].textContent = nextMode === "signup"
         ? "Selecione uma opção" : "Já informei ou prefiro decidir depois";
@@ -194,6 +210,11 @@
 
     form.addEventListener("submit", async event => {
       event.preventDefault();
+      if (mode === "signup" && !acceptPolicies.checked) {
+        show("error", "Para criar sua conta, leia e concorde com os Termos de Uso e tome ciência da Política de Privacidade.");
+        acceptPolicies.focus();
+        return;
+      }
       submit.disabled = true;
       show("", "");
       try {
@@ -206,7 +227,10 @@
             options: {
               data: {
                 display_name: document.getElementById("name").value.trim(),
-                senac_student: senacChoice.value === "yes"
+                senac_student: senacChoice.value === "yes",
+                terms_version: POLICY_VERSION,
+                privacy_notice_version: POLICY_VERSION,
+                terms_accepted_at: new Date().toISOString()
               },
               emailRedirectTo: new URL("login.html", location.href).href
             }
