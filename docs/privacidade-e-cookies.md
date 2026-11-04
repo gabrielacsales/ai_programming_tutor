@@ -2,7 +2,7 @@
 
 ## Status e pendências de revisão
 
-**NÃO fazer merge antes de preencher o canal de contato do controlador na página `politica-de-privacidade.html`.** O nome da criadora é público na landing; o e-mail de atendimento a direitos LGPD não foi fornecido e não deve ser inventado.
+**Canal de contato preenchido:** `privacidade@iatutor.com.br` (encaminhamento de e-mail confirmado pela criadora em 03/11/2026). A política mostra o endereço publicamente por meio de link `mailto:`. Os textos permanecem sujeitos a revisão jurídica e operacional.
 
 Antes de publicar, revisar com responsável jurídico/privacidade:
 - identificação e contato do controlador e adequação do atendimento a direitos;
