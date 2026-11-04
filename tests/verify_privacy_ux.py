@@ -53,14 +53,18 @@ class PrivacyUxTests(unittest.TestCase):
         for path in ("termos-de-uso.html", "politica-de-privacidade.html"):
             with self.subTest(path=path):
                 body = (ROOT / path).read_text(encoding="utf-8")
-                self.assertIn("Versão 2026-11-02", body)
+                self.assertIn("Versão 2026-11-03", body)
                 self.assertIn(path, self.build)
         self.assertIn('"privacy.js"', self.build)
         self.assertIn('"privacy.css"', self.build)
 
-    def test_contact_must_be_filled_before_merge(self):
+    def test_contact_is_published_without_placeholder(self):
         policy = (ROOT / "politica-de-privacidade.html").read_text(encoding="utf-8")
-        self.assertIn("INSERIR E-MAIL DE CONTATO ANTES DA PUBLICAÇÃO", policy)
+        terms = (ROOT / "termos-de-uso.html").read_text(encoding="utf-8")
+        self.assertNotIn("INSERIR E-MAIL", policy)
+        self.assertIn('href="mailto:privacidade@iatutor.com.br"', policy)
+        self.assertIn("privacidade@iatutor.com.br", terms)
+        self.assertIn('const POLICY_VERSION = "2026-11-03";', self.login)
 
 
 if __name__ == "__main__":
