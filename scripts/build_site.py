@@ -26,9 +26,12 @@ PUBLIC_PAGES = (
     "conteudos.html",
     "tutor.html",
     "perfil.html",
+    "termos-de-uso.html",
+    "politica-de-privacidade.html",
 )
 PUBLIC_STYLES = (
     "login.css",
+    "privacy.css",
     "perfil.css",
     "module-progress.css",
     "preflight-review.css",
@@ -48,6 +51,7 @@ PUBLIC_IMAGES = (
 PUBLIC_SCRIPTS = (
     "supabase-config.js",
     "auth-client.js",
+    "privacy.js",
     "access-client.js",
     "progress-store.js",
     "module-progress.js",

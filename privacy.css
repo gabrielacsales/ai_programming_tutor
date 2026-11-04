@@ -1,0 +1,73 @@
+/* IA Tutor: aviso de armazenamento e páginas legais públicas.
+   Tokens alinhados às telas de cadastro e perfil. */
+.privacy-banner, .privacy-footer-control, .privacy-floating-control {font-family:Inter,system-ui,sans-serif}
+.privacy-banner[hidden] {display:none!important}
+.privacy-banner{
+  position:fixed;left:0;right:0;bottom:0;z-index:10050;
+  background:rgba(255,255,255,.98);color:#18181b;
+  border-top:1px solid #e4e4e7;box-shadow:0 -12px 40px rgba(9,9,11,.12);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+}
+.privacy-banner-inner{
+  display:flex;align-items:center;justify-content:space-between;gap:24px;
+  max-width:1140px;margin:0 auto;padding:19px 24px;
+}
+.privacy-banner-copy{min-width:0}
+.privacy-banner-kicker{
+  display:block;font:700 10px/1.5 "JetBrains Mono",monospace;
+  letter-spacing:.10em;color:#0284c7;margin-bottom:5px;text-transform:uppercase;
+}
+.privacy-banner-title{font-size:14px;font-weight:750;letter-spacing:-.025em;margin:0 0 3px}
+.privacy-banner-text{font-size:12px;line-height:1.7;color:#52525b;margin:0}
+.privacy-banner a,.privacy-footer-control{color:#0369a1;text-decoration:underline;text-underline-offset:3px}
+.privacy-banner a:hover,.privacy-footer-control:hover{color:#075985}
+.privacy-banner-action{
+  border:1px solid #09090b;border-radius:999px;background:#09090b;color:#fff;
+  padding:11px 21px;font:700 12px Inter,system-ui,sans-serif;white-space:nowrap;
+  min-width:112px;cursor:pointer;transition:background .2s,transform .2s;
+}
+.privacy-banner-action:hover{background:#27272a;transform:translateY(-1px)}
+.privacy-footer-control{
+  display:inline-flex;align-items:center;justify-content:center;
+  border:0;background:transparent;padding:3px 7px;margin:0 4px;
+  font:600 11px Inter,system-ui,sans-serif;cursor:pointer;
+}
+.privacy-floating-control{
+  position:fixed;bottom:12px;left:12px;z-index:10045;
+  border:1px solid #e4e4e7;border-radius:999px;
+  background:white;color:#52525b;box-shadow:0 3px 14px rgba(9,9,11,.09);
+  font:600 10px Inter,system-ui,sans-serif;padding:7px 11px;cursor:pointer;
+}
+.privacy-banner :focus-visible,.privacy-footer-control:focus-visible,.privacy-floating-control:focus-visible{
+  outline:3px solid #1cb0f6;outline-offset:3px;
+}
+@media(max-width:650px){
+  .privacy-banner-inner{padding:16px 18px 18px;flex-direction:column;align-items:stretch;gap:13px}
+  .privacy-banner-action{width:100%}
+}
+
+/* Documentos públicos de privacidade: sem dependência de Tailwind. */
+.legal-page{margin:0;min-height:100vh;background:#fff;color:#18181b;font:14px/1.75 Inter,system-ui,sans-serif;
+  background-image:linear-gradient(to right,rgba(9,9,11,.025) 1px,transparent 1px),
+  linear-gradient(to bottom,rgba(9,9,11,.025) 1px,transparent 1px);background-size:48px 48px}
+.legal-page *{box-sizing:border-box}
+.legal-header{border-bottom:1px solid #e4e4e7;background:rgba(255,255,255,.93);padding:16px max(20px,calc((100vw - 940px)/2));display:flex;justify-content:space-between;align-items:center;gap:16px}
+.legal-brand{font-weight:800;font-size:16px;letter-spacing:-.04em;color:#09090b;text-decoration:none}
+.legal-header a:not(.legal-brand){font-size:12px;color:#52525b;text-decoration:none}
+.legal-header a:hover{text-decoration:underline}
+.legal-main{max-width:870px;margin:48px auto 75px;padding:42px 38px;background:white;border:1px solid #e4e4e7;border-radius:20px;box-shadow:0 12px 40px rgba(9,9,11,.05)}
+.legal-eyebrow{font:700 10px "JetBrains Mono",monospace;color:#0284c7;letter-spacing:.12em}
+.legal-main h1{font-size:clamp(26px,4vw,38px);line-height:1.2;letter-spacing:-.05em;margin:12px 0 15px}
+.legal-main h2{font-size:19px;letter-spacing:-.025em;line-height:1.3;margin:32px 0 9px}
+.legal-main h3{font-size:15px;margin:19px 0 7px}
+.legal-main p,.legal-main li{color:#52525b}
+.legal-main ul{padding-left:22px}
+.legal-main a{color:#0369a1;text-decoration:underline;text-underline-offset:2px}
+.legal-updated{font:500 11px "JetBrains Mono",monospace;color:#71717a;margin:0 0 27px}
+.legal-note{border-left:3px solid #1cb0f6;background:#f0f9ff;border-radius:0 10px 10px 0;padding:13px 16px;color:#0c4a6e!important}
+.legal-footer{border-top:1px solid #e4e4e7;padding:24px;text-align:center;color:#71717a;font-size:12px;background:#fff}
+@media(max-width:650px){
+  .legal-main{margin:18px 14px 60px;padding:25px 19px}
+  .legal-header{padding:15px 18px}
+}
+@media(prefers-reduced-motion:reduce){.privacy-banner-action{transition:none}.privacy-banner-action:hover{transform:none}}
