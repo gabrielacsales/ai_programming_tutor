@@ -29,7 +29,7 @@
         <div class="privacy-banner-copy">
           <span class="privacy-banner-kicker">PRIVACIDADE / IA TUTOR</span>
           <p class="privacy-banner-title">Sobre cookies e armazenamento</p>
-          <p class="privacy-banner-text">Usamos armazenamento essencial para autenticação e preferências. Não ativamos cookies próprios de publicidade ou analytics opcionais. Saiba mais na <a href="${POLICY}">Política de Privacidade</a>.</p>
+          <p class="privacy-banner-text">Usamos armazenamento essencial para autenticação e preferências. Não ativamos cookies próprios de publicidade ou analytics opcionais. Saiba mais na <a href="${POLICY}" target="_blank" rel="noopener noreferrer">Política de Privacidade</a>.</p>
         </div>
         <button type="button" id="privacy-banner-close" class="privacy-banner-action">Entendi</button>
       </div>`;
