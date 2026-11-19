@@ -228,6 +228,7 @@ function hideToast() {
   }
   alertToast.style.display = "none";
   alertToast.classList.remove("hint-toast");
+  document.body.classList.remove("hint-toast-active");
 }
 
 function showToast(message, options = {}) {
@@ -245,6 +246,8 @@ function showToast(message, options = {}) {
     document.body.appendChild(alertToast);
   }
   alertToast.classList.toggle("hint-toast", isHint);
+  // Suspende o atalho flutuante de cookies somente durante a dica.
+  document.body.classList.toggle("hint-toast-active", isHint);
   alertToast.textContent = message;
   if (isHint) {
     const closeButton = document.createElement("button");
@@ -266,6 +269,7 @@ function showActionToast(htmlContent) {
     toastHideTimer = null;
   }
   alertToast.classList.remove("hint-toast");
+  document.body.classList.remove("hint-toast-active");
   alertToast.innerHTML = htmlContent;
   alertToast.style.display = "block";
 }
