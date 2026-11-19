@@ -34,6 +34,22 @@ class HintToastRegressionTests(unittest.TestCase):
         self.assertIn("clearTimeout(toastHideTimer)", app_js)
         self.assertIn("document.body.appendChild(alertToast)", app_js)
 
+    def test_cookie_shortcut_is_hidden_only_during_hint(self):
+        app_js = (ROOT / "app.js").read_text(encoding="utf-8")
+        privacy_css = (ROOT / "privacy.css").read_text(encoding="utf-8")
+
+        rule = re.search(
+            r"body\.hint-toast-active \.privacy-floating-control\s*\{([^}]*)\}",
+            privacy_css, re.S,
+        )
+        self.assertIsNotNone(rule)
+        for declaration in ("visibility:hidden", "pointer-events:none", "opacity:0"):
+            self.assertIn(declaration, rule.group(1))
+
+        self.assertIn('document.body.classList.toggle("hint-toast-active", isHint)', app_js)
+        # hideToast() e showActionToast() devem restaurar a visibilidade.
+        self.assertEqual(app_js.count('document.body.classList.remove("hint-toast-active")'), 2)
+
     def test_normal_toasts_do_not_inherit_hint_layer(self):
         app_js = (ROOT / "app.js").read_text(encoding="utf-8")
         self.assertIn('alertToast.classList.toggle("hint-toast", isHint)', app_js)
