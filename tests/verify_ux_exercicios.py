@@ -58,7 +58,7 @@ class ExerciseUXTests(unittest.TestCase):
         self.assertIn("TutorAccess.verify", self.app)
         self.assertIn("TutorAuth.requireLogin", self.app)
         self.assertIn('href="learning-ui.css"', self.html)
-        self.assertLess(self.html.index('src="learning-ui.js"'), self.html.index('src="app.js"'))
+        self.assertLess(self.html.index('src="learning-ui.js"'), self.html.index('src="app.js?v='))
 
     def test_practical_examples_use_same_python_syntax_theme_as_editor(self):
         self.assertIn('teacher-code-pre cm-s-material-darker', self.ui)
@@ -87,7 +87,7 @@ class ExerciseUXTests(unittest.TestCase):
         self.assertLess(self.html.index('src="problems.js"'),
                         self.html.index('src="study-guide.js"'))
         self.assertLess(self.html.index('src="study-guide.js"'),
-                        self.html.index('src="app.js"'))
+                        self.html.index('src="app.js?v='))
         self.assertIn('data-study-tab="examples"', self.guide)
         self.assertIn('data-study-tab="statement"', self.guide)
         self.assertIn('exerciseSummaryContent.addEventListener("click"', self.app)
