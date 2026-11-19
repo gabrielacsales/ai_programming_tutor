@@ -33,6 +33,34 @@
 #problem-title { scroll-margin-top: 14px; }
 #alert-toast { max-width: min(420px, calc(100vw - 28px)); overflow-wrap: anywhere; }
 
+/* Dicas são avisos temporários de leitura: acima inclusive do banner
+   de cookies, sem alterar a camada das outras notificações. */
+#alert-toast.hint-toast {
+  position: fixed;
+  z-index: 2147483000 !important;
+  max-width: min(520px, calc(100vw - 28px));
+  align-items: flex-start;
+  gap: 12px;
+  box-sizing: border-box;
+}
+#alert-toast.hint-toast .hint-toast-close {
+  flex: 0 0 auto;
+  min-width: 32px;
+  min-height: 32px;
+  margin: -6px -8px -6px 0;
+  border: 1px solid rgba(255, 255, 255, .4);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, .12);
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+#alert-toast.hint-toast .hint-toast-close:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
 @media (max-width: 1023px) {
   .app-layout .sidebar {
     position: fixed;
