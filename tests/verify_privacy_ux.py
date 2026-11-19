@@ -22,7 +22,7 @@ class PrivacyUxTests(unittest.TestCase):
         for path in PAGES:
             with self.subTest(page=path):
                 body = (ROOT / path).read_text(encoding="utf-8")
-                self.assertIn('href="privacy.css"', body)
+                self.assertRegex(body, r'href="privacy\.css(?:\?v=[^"]+)?"')
                 self.assertIn('src="privacy.js"', body)
 
     def test_signup_has_explicit_unchecked_checkbox_with_real_links(self):
