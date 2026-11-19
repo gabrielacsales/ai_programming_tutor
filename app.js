@@ -219,15 +219,53 @@ const metricIt = document.getElementById("metric-it");
 
 // ==================== 1. FUNÇÕES AUXILIARES ====================
 
-function showToast(message) {
-  alertToast.innerText = message;
-  alertToast.style.display = "block";
-  setTimeout(() => {
-    alertToast.style.display = "none";
-  }, 4000);
+let toastHideTimer = null;
+
+function hideToast() {
+  if (toastHideTimer !== null) {
+    clearTimeout(toastHideTimer);
+    toastHideTimer = null;
+  }
+  alertToast.style.display = "none";
+  alertToast.classList.remove("hint-toast");
+}
+
+function showToast(message, options = {}) {
+  const isHint = options.isHint === true;
+  // As dicas precisam de mais tempo de leitura do que os alertas comuns.
+  const durationMs = isHint ? 15000 : 4000;
+  if (toastHideTimer !== null) {
+    clearTimeout(toastHideTimer);
+    toastHideTimer = null;
+  }
+
+  // Evita contextos de empilhamento que poderiam colocar a dica atrás
+  // do aviso de cookies ou de outros componentes fixos no mobile.
+  if (isHint && alertToast.parentElement !== document.body) {
+    document.body.appendChild(alertToast);
+  }
+  alertToast.classList.toggle("hint-toast", isHint);
+  alertToast.textContent = message;
+  if (isHint) {
+    const closeButton = document.createElement("button");
+    closeButton.type = "button";
+    closeButton.className = "hint-toast-close";
+    closeButton.setAttribute("aria-label", "Fechar dica");
+    closeButton.textContent = "×";
+    closeButton.addEventListener("click", hideToast);
+    alertToast.appendChild(closeButton);
+  }
+
+  alertToast.style.display = isHint ? "flex" : "block";
+  toastHideTimer = setTimeout(hideToast, durationMs);
 }
 
 function showActionToast(htmlContent) {
+  if (toastHideTimer !== null) {
+    clearTimeout(toastHideTimer);
+    toastHideTimer = null;
+  }
+  alertToast.classList.remove("hint-toast");
   alertToast.innerHTML = htmlContent;
   alertToast.style.display = "block";
 }
@@ -743,7 +781,7 @@ btnSubmitDesc.addEventListener("click", async () => {
     lastInteractionTime = Date.now();
     if (!currentOrch) return;
     const hint = currentOrch.requestHint();
-    showToast(`💡 Dica: ${hint}`);
+    showToast(`💡 Dica: ${hint}`, { isHint: true });
     updateUIState();
     scheduleProgressSave();
   });
