@@ -50,6 +50,15 @@ class HintToastRegressionTests(unittest.TestCase):
         # hideToast() e showActionToast() devem restaurar a visibilidade.
         self.assertEqual(app_js.count('document.body.classList.remove("hint-toast-active")'), 2)
 
+    def test_tutor_loads_versioned_hint_resources(self):
+        page = (ROOT / "tutor.html").read_text(encoding="utf-8")
+        for resource in ("app.js", "privacy.css", "challenge-mobile.css"):
+            self.assertRegex(page, rf'{re.escape(resource)}\?v=f15-cookies-[0-9-]+')
+        # Garante que nenhum recurso importante do toast use o endereço sem versão.
+        self.assertNotIn('src="app.js"', page)
+        self.assertNotIn('href="privacy.css"', page)
+        self.assertNotIn('href="challenge-mobile.css"', page)
+
     def test_normal_toasts_do_not_inherit_hint_layer(self):
         app_js = (ROOT / "app.js").read_text(encoding="utf-8")
         self.assertIn('alertToast.classList.toggle("hint-toast", isHint)', app_js)

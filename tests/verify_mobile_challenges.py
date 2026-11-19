@@ -82,7 +82,7 @@ class ChallengeMobileTests(unittest.TestCase):
         self.assertIn('TutorProgress.save', self.app)
         self.assertIn('TutorAccess.verify', self.app)
         self.assertIn('"challenge-mobile.css",', self.build)
-        self.assertIn('href="challenge-mobile.css"', self.html)
+        self.assertRegex(self.html, r'href="challenge-mobile\.css(?:\?v=[^"]+)?"')
 
 
 if __name__ == "__main__":
