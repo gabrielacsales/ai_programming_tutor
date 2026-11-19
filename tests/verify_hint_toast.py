@@ -53,7 +53,7 @@ class HintToastRegressionTests(unittest.TestCase):
     def test_tutor_loads_versioned_hint_resources(self):
         page = (ROOT / "tutor.html").read_text(encoding="utf-8")
         for resource in ("app.js", "privacy.css", "challenge-mobile.css"):
-            self.assertRegex(page, rf'{re.escape(resource)}\\?v=f15-cookies-[0-9-]+')
+            self.assertRegex(page, rf'{re.escape(resource)}\?v=f15-cookies-[0-9-]+')
         # Garante que nenhum recurso importante do toast use o endereço sem versão.
         self.assertNotIn('src="app.js"', page)
         self.assertNotIn('href="privacy.css"', page)
